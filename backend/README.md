@@ -47,7 +47,7 @@ You then finalize the migrations by running:
 flask db upgrade
 ```
 
-###.env file
+### .env file
 Before running the server, you must create a .env file, It contains credentials like database access info, and application 
 key data that is read into enviornment variables on app startup. 
 
