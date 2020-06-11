@@ -1,4 +1,4 @@
-# frontend
+# backend
 
 All dependencies for backend are packaged and managed with Poetry. Setup requires Poetry be installed first.
 If it's not, run: ```pip install --user poetry``` to install it. More details: https://python-poetry.org/docs/#installing-with-pip
