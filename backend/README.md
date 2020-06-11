@@ -3,7 +3,6 @@
 All dependencies for backend are packaged and managed with Poetry. Setup requires Poetry be installed first.
 If it's not, run: ```pip install --user poetry``` to install it. More details: https://python-poetry.org/docs/#installing-with-pip
 
-
 ### Installing Project Dependencies
 If you have Poetry installed, To install dependencies for backend, just run: ``` poetry install ```
 
@@ -71,7 +70,3 @@ Just change the quoted values to match credentials provided for your test db and
 Specify app entrypoint: ```export FLASK_APP=main```  
 Specify debug mode: ```export FLASK_ENV=development```  
 Start server: ```flask run```
-
-
-
-

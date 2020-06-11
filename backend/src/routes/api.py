@@ -8,6 +8,11 @@ from flask import request, jsonify, Blueprint
 
 index = Blueprint('index', __name__, url_prefix='/')
 
+@index.route('/', methods=['GET', 'POST'])
+def landingPage():
+    return jsonify({'message': 'Hello World!'})
+
+
 @index.route('/sign-up', methods=['GET', 'POST'])
 def signUp():
     return jsonify({"route_hit": "sign-up"})
@@ -18,6 +23,8 @@ def signIn():
     if request.method == 'POST':
         signInData = dict(request.get_json())
         return jsonify({ 'signInData': signInData })
+    else:
+        return jsonify({'route_hit': 'sign-in'})
 
 
 ''' user routes '''
@@ -26,4 +33,4 @@ user = Blueprint('user', __name__, url_prefix='/user')
 
 @user.route('/', methods=['GET', 'POST'])
 def getUser():
-    return jsonify({"message": "Hello user!"})
+    return jsonify({"message": "Hello User!"})
