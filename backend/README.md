@@ -2,17 +2,17 @@ All dependencies for backend are packaged and managed with Poetry. Setup require
 If it's not, run: ```pip install --user poetry``` to install it. More details: https://python-poetry.org/docs/#installing-with-pip
 
 
-###Installing Project Dependencies
+### Installing Project Dependencies
 If you have Poetry installed, To install dependencies for backend, just run: ``` poetry install ```
 
-###Checking dependencies
+### Checking dependencies
 enter ```poetry show``` in the terminal to check what python packages the backend depends on.
 
-###Installing Packages
+### Installing Packages
 To install new packages for use in the project, run: ```poetry add package-name```. Newly added packages will be included
 in the `poetry.lock` and `pyproject.toml` files. So make sure they're included to commit in repo. 
 
-###IDE Integration
+### IDE Integration
 If you IDE cannot resolve the project's dependencies, you have to specify the project's interpreter in your IDE's settings.
 Run: ```poetry env info --path``` and copy the output.
 
@@ -24,7 +24,7 @@ This path includes the interpreter configured for the project. In an IDE like Py
 
 Pycharm should now recognize the project's dependencies, clearing all errors. 
 
-###DB Migration
+### DB Migration
 Backend uses MySQL for the database. Though python packages are included via Poetry to interact with it, you might need 
 to do additional setup on your end to get MySQL working locally. Flask-Migrate is used for database migrations which are 
 specified in the `migrations` folder. 
