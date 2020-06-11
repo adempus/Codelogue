@@ -27,7 +27,7 @@ def signIn():
         return jsonify({'route_hit': 'sign-in'})
 
 
-''' user routes. '''
+''' user routes '''
 
 user = Blueprint('user', __name__, url_prefix='/user')
 
