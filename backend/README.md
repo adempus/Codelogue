@@ -47,11 +47,10 @@ You then finalize the migrations by running:
 flask db upgrade
 ```
 
-##Running the server
-To run the server, you must first create a .env file. It contains database credentials and application key data, which is read into enviornment variables 
-on app startup. 
-
 ###.env file
+Before running the server, you must create a .env file, It contains credentials like database access info, and application 
+key data that is read into enviornment variables on app startup. 
+
 It should look like this:   
 ```
 # database credentials
@@ -67,6 +66,12 @@ APP_KEY="secretkey123"
 ```
 Just change the quoted values to match credentials provided for your test db and app key. 
 ##### NOTE: the `.env` file should be gitignored!
+
+### Running the server
+Specify app entrypoint: ```export FLASK_APP=main```  
+Specify debug mode: ```export FLASK_ENV=development```  
+Start server: ```flask run```
+
 
 
 
