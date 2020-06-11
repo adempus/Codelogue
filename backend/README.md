@@ -67,6 +67,9 @@ Just change the quoted values to match credentials provided for your test db and
 ##### NOTE: the `.env` file should be gitignored!
 
 ### Running the server
-Specify app entrypoint: ```export FLASK_APP=main```  
-Specify debug mode: ```export FLASK_ENV=development```  
-Start server: ```flask run```
+Specify app entrypoint:  
+```export FLASK_APP=main```  
+Specify debug mode:  
+```export FLASK_ENV=development```  
+Start server:  
+```flask run```
