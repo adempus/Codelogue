@@ -3,6 +3,10 @@ import Button from 'primevue/button';
 import Menubar from 'primevue/menubar';
 import InputText from 'primevue/inputtext';
 import Card from 'primevue/card';
+import ToastService from 'primevue/toastservice';
+import Toast from 'primevue/toast';
+
+
 // vuelidate for form validation
 import Vuelidate from 'vuelidate';
 
@@ -36,7 +40,9 @@ Vue.component('Navbar', Navbar);
 Vue.component('Landing', Landing);
 Vue.component('SignInForm', SignInForm);
 Vue.component('SignUpForm', SignUpForm);
+Vue.component('Toast', Toast);
 Vue.use(Vuelidate);
+Vue.use(ToastService);
 Vue.config.productionTip = false;
 
 

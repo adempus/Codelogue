@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Navbar></Navbar>
+    <Toast position="topright"/>
     <router-view/>
   </div>
 </template>
@@ -40,6 +41,7 @@ body, html {
 </style>
 <script>
 import Navbar from './components/Navbar.vue';
+
 
 export default {
   components: { Navbar },

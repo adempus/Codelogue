@@ -52,6 +52,8 @@
       "comma-dangle": "off",
       "object-shorthand": "off",
       "no-console": "off",
+      "prefer-const": "off",
+      "no-undef": "off",
       "max-len": [
         2,
         101,
