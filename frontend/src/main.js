@@ -20,6 +20,8 @@ import Navbar from './components/Navbar.vue';
 import Landing from './components/Landing.vue';
 import SignInForm from './components/SignInForm.vue';
 import SignUpForm from './components/SignUpForm.vue';
+import SignInEmailInput from './components/fragments/SignInEmailInput.vue';
+import SignInPasswordInput from './components/fragments/SignInPasswordInput.vue';
 
 // server endpoint urls
 import endpoints from './router/endpoints';
@@ -40,7 +42,10 @@ Vue.component('Navbar', Navbar);
 Vue.component('Landing', Landing);
 Vue.component('SignInForm', SignInForm);
 Vue.component('SignUpForm', SignUpForm);
+Vue.component('SignInEmailInput', SignInEmailInput);
+Vue.component('SignInPasswordInput', SignInPasswordInput);
 Vue.component('Toast', Toast);
+
 Vue.use(Vuelidate);
 Vue.use(ToastService);
 Vue.config.productionTip = false;

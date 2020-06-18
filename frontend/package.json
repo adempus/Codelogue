@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "html-webpack-plugin": "^4.3.0",
     "http-server": "^0.12.3",
+    "jquery": "^3.5.1",
     "prerender-spa-plugin": "^3.4.0",
     "primeflex": "^1.1.1",
     "primeicons": "^4.0.0-rc.2",

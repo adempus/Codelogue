@@ -1,46 +1,36 @@
 <template>
   <div class="p-formgroup-inline" id="signin_form">
-    <div class="p-field p-fluid">
-        <InputText v-model="email"
-                   type="email" placeholder="Email"
-                   class="p-inputtext-sm login_txtbox"
-                   aria-describedby="email_feedback"
-                   :class="{ 'p-invalid': loginEmailFieldError }"
-                   :state="validateState('email')"/>
-        <!-- email error message -->
-      <div class="email_error_div">
-        <small class="error_txt" id="email_feedback" v-if="loginEmailFieldError">
-          {{ loginEmailFeedback }}
-        </small>
-      </div>
-    </div>
-    <div class="p-field p-fluid">
-      <InputText v-model="password"
-                 type="password" placeholder="Password"
-                 class="p-inputtext-sm login_txtbox"
-                 aria-describedby="password_feedback"
-                 :class="{ 'p-invalid': loginPasswordFieldError }"/>
-      <!-- password error message -->
-      <div class="password_error_div">
-        <small class="error_txt" id="password_feedback" v-if="loginPasswordFieldError">
-          {{ loginPasswordFeedback }}
-        </small>
-      </div>
-    </div>
-    <Button v-on:click="signInUser()"
-            type="button" label="Login" class="p-button-sm login_btn"/>
+    <!-- email input -->
+    <SignInEmailInput
+            :value="email"
+            :login-email-field-error="loginEmailFieldError"
+            :login-email-feedback="loginEmailFeedback"
+            @input="(emailInput) => {this.email = emailInput}"
+            :state="validateState('email')" >
+    </SignInEmailInput>
+    <!-- password input -->
+    <SignInPasswordInput
+            :value="password"
+            :login-password-field-error="loginPasswordFieldError"
+            :login-password-feedback="loginPasswordFeedback"
+            @input="(passwordInput) => { this.password = passwordInput }"
+            :state="validateState('password')">
+    </SignInPasswordInput>
+    <!-- signin button -->
+    <Button :click="signInUser()" type="button" label="Login" class="p-button-sm login_btn"/>
   </div>
 </template>
 <script>
 import axios from 'axios';
 import { required, email } from 'vuelidate/lib/validators';
-
+import SignInEmailInput from './fragments/SignInEmailInput.vue';
 
 const emailNotFound = (value, vm) => !vm.signInState.invalidEmail;
 const incorrectPassword = (value, vm) => !vm.signInState.invalidPassword;
 
 export default {
   name: 'SignInForm',
+  components: { SignInEmailInput },
   data: () => {
     return {
       email: '',
@@ -112,17 +102,17 @@ export default {
   }
 };
 </script>
-
-<style scoped>
+<style>
   .login_txtbox {
     width: 8.5vw;
   }
 
-  .login_btn {
-    background-color: #DB564E;
-    border-color: #db564e;
-    display: inline-block;
-    height: 35px;
+  #signin_form input {
+    border-radius: 5px;
+    background-color: #323645;
+    border-color: #323645;
+    color: #FFFFFF;
+    font-family: 'Open Sans', sans-serif;
   }
 
   .error_txt {
@@ -140,16 +130,18 @@ export default {
     margin-right: 30%;
   }
 
-  #signin_form input {
-    border-radius: 5px;
-    background-color: #323645;
-    border-color: #323645;
-    color: #FFFFFF;
-    font-family: 'Open Sans', sans-serif;
-  }
-
   .p-invalid {
     border-color: #b72d2d !important;
+  }
+
+</style>
+
+<style scoped>
+  .login_btn {
+    background-color: #DB564E;
+    border-color: #db564e;
+    display: inline-block;
+    height: 35px;
   }
 
   @media(max-width: 960px) {
