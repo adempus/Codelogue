@@ -17,7 +17,8 @@
             :state="validateState('password')">
     </SignInPasswordInput>
     <!-- signin button -->
-    <Button :click="signInUser()" type="button" label="Login" class="p-button-sm login_btn"/>
+    <Button @click="signInUser()"
+            type="button" label="Login" class="p-button-sm login_btn"/>
   </div>
 </template>
 <script>
