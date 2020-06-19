@@ -1,13 +1,15 @@
 <template>
-    <div :class="layout">
+    <div :class="fieldPayload.layout">
         <!-- input -->
-        <InputText v-model="value"
-                   :type="inputType"
-                   :placeholder="placeholder"
-                   :class="[{ 'p-invalid': isFieldError }, size]"/>
+        <InputText v-model="inputValue"
+                   :type="fieldPayload.inputType"
+                   :placeholder="fieldPayload.placeholder"
+                   :class="[{ 'p-invalid': fieldPayload.isFieldError }, fieldPayload.size]"/>
         <!-- error message -->
         <div class="err_txt_layout">
-            <small class="error_txt" v-if="isFieldError"> {{ fieldFeedback }} </small>
+            <small class="error_txt" v-if="fieldPayload.isFieldError">
+                {{ fieldPayload.fieldFeedback }}
+            </small>
         </div>
     </div>
 </template>
@@ -15,10 +17,15 @@
 <script>
 export default {
   name: 'FeedbackTextInput',
-  props: ['layout', 'value', 'isFieldError', 'fieldFeedback', 'inputType', 'placeholder', 'size'],
+  data() {
+    return {
+      inputValue: this.value
+    };
+  },
+  props: ['fieldPayload', 'value'],
   watch: {
-    value() {
-      this.$emit('input', this.value);
+    inputValue() {
+      this.$emit('input', this.inputValue);
     }
   }
 };

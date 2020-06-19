@@ -6,7 +6,6 @@ import Card from 'primevue/card';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 
-
 // vuelidate for form validation
 import Vuelidate from 'vuelidate';
 
@@ -48,6 +47,21 @@ Vue.use(Vuelidate);
 Vue.use(ToastService);
 Vue.config.productionTip = false;
 
+Vue.mixin({
+  methods: {
+    getInputFieldPayload(layout, isFieldError, fieldFeedback,
+      placeholder, size = '', inputType = 'text') {
+      return {
+        layout: layout,
+        isFieldError: isFieldError,
+        fieldFeedback: fieldFeedback,
+        inputType: inputType,
+        placeholder: placeholder,
+        size: size
+      };
+    },
+  }
+});
 
 new Vue({
   router,

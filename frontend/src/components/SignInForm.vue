@@ -2,27 +2,21 @@
   <div class="p-formgroup-inline" id="signin_form">
     <!-- email input -->
     <FeedbackTextInput
-            :value="email"
-            :layout="'p-field p-fluid'"
-            :size="'p-inputtext-sm'"
-            :is-field-error="loginEmailFieldError"
-            :field-feedback="loginEmailFeedback"
-            :placeholder="'Email'"
-            @input="(emailInput) => {this.email = emailInput}"
-            :state="validateState('email')">
-    </FeedbackTextInput>
+        :value="email"
+        :field-payload="getInputFieldPayload(
+          'p-field p-fluid', loginEmailFieldError, loginEmailFeedback, 'email', 'p-inputtext-sm')"
+        @input="(emailInput) => {this.email = emailInput}"
+        :state="validateState('email')"/>
+
     <!-- password input -->
     <FeedbackTextInput
-            :value="password"
-            :layout="'p-field p-fluid'"
-            :is-field-error="loginPasswordFieldError"
-            :field-feedback="loginPasswordFeedback"
-            :placeholder="'Password'"
-            :input-type="'password'"
-            :size="'p-inputtext-sm'"
-            @input="(passwordInput) => {this.password = passwordInput}"
-            :state="validateState('password')">
-    </FeedbackTextInput>
+        :value="password"
+        :field-payload="getInputFieldPayload(
+          'p-field p-fluid', loginPasswordFieldError, loginPasswordFeedback,
+          'Password', 'p-inputtext-sm', 'password')"
+        @input="(passwordInput) => {this.password = passwordInput}"
+        :state="validateState('password')"/>
+
     <!-- signin button -->
     <Button @click="signInUser()"
             type="button" label="Login" class="p-button-sm login_btn"/>
