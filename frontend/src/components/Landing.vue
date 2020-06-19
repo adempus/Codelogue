@@ -20,11 +20,11 @@ export default {
 
     .header_section {
         text-align: center;
-        padding-top: 5%;
+        padding-top: 7%;
     }
 
     .signup_section {
-        padding-top: 205px;
+        padding-top: 13%;
         width: 29%;
     }
     @media(max-width: 1450px) {
@@ -50,6 +50,17 @@ export default {
         font-weight: 500;
         line-height: 0.9em;
     }
+
+    @media(max-width: 690px) {
+        .header { font-size: 7em; }
+    }
+    @media(max-width: 420px) {
+        .header { font-size: 5.5em; }
+    }
+    @media(max-width: 290px) {
+        .header { font-size: 0.5em; }
+    }
+
     .info {
         font-size: 24px;
         color: #FFFFFF;

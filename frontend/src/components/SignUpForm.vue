@@ -3,15 +3,16 @@
         <template slot="content">
             <div class="p-fluid p-formgrid p-grid p-justify-center">
               <!-- first name input -->
-                <FeedbackTextInput
-                        :value="firstName"
-                        :layout="'p-field p-col-6'"
-                        :is-field-error="firstNameFieldError"
-                        :field-feedback="'First name is required'"
-                        :placeholder="'First Name'"
-                        :state="validateState('firstName')"
-                        @input="(fNameInput) => { this.firstName = fNameInput }">
-                </FeedbackTextInput>
+              <FeedbackTextInput
+                      :value="firstName"
+                      :layout="'p-field p-col-6'"
+                      :is-field-error="firstNameFieldError"
+                      :field-feedback="'First name is required'"
+                      :placeholder="'First Name'"
+                      :state="validateState('firstName')"
+                      @input="(fNameInput) => { this.firstName = fNameInput }">
+              </FeedbackTextInput>
+
               <!-- last name input -->
               <FeedbackTextInput
                       :value="lastName"
@@ -69,6 +70,8 @@
                       :state="validateState('confirmPass')"
                       @input="(confirmPassInput) => { this.confirmPass = confirmPassInput }">
               </FeedbackTextInput>
+
+              <!-- submit button -->
                 <Button @click="signUpUser()"
                         type="button" label="Sign Up" class="p-button-sm " id="signup_btn"/>
             </div>
@@ -189,7 +192,7 @@ export default {
 
 <style scoped>
     #signup_card {
-        width: auto;
+      width: auto;
         background-color: #272a36;
         border-radius: 5px;
         padding: 10px 15px 10px 15px;

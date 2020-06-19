@@ -120,7 +120,7 @@ export default {
   }
 
   .error_txt {
-    color: #b72d2d;
+    color: #E46052;
     font-size: 0.75rem;
   }
 
@@ -135,7 +135,7 @@ export default {
   }
 
   .p-invalid {
-    border-color: #b72d2d !important;
+    border-color: #E46052 !important;
   }
 
 </style>
