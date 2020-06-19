@@ -1,11 +1,11 @@
 <template>
     <div :class="layout">
-        <!-- email input -->
+        <!-- input -->
         <InputText v-model="value"
                    :type="inputType"
                    :placeholder="placeholder"
                    :class="[{ 'p-invalid': isFieldError }, size]"/>
-        <!-- email error message -->
+        <!-- error message -->
         <div class="err_txt_layout">
             <small class="error_txt" v-if="isFieldError"> {{ fieldFeedback }} </small>
         </div>
