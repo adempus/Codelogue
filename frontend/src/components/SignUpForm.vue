@@ -33,8 +33,7 @@
               'p-field p-col-12', emailFieldError, emailFieldFeedback,
               'Email Address', inputType='email')"
             :state="validateState('email')"
-            @input="(emailInput) => { this.email = emailInput }">
-        </FeedbackTextInput>
+            @input="(emailInput) => { this.email = emailInput }"/>
 
         <!-- password input -->
         <FeedbackTextInput
@@ -52,8 +51,7 @@
               'p-field p-col-6', passwordFieldError, passwordMatchFeedback,
               'Confirm Password', size='', inputType='password')"
             :state="validateState('confirmPass')"
-            @input="(confirmPassInput) => { this.confirmPass = confirmPassInput }">
-        </FeedbackTextInput>
+            @input="(confirmPassInput) => { this.confirmPass = confirmPassInput }"/>
 
         <!-- submit button -->
         <Button @click="signUpUser()"
