@@ -1,21 +1,28 @@
 <template>
   <div class="p-formgroup-inline" id="signin_form">
     <!-- email input -->
-    <SignInEmailInput
+    <FeedbackTextInput
             :value="email"
-            :login-email-field-error="loginEmailFieldError"
-            :login-email-feedback="loginEmailFeedback"
+            :layout="'p-field p-fluid'"
+            :size="'p-inputtext-sm'"
+            :is-field-error="loginEmailFieldError"
+            :field-feedback="loginEmailFeedback"
+            :placeholder="'Email'"
             @input="(emailInput) => {this.email = emailInput}"
-            :state="validateState('email')" >
-    </SignInEmailInput>
+            :state="validateState('email')">
+    </FeedbackTextInput>
     <!-- password input -->
-    <SignInPasswordInput
+    <FeedbackTextInput
             :value="password"
-            :login-password-field-error="loginPasswordFieldError"
-            :login-password-feedback="loginPasswordFeedback"
-            @input="(passwordInput) => { this.password = passwordInput }"
+            :layout="'p-field p-fluid'"
+            :is-field-error="loginPasswordFieldError"
+            :field-feedback="loginPasswordFeedback"
+            :placeholder="'Password'"
+            :input-type="'password'"
+            :size="'p-inputtext-sm'"
+            @input="(passwordInput) => {this.password = passwordInput}"
             :state="validateState('password')">
-    </SignInPasswordInput>
+    </FeedbackTextInput>
     <!-- signin button -->
     <Button @click="signInUser()"
             type="button" label="Login" class="p-button-sm login_btn"/>
@@ -24,14 +31,14 @@
 <script>
 import axios from 'axios';
 import { required, email } from 'vuelidate/lib/validators';
-import SignInEmailInput from './fragments/SignInEmailInput.vue';
+import FeedbackTextInput from './fragments/FeedbackTextInput.vue';
 
 const emailNotFound = (value, vm) => !vm.signInState.invalidEmail;
 const incorrectPassword = (value, vm) => !vm.signInState.invalidPassword;
 
 export default {
   name: 'SignInForm',
-  components: { SignInEmailInput },
+  components: { FeedbackTextInput },
   data: () => {
     return {
       email: '',
@@ -104,10 +111,6 @@ export default {
 };
 </script>
 <style>
-  .login_txtbox {
-    width: 8.5vw;
-  }
-
   #signin_form input {
     border-radius: 5px;
     background-color: #323645;

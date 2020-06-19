@@ -54,6 +54,7 @@
       "object-shorthand": "off",
       "no-console": "off",
       "prefer-const": "off",
+      "object-curly-newline": "off",
       "no-undef": "off",
       "max-len": [
         2,

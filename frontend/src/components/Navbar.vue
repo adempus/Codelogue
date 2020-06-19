@@ -36,7 +36,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    height: 80px;
+    height: 83px;
     padding-left: 4vw;
     padding-right: 4vw;
     background-color: #272A36;

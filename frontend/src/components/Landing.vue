@@ -17,6 +17,7 @@ export default {
 </script>
 
 <style scoped>
+
     .header_section {
         text-align: center;
         padding-top: 5%;
