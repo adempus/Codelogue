@@ -4,9 +4,14 @@
 """
 from flask import request, jsonify, Blueprint
 
-''' non-user routes '''
+
+''' Route blueprints '''
 
 index = Blueprint('index', __name__, url_prefix='/')
+user = Blueprint('user', __name__, url_prefix='/user')
+
+
+''' non-user routes '''
 
 @index.route('/', methods=['GET', 'POST'])
 def landingPage():
@@ -28,8 +33,6 @@ def signIn():
 
 
 ''' user routes '''
-
-user = Blueprint('user', __name__, url_prefix='/user')
 
 @user.route('/', methods=['GET', 'POST'])
 def getUser():

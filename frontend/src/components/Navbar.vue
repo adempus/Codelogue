@@ -14,11 +14,18 @@
 <script>
 export default {
   name: 'Navbar',
-  data: () => {
+  mounted() {
+    this.hideDefaultNavButton();
+  },
+  data() {
     return {
       items: [],
-
     };
+  },
+  methods: {
+    hideDefaultNavButton() {
+      document.getElementsByClassName('p-menubar-button')[0].style.visibility = 'hidden';
+    }
   },
 };
 </script>
@@ -29,9 +36,9 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: 83px;
     padding-left: 4vw;
-    padding-right: 8vw;
+    padding-right: 4vw;
     background-color: #272A36;
     border-color: #272A36;
     z-index: 100;
@@ -40,11 +47,5 @@ export default {
     font-family: 'NTR', sans-serif;
     font-weight: 400;
     color: #DB564E;
-  }
-
-  .navbar .p-menubar-button {
-        display: flex;
-        position: relative;
-        left: 95%;
   }
 </style>
