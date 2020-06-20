@@ -25,7 +25,7 @@
 
     <!-- sign in menu pop-up button (mobile) -->
     <Button @click="toggleMobileSignIn"
-            icon="pi pi-angle-down" aria:haspopup="true" aria-controls="overlay_panel"
+            icon="pi pi-user" aria:haspopup="true" aria-controls="overlay_panel"
             id="mobile_signin_popup_btn" class="p-button-sm login_btn"/>
 
     <!-- mobile sign-in pop-up -->
@@ -170,7 +170,6 @@ export default {
     color: #FFFFFF;
     font-family: 'Open Sans', sans-serif;
   }
-
   .error_txt {
     color: #eb897e;
     font-size: 0.75rem;
