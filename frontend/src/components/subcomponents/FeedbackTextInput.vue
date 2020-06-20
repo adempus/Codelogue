@@ -7,7 +7,7 @@
                    :class="[{ 'p-invalid': fieldPayload.isFieldError }, fieldPayload.size]"/>
         <!-- error message -->
         <div class="err_txt_layout">
-            <small class="error_txt" v-if="fieldPayload.isFieldError">
+            <small class="error_txt" v-show="fieldPayload.isFieldError">
                 {{ fieldPayload.fieldFeedback }}
             </small>
         </div>

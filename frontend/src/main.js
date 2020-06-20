@@ -5,6 +5,7 @@ import InputText from 'primevue/inputtext';
 import Card from 'primevue/card';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
+import Dialog from 'primevue/dialog';
 
 // vuelidate for form validation
 import Vuelidate from 'vuelidate';
@@ -19,7 +20,7 @@ import Navbar from './components/Navbar.vue';
 import Landing from './components/Landing.vue';
 import SignInForm from './components/SignInForm.vue';
 import SignUpForm from './components/SignUpForm.vue';
-import FeedbackTextInput from './components/fragments/FeedbackTextInput.vue';
+import FeedbackTextInput from './components/subcomponents/FeedbackTextInput.vue';
 
 // server endpoint urls
 import endpoints from './router/endpoints';
@@ -42,6 +43,7 @@ Vue.component('SignInForm', SignInForm);
 Vue.component('SignUpForm', SignUpForm);
 Vue.component('FeedbackTextInput', FeedbackTextInput);
 Vue.component('Toast', Toast);
+Vue.component('Dialog', Dialog);
 
 Vue.use(Vuelidate);
 Vue.use(ToastService);

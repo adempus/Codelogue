@@ -17,7 +17,6 @@ export default {
 </script>
 
 <style scoped>
-
     .header_section {
         text-align: center;
         padding-top: 7%;
@@ -25,21 +24,20 @@ export default {
 
     .signup_section {
         padding-top: 13%;
-        width: 29%;
+        width: 30%;
     }
     @media(max-width: 1450px) {
         .signup_section {
-            padding: 10vh 25vh 5vh 25vh;
+            padding: 75px 295px 75px 295px;
             width: 100%;
         }
     }
     @media(max-width: 1024px) {
         .signup_section {
-            padding: 10vh 5vh 5vh 5vh;
+            padding: 10vh 7vh 5vh 7vh;
             width: 100%;
         }
     }
-
     .header {
         position:relative;
         left: 0;
@@ -51,7 +49,7 @@ export default {
         line-height: 0.9em;
     }
 
-    @media(max-width: 690px) {
+    @media(min-width: 690px) {
         .header { font-size: 7em; }
     }
     @media(max-width: 420px) {

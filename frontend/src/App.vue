@@ -37,6 +37,7 @@ body, html {
 }
 #app {
   margin-left: 0;
+  overflow-x: hidden;
 }
 </style>
 <script>
