@@ -37,6 +37,7 @@ flask db init
 ```
 
 After the migrations folder is created with the above command, you can run them with 
+Before doing so, make sure flask env variables are set first.
 ```
 flask db migrate -m"sample comment for the migration"
 ```
@@ -53,7 +54,7 @@ key data that is read into enviornment variables on app startup.
 It should look like this:   
 ```
 # database credentials
-DB_DRIVER="mysql"
+DB_DRIVER="postgresql"
 DB_USER="username"
 DB_NAME="db_name"
 DB_PASSWORD="db_password123"
