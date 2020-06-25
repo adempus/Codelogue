@@ -59,7 +59,7 @@ DB_USER="username"
 DB_NAME="db_name"
 DB_PASSWORD="db_password123"
 DB_HOST="127.0.0.1"
-DB_PORT=3306
+DB_PORT=5432
 
 #app key
 APP_KEY="secretkey123"
