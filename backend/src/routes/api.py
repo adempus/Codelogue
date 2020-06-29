@@ -3,12 +3,35 @@
     API endpoints are created via Blueprint objects, which specify URL prefixes different routes.
 """
 from flask import request, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+
+
+def generateSessionToken(username):
+    return create_access_token(identity={'username': username, 'id': 123})
 
 
 ''' Route blueprints '''
 
 index = Blueprint('index', __name__, url_prefix='/')
 user = Blueprint('user', __name__, url_prefix='/user')
+
+
+''' test routes '''
+
+@index.route('/test', methods=['GET', 'POST'])
+def testRoute():
+    username = request.args.get('username')
+    if username is None:
+        return jsonify({'error': 'no username provided'})
+    token = generateSessionToken(username)
+    return jsonify({'testData': 'Some test data!', 'sessionToken': token})
+
+
+@index.route('/protected-test', methods=['GET', 'POST'])
+@jwt_required
+def protectedTestRoute():
+    user = get_jwt_identity()
+    return jsonify({'user': user})
 
 
 ''' non-user routes '''
