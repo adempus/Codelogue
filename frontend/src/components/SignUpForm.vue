@@ -176,8 +176,10 @@ export default {
      * post server side validation.
      * */
     applyFieldChange(signUpStatusErrorObj, errorObjName, condition) {
-      if (this.signUpStatus.submitClicked && this.signUpStatus.response.error) {
-        if (signUpStatusErrorObj) this.$set(this.signUpStatus, errorObjName, condition);
+      if (this.signUpStatus.response !== null) {
+        if (this.signUpStatus.submitClicked && this.signUpStatus.response.error) {
+          if (signUpStatusErrorObj) this.$set(this.signUpStatus, errorObjName, condition);
+        }
       }
     }
   },
@@ -210,30 +212,25 @@ export default {
           || !this.$v.username.usernameUnique);
     },
     usernameFieldFeedback() {
-      if (!this.$v.username.usernameUnique) return 'Username already taken';
-      return !this.$v.username.minLength ? 'Username must be at least 3 characters'
-        : 'Username is required';
+      if (!this.$v.username.required) return 'Username is required';
+      return !this.$v.username.usernameUnique ? 'Username already taken'
+        : 'Must be at least 3 characters';
     },
     emailFieldError() {
       return this.signUpStatus.submitClicked
         && (!this.$v.email.email || !this.$v.email.required || !this.$v.email.emailUnique);
     },
     emailFieldFeedback() {
-      if (!this.$v.email.emailUnique) return 'Email already in use';
-      return !this.$v.email.email ? 'Email invalid' : 'Email required';
+      if (!this.$v.email.required) return 'Email is required';
+      return !this.$v.email.emailUnique ? 'Email already in use' : 'Email invalid';
     },
     passwordFieldError() {
       return this.signUpStatus.submitClicked && (!this.$v.password.required
         || !this.$v.password.minLength || !this.$v.confirmPass.sameAsPassword);
     },
     passwordFieldFeedback() {
-      if (!this.$v.password.required) {
-        return 'Password required';
-      }
-      if (!this.$v.password.minLength) {
-        return 'Password must be at least 7 characters';
-      }
-      return '';
+      if (!this.$v.password.required) return 'Password required';
+      return !this.$v.password.minLength ? 'Password must be at least 7 characters' : '';
     },
     passwordMatchFeedback() {
       return !this.$v.confirmPass.sameAsPassword && (this.$v.password.required
