@@ -141,10 +141,10 @@ export default {
   },
   computed: {
     loginEmailFeedback() {
-      return !this.$v.email.email ? 'Email is invalid' : 'Email is required';
+      return !this.$v.email.email ? 'Email invalid' : 'Email required';
     },
     loginPasswordFeedback() {
-      return 'Password is required';
+      return 'Password required';
     },
     loginEmailFieldError() {
       return this.signInState.requested && (!this.$v.email.email || !this.$v.email.required);
@@ -173,6 +173,7 @@ export default {
   .error_txt {
     color: #eb897e;
     font-size: 0.75rem;
+    font-family: 'Open Sans', sans-serif;
   }
   .email_error_div {
     margin-bottom: -100%;

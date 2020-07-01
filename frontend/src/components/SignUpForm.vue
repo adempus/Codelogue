@@ -1,12 +1,12 @@
 <template>
   <Card id="signup_card">
     <template slot="content">
-      <div class="p-fluid p-formgrid p-grid p-justify-center">
+      <form class="p-fluid p-formgrid p-grid p-justify-center">
         <!-- first name input -->
         <FeedbackTextInput
             :value="firstName"
             :field-payload="getInputFieldPayload(
-              'p-field p-col-6', firstNameFieldError, 'First name is required', 'First Name')"
+              'p-field p-col-6', firstNameFieldError, 'First name required', 'First Name')"
             :state="validateState('firstName')"
             @input="(fNameInput) => { this.firstName = fNameInput }"/>
 
@@ -14,7 +14,7 @@
         <FeedbackTextInput
             :value="lastName"
             :field-payload="getInputFieldPayload(
-              'p-field p-col-6', lastNameFieldError, 'Last name is required', 'Last Name')"
+              'p-field p-col-6', lastNameFieldError, 'Last name required', 'Last Name')"
             :state="validateState('lastName')"
             @input="(lNameInput) => { this.lastName = lNameInput }"/>
 
@@ -54,15 +54,23 @@
             @input="(confirmPassInput) => { this.confirmPass = confirmPassInput }"/>
 
         <!-- submit button -->
-        <Button @click="signUpUser()"
+        <Button @click="submit()"
                 type="button" label="Sign Up" class="p-button-sm " id="signup_btn"/>
-      </div>
+      </form>
     </template>
   </Card>
 </template>
 
 <script>
+
+import axios from 'axios';
 import { required, minLength, sameAs, email } from 'vuelidate/lib/validators';
+
+const emailUnique = (value, vm) => !vm.signUpStatus.isExistingEmail
+  && (value.toUpperCase() !== vm.signUpStatus.attemptedEmail.toUpperCase());
+const usernameUnique = (value, vm) => !vm.signUpStatus.isExistingUsername
+  && value.toUpperCase() !== vm.signUpStatus.attemptedUsername.toUpperCase();
+
 
 export default {
   name: 'SignUpForm',
@@ -75,9 +83,14 @@ export default {
       password: '',
       confirmPass: '',
       signUpStatus: {
-        submitted: false
+        submitClicked: false,
+        successful: false,
+        response: null,
+        isExistingEmail: false,
+        isExistingUsername: false,
+        attemptedUsername: '',
+        attemptedEmail: ''
       },
-      response: {},
     };
   },
   validations: {
@@ -90,12 +103,12 @@ export default {
     username: {
       required,
       minLength: minLength(3),
-      // usernameUnique,
+      usernameUnique,
     },
     email: {
       required,
       email,
-      // emailUnique,
+      emailUnique,
     },
     password: {
       required,
@@ -111,39 +124,112 @@ export default {
       const { $dirty, $error } = this.$v[value];
       return $dirty ? !$error : null;
     },
-    signUpUser() {
-      this.$set(this.signUpStatus, 'submitted', true);
+    submit() {
+      this.$set(this.signUpStatus, 'submitClicked', true);
       this.$v.$touch();
+
+      if (this.$v.$invalid) {
+        console.log('Invalid credentials provided.');
+        return;
+      }
+      this.requestUserSignUp().then((response) => {
+        console.log('sign up response: ', response);
+        this.$set(this.signUpStatus, 'response', response.data);
+        if (this.signUpStatus.response.error) {
+          console.log('error occured');
+          this.$set(this.signUpStatus, 'successful', false);
+          this.$set(
+            this.signUpStatus,
+            'isExistingEmail',
+            this.signUpStatus.response.message.emailExists
+          );
+          this.$set(
+            this.signUpStatus,
+            'isExistingUsername',
+            this.signUpStatus.response.message.usernameExists
+          );
+          this.trackResponseErrors();
+        } else {
+          this.$set(this.signUpStatus, 'successful', true);
+        }
+      });
+    },
+    requestUserSignUp() {
+      const endpoint = this.$root.signUp;
+      return axios.post(endpoint, {
+        firstName: this.firstName,
+        lastName: this.lastName,
+        username: this.username,
+        email: this.email,
+        password: this.password
+      });
+    },
+    trackResponseErrors() {
+      if (this.signUpStatus.isExistingUsername) {
+        this.$set(this.signUpStatus, 'attemptedUsername', this.username);
+      }
+      if (this.signUpStatus.isExistingEmail) {
+        this.$set(this.signUpStatus, 'attemptedEmail', this.email);
+      }
+    },
+    applyFieldChange(signUpStatusErrorObj, errorObjName, condition) {
+      if (this.signUpStatus.submitClicked) {
+        if (this.signUpStatus.response.error) {
+          if (signUpStatusErrorObj) {
+            this.$set(this.signUpStatus, errorObjName, condition);
+          }
+        }
+      }
+    }
+  },
+  watch: {
+    email() {
+      this.applyFieldChange(
+        this.signUpStatus.isExistingEmail,
+        'isExistingEmail',
+        this.signUpStatus.attemptedEmail === this.email.toUpperCase()
+      );
+    },
+    username() {
+      this.applyFieldChange(
+        this.signUpStatus.isExistingUsername,
+        'isExistingUsername',
+        this.signUpStatus.attemptedUsername === this.username.toUpperCase()
+      );
     },
   },
   computed: {
     firstNameFieldError() {
-      return this.signUpStatus.submitted && !this.$v.firstName.required;
+      return this.signUpStatus.submitClicked && !this.$v.firstName.required;
     },
     lastNameFieldError() {
-      return this.signUpStatus.submitted && !this.$v.lastName.required;
+      return this.signUpStatus.submitClicked && !this.$v.lastName.required;
     },
     usernameFieldError() {
-      return this.signUpStatus.submitted
-        && (!this.$v.username.required || !this.$v.username.minLength);
+      return this.signUpStatus.submitClicked
+        && (!this.$v.username.required || !this.$v.username.minLength
+          || !this.$v.username.usernameUnique);
     },
     usernameFieldFeedback() {
+      if (!this.$v.username.usernameUnique) return 'Username already taken';
       return !this.$v.username.minLength ? 'Username must be at least 3 characters'
         : 'Username is required';
     },
     emailFieldError() {
-      return this.signUpStatus.submitted && (!this.$v.email.email || !this.$v.email.required);
+      return this.signUpStatus.submitClicked
+        && (!this.$v.email.email || !this.$v.email.required || !this.$v.email.emailUnique);
     },
     emailFieldFeedback() {
-      return !this.$v.email.email ? 'Email is invalid' : 'Email is required';
+      if (!this.$v.email.emailUnique) return 'Email already in use';
+      return !this.$v.email.email ? 'Email invalid' : 'Email required';
     },
     passwordFieldError() {
-      return this.signUpStatus.submitted && (!this.$v.password.required
+      return this.signUpStatus.submitClicked && (!this.$v.password.required
         || !this.$v.password.minLength || !this.$v.confirmPass.sameAsPassword);
     },
     passwordFieldFeedback() {
       if (!this.$v.password.required) {
-        return 'Password is required';
+        return 'Password required';
       }
       if (!this.$v.password.minLength) {
         return 'Password must be at least 7 characters';

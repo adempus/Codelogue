@@ -22,7 +22,6 @@ class User(db.Model):
         self.username = userName
         self.email = email
         self.password = password
-        sqlalchemy.text()
 
     def __repr__(self):
         return  f'user id: {self.id}'

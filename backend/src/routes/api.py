@@ -3,12 +3,8 @@
     API endpoints are created via Blueprint objects, which specify URL prefixes different routes.
 """
 from flask import request, jsonify, Blueprint
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-
-
-def generateSessionToken(username):
-    return create_access_token(identity={'username': username, 'id': 123})
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from ..app import functions
 
 ''' Route blueprints '''
 
@@ -23,7 +19,7 @@ def testRoute():
     username = request.args.get('username')
     if username is None:
         return jsonify({'error': 'no username provided'})
-    token = generateSessionToken(username)
+    token = functions.generateSessionToken(username)
     return jsonify({'testData': 'Some test data!', 'sessionToken': token})
 
 
@@ -41,9 +37,13 @@ def landingPage():
     return jsonify({'message': 'Hello World!'})
 
 
-@index.route('/sign-up', methods=['GET', 'POST'])
+@index.route('/sign-up', methods=['POST'])
 def signUp():
-    return jsonify({'route_hit': 'sign-up'})
+    if request.method == 'POST':
+        signUpData = dict(request.get_json())
+        print(f'Sign up data: \n{signUpData}')
+        resPayload = functions.signUpUser(signUpData)
+        return jsonify(resPayload)
 
 
 @index.route('/sign-in', methods=['GET', 'POST'])
