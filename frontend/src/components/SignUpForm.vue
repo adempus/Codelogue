@@ -71,7 +71,6 @@ const emailUnique = (value, vm) => !vm.signUpStatus.isExistingEmail
 const usernameUnique = (value, vm) => !vm.signUpStatus.isExistingUsername
   && value.toUpperCase() !== vm.signUpStatus.attemptedUsername.toUpperCase();
 
-
 export default {
   name: 'SignUpForm',
   data: () => {
@@ -172,13 +171,13 @@ export default {
         this.$set(this.signUpStatus, 'attemptedEmail', this.email);
       }
     },
+    /**
+     * To clear username and email field error messages after corrections are made to them,
+     * post server side validation.
+     * */
     applyFieldChange(signUpStatusErrorObj, errorObjName, condition) {
-      if (this.signUpStatus.submitClicked) {
-        if (this.signUpStatus.response.error) {
-          if (signUpStatusErrorObj) {
-            this.$set(this.signUpStatus, errorObjName, condition);
-          }
-        }
+      if (this.signUpStatus.submitClicked && this.signUpStatus.response.error) {
+        if (signUpStatusErrorObj) this.$set(this.signUpStatus, errorObjName, condition);
       }
     }
   },
