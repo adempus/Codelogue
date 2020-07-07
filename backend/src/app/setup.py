@@ -1,7 +1,6 @@
 """
  code for setting up the app with a database, route blueprints, and other configurations.
 """
-
 import os
 from flask import Flask
 from pendulum import duration
@@ -33,10 +32,10 @@ def registerBlueprints(app):
 
 def applyConfigs(app):
     app.config.from_object(__name__)
+    CORS(app, resources={r'/*': {'origins': '*'}})
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = getDatabaseURI()
     app.config['SECRET_KEY'] = os.getenv('APP_KEY')
-    CORS(app, resources={r'/*': {'origins': '*'}})
     setupJWT(app)
 
 

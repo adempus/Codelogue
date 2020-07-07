@@ -1,6 +1,7 @@
 // exports an object containing keys to respective endpoint string values on backend
 
-const root = 'http://localhost:5000';
+// const root = 'http://localhost:5000';
+const root = 'http://127.0.0.1:5000';
 // const root = 'http://192.168.1.158:5000';
 const endpoints = {
   root: root,

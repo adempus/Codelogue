@@ -5,7 +5,8 @@
         <h1 class="app_name">codelogue_</h1>
       </template>
       <template #end>
-        <SignInForm></SignInForm>
+        <Button type="button" class="p-button-sm login_btn" label="Sign In"
+                @click="navSignInPage()"/>
       </template>
     </Menubar>
   </div>
@@ -25,7 +26,10 @@ export default {
   methods: {
     hideDefaultNavButton() {
       document.getElementsByClassName('p-menubar-button')[0].style.visibility = 'hidden';
-    }
+    },
+    navSignInPage() {
+      this.$router.push('sign-in');
+    },
   },
 };
 </script>
@@ -47,5 +51,12 @@ export default {
     font-family: 'NTR', sans-serif;
     font-weight: 400;
     color: #DB564E;
+  }
+
+  .login_btn {
+    background-color: #DB564E;
+    border-color: #DB564E;
+    display: inline-block;
+    height: 35px;
   }
 </style>

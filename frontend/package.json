@@ -55,10 +55,11 @@
       "no-console": "off",
       "prefer-const": "off",
       "object-curly-newline": "off",
+      "no-param-reassign": "off",
       "no-undef": "off",
       "max-len": [
         2,
-        101,
+        120,
         4
       ]
     }
