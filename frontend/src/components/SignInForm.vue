@@ -1,74 +1,44 @@
 <template>
-  <div>
-    <div class="p-formgroup-inline" id="signin_form">
-      <!-- email input -->
-      <FeedbackTextInput
-          :value="email"
-          :field-payload="getInputFieldPayload(
-          'p-field p-fluid', loginEmailFieldError, loginEmailFeedback, 'email', 'p-inputtext-sm')"
-          @input="(emailInput) => {this.email = emailInput}"
-          :state="validateState('email')"/>
-
-      <!-- password input -->
-      <FeedbackTextInput
-          :value="password"
-          :field-payload="getInputFieldPayload(
-          'p-field p-fluid', loginPasswordFieldError, loginPasswordFeedback,
-          'Password', 'p-inputtext-sm', 'password')"
-          @input="(passwordInput) => {this.password = passwordInput}"
-          :state="validateState('password')"/>
-
-      <!-- signin button -->
-      <Button @click="signInUser()"
-              type="button" label="Login" class="p-button-sm login_btn"/>
-    </div>
-
-    <!-- sign in menu pop-up button (mobile) -->
-    <Button @click="toggleMobileSignIn"
-            icon="pi pi-user" aria:haspopup="true" aria-controls="overlay_panel"
-            id="mobile_signin_popup_btn" class="p-button-sm login_btn"/>
-
-    <!-- mobile sign-in pop-up -->
-    <div id="mobile_signin_div">
-      <Dialog header="Sign In" id="signin_popup"
-              :style="{width: '65vw', margin: '5px 10px 5px 10px'}"
-              :visible.sync="displayMobileSignIn" :modal="true">
-        <div class="p-fluid" id="mobile_signin_form">
-          <div class="p-field p-grid separator">
-            <!-- mobile email input -->
-            <FeedbackTextInput
-                :value="email"
-                :field-payload="getInputFieldPayload(
-                    'p-col', loginEmailFieldError, loginEmailFeedback, 'email', 'p-inputtext-sm')"
-                @input="(emailInput) => {this.email = emailInput}"
-                :state="validateState('email')"/>
-          </div>
-
-          <div class="p-field p-grid separator">
-            <!-- mobile password input -->
-            <FeedbackTextInput
-                :value="password"
-                :field-payload="getInputFieldPayload(
-                  'p-col', loginPasswordFieldError, loginPasswordFeedback,
+  <Card id="signin_card">
+    <template slot="title">
+      <h1 id="signin_header">Sign In</h1>
+    </template>
+    <template slot="content">
+      <form class="p-fluid p-formgrid p-grid p-justify-center">
+        <!-- email input -->
+        <FeedbackTextInput
+            :value="email"
+            :field-payload="getInputFieldPayload(
+                    'p-field p-col-12', loginEmailFieldError, loginEmailFeedback,
+                    'email', 'p-inputtext-sm')"
+            @input="(emailInput) => {this.email = emailInput}"
+            :state="validateState('email')"/>
+        <!-- password input -->
+        <FeedbackTextInput
+            :value="password"
+            :field-payload="getInputFieldPayload(
+                  'p-field p-col-12 ', loginPasswordFieldError, loginPasswordFeedback,
                   'Password', 'p-inputtext-sm', 'password')"
-                @input="(passwordInput) => {this.password = passwordInput}"
-                :state="validateState('password')"/>
-          </div>
-        </div>
-        <!-- signin button -->
+            @input="(passwordInput) => {this.password = passwordInput}"
+            :state="validateState('password')"/>
+
+        <!-- sign-in button -->
         <Button @click="signInUser()"
-                type="button" label="Login" class="p-button-sm login_btn"/>
-      </Dialog>
-    </div>
-  </div>
+                type="button" label="Login" class="p-button-sm login_btn" id="signin_btn"/>
+      </form>
+      <p class="success_msg" v-show="signInStatus.successful">Success</p>
+    </template>
+  </Card>
 </template>
 <script>
 import axios from 'axios';
 import { required, email } from 'vuelidate/lib/validators';
 import FeedbackTextInput from './subcomponents/FeedbackTextInput.vue';
 
-const emailNotFound = (value, vm) => !vm.signInState.invalidEmail;
-const incorrectPassword = (value, vm) => !vm.signInState.invalidPassword;
+const emailNotFound = (value, vm) => !vm.signInStatus.isNonexistentEmail
+  && (value.toUpperCase() !== vm.signInStatus.attemptedEmail.toUpperCase());
+const incorrectPassword = (value, vm) => !vm.signInStatus.isWrongPassword
+  && value !== vm.signInStatus.attemptedPassword;
 
 export default {
   name: 'SignInForm',
@@ -77,15 +47,15 @@ export default {
     return {
       email: '',
       password: '',
-      signInState: {
-        requested: false,
-        invalidEmail: false,
-        invalidPassword: false,
+      signInStatus: {
+        submitClicked: false,
+        response: null,
+        isNonexistentEmail: false,
+        isWrongPassword: false,
         attemptedEmail: '',
         attemptedPassword: '',
+        successful: false,
       },
-      displayMobileSignIn: false,
-      response: {},
     };
   },
   validations: {
@@ -104,25 +74,35 @@ export default {
       const { $dirty, $error } = this.$v[value];
       return $dirty ? !$error : null;
     },
-    toggleMobileSignIn() {
-      this.displayMobileSignIn = !this.displayMobileSignIn;
-    },
     signInUser() {
-      this.$set(this.signInState, 'requested', true);
+      this.$set(this.signInStatus, 'submitClicked', true);
       this.$v.$touch();
 
       if (this.$v.$invalid) {
         console.log('Invalid sign in credentials provided');
-        console.log('Error list: ');
-        console.log('email required error:  ', !this.$v.email.required);
-        console.log('email format error:  ', !this.$v.email.email);
-        console.log('password required error: ', !this.$v.password.required);
-      } else {
-        console.log('Valid sign in credentials provided');
-        console.log('email required error:  ', !this.$v.email.required);
-        console.log('email format error:  ', !this.$v.email.email);
-        console.log('password required error: ', !this.$v.password.required);
+        return;
       }
+      this.requestSignIn().then((response) => {
+        console.log('sign in response: ', response);
+        this.$set(this.signInStatus, 'response', response.data);
+        if (this.signInStatus.response.error) {
+          console.log('error occured');
+          this.$set(this.signInStatus, 'successful', false);
+          this.$set(
+            this.signInStatus,
+            'isNonexistentEmail',
+            this.signInStatus.response.message.userNotFound
+          );
+          this.$set(
+            this.signInStatus,
+            'isWrongPassword',
+            this.signInStatus.response.message.passwordInvalid
+          );
+          this.trackResponseErrors();
+        } else {
+          this.$set(this.signInStatus, 'successful', true);
+        }
+      });
     },
     requestSignIn() {
       const endpoint = this.$root.signIn;
@@ -131,8 +111,37 @@ export default {
         password: this.password
       });
     },
+    trackResponseErrors() {
+      if (this.signInStatus.isNonexistentEmail) {
+        this.$set(this.signInStatus, 'attemptedEmail', this.email);
+      }
+      if (this.signInStatus.isWrongPassword) {
+        this.$set(this.signInStatus, 'attemptedPassword', this.password);
+      }
+    },
+    applyFieldChange(signInStatusErrorObj, errorObjName, condition) {
+      if (this.signInStatus.response !== null) {
+        if (this.signInStatus.submitClicked && this.signInStatus.response.error) {
+          if (signInStatusErrorObj) this.$set(this.signInStatus, errorObjName, condition);
+        }
+      }
+    }
   },
   watch: {
+    email() {
+      this.applyFieldChange(
+        this.signInStatus.isNonexistentEmail,
+        'isNonexistentEmail',
+        this.signInStatus.attemptedEmail.toUpperCase() === this.email.toUpperCase()
+      );
+    },
+    password() {
+      this.applyFieldChange(
+        this.signInStatus.isWrongPassword,
+        'isWrongPassword',
+        this.signInStatus.attemptedPassword === this.password
+      );
+    },
     displayMobileSignIn(value) {
       if (!value) {
         Object.assign(this.$data, this.$options.data.apply(this));
@@ -140,65 +149,68 @@ export default {
     },
   },
   computed: {
-    loginEmailFeedback() {
-      return !this.$v.email.email ? 'Email invalid' : 'Email required';
-    },
-    loginPasswordFeedback() {
-      return 'Password required';
-    },
     loginEmailFieldError() {
-      return this.signInState.requested && (!this.$v.email.email || !this.$v.email.required);
+      return this.signInStatus.submitClicked
+        && (!this.$v.email.email || !this.$v.email.required || !this.$v.email.emailNotFound);
+    },
+    loginEmailFeedback() {
+      if (!this.$v.email.required) return 'Email required';
+      return !this.$v.email.emailNotFound ? 'This email is not registered. Try again.'
+        : 'Email invalid';
     },
     loginPasswordFieldError() {
-      return this.signInState.requested && !this.$v.password.required;
+      return this.signInStatus.submitClicked
+        && (!this.$v.password.required || !this.$v.password.incorrectPassword);
+    },
+    loginPasswordFeedback() {
+      return !this.$v.password.incorrectPassword ? 'Incorrect password. Try again.'
+        : 'Password required';
     },
   }
 };
 </script>
 <style>
-  #signin_form input {
+  #signin_card {
+    width: max-content;
+    background-color: #272a36;
+    border-radius: 5px;
+    padding: 0 30px 10px 30px;
+  }
+  #signin_card input {
     border-radius: 5px;
     background-color: #323645;
     border-color: #323645;
     color: #FFFFFF;
+    font-family: 'Open Sans', sans-serif;
+    margin-top: 15px;
+  }
+  #signin_btn {
+    background-color: #DB564E;
+    border-color: #DB564E;
+    width: 100px;
+    margin-top: 25px;
     font-family: 'Open Sans', sans-serif;
   }
-  #mobile_signin_form input {
-    border-radius: 5px;
-    background-color: #323645;
-    border-color: #323645;
-    color: #FFFFFF;
-    font-family: 'Open Sans', sans-serif;
+  #signin_header {
+    color: #DB564E;
+    font-family: 'NTR', sans-serif;
+    margin: 0 0 -35px 0;
+    text-align: left;
+    font-weight: 500;
   }
   .error_txt {
     color: #eb897e;
     font-size: 0.75rem;
     font-family: 'Open Sans', sans-serif;
   }
-  .email_error_div {
-    margin-bottom: -100%;
-    margin-right: 45%;
-  }
-  .password_error_div {
-    margin-bottom: -100%;
-    margin-right: 30%;
-  }
   .p-invalid {
     border-color: #eb897e !important;
   }
-  .p-dialog-content {
-    background-color: #272A36 !important;
-    border-radius: 5px !important;
-    padding: 10% 10% 10% 10% !important;
-  }
-  .p-dialog-header {
-    background-color: #272A36 !important;
-    color: #DB564E !important;
-    border-color: #272A36 !important;
-    text-align: center !important;
-    border-radius: 5px !important;
-    font-family: 'Open Sans', sans-serif;
-    letter-spacing: 1px;
+  .success_msg {
+    color: #00CD6F;
+    font-size: 13px;
+    padding-top: 5px;
+    text-align: right;
   }
 </style>
 
@@ -207,32 +219,12 @@ export default {
     background-color: #DB564E;
     border-color: #DB564E;
     display: inline-block;
+    margin-top: 12px;
     height: 35px;
   }
-  #mobile_signin_popup_btn {
-    background-color: #323645;
-    color: #DB564E;
-    padding: 4px 0 0 0;
-    width: 40px;
-    height: 40px;
-  }
-  @media(max-width: 890px) {
-    #signin_form {
-      display: none;
-    }
-  }
-  @media(min-width: 891px) {
-    #mobile_signin_popup_btn {
-      display: none;
-    }
-    #mobile_signin_form {
-      display: none;
-    }
-    #mobile_signin_div {
-      display: none;
-    }
-  }
+
   .separator {
     margin-bottom: 30px;
   }
+
 </style>

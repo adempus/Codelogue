@@ -50,9 +50,9 @@ def signUp():
 def signIn():
     if request.method == 'POST':
         signInData = dict(request.get_json())
-        return jsonify({'signInData': signInData })
-    else:
-        return jsonify({'route_hit': 'sign-in'})
+        resPayload = functions.signInUser(signInData)
+        print(f'sign in response payload: {resPayload}')
+        return resPayload
 
 
 ''' user routes '''

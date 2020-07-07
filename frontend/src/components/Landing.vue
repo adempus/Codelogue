@@ -21,7 +21,6 @@ export default {
         text-align: center;
         padding-top: 7%;
     }
-
     .signup_section {
         padding-top: 13%;
         width: 30%;

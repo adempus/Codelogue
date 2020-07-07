@@ -1,7 +1,6 @@
 """
  code for setting up the app with a database, route blueprints, and other configurations.
 """
-
 import os
 from flask import Flask
 from pendulum import duration

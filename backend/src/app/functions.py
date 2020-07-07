@@ -2,6 +2,7 @@
 Contains app functionality for the app's features. Most of these functions are invoked via API routes.
 """
 from flask_jwt_extended import create_access_token
+from flask import make_response
 from .models import User
 from .setup import db
 import bcrypt
@@ -30,11 +31,47 @@ def signUpUser(user):
         return {'error': True, 'message': 'invalid payload'}
 
 
+def signInUser(user):
+    if None not in user.values():
+        email, password = user['email'], user['password']
+        userQuery = User.query.filter_by(email=email).first()
+        signInErrors = {
+            'userNotFound': userQuery is None,
+            'passwordInvalid': False
+        }
+        if signInErrors['userNotFound']:
+            return { 'error': True, 'message': signInErrors }
+        else:
+            savedPassword = userQuery.password
+            signInErrors['passwordInvalid'] = not bcrypt.checkpw(password.encode(), savedPassword.encode())
+            if signInErrors['passwordInvalid']:
+                return { 'error': True, 'message': signInErrors }
+            else:
+                sessionToken = generateSessionToken({'user': getSignInPayload(userQuery)})
+                print(f'token: {sessionToken}')
+                response = make_response({
+                    'error': False,
+                    'token': sessionToken,
+                    'data': getSignInPayload(userQuery)
+                })
+                response.headers['Authorization'] = f'Bearer {sessionToken}'
+                return response
+
+
 def getHashedPass(password):
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode(), salt)
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf8')
 
 
 def generateSessionToken(user):
     return create_access_token(identity=user)
+
+
+def getSignInPayload(query):
+    return {
+        'id': query.id,
+        'firstName': query.first_name,
+        'username': query.username
+    }
+
 

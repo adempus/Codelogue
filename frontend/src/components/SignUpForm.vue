@@ -57,6 +57,7 @@
         <Button @click="submit()"
                 type="button" label="Sign Up" class="p-button-sm " id="signup_btn"/>
       </form>
+      <p class="success_msg" v-show="signUpStatus.successful">Success</p>
     </template>
   </Card>
 </template>
@@ -83,12 +84,12 @@ export default {
       confirmPass: '',
       signUpStatus: {
         submitClicked: false,
-        successful: false,
         response: null,
         isExistingEmail: false,
         isExistingUsername: false,
         attemptedUsername: '',
-        attemptedEmail: ''
+        attemptedEmail: '',
+        successful: false
       },
     };
   },
@@ -131,7 +132,7 @@ export default {
         console.log('Invalid credentials provided.');
         return;
       }
-      this.requestUserSignUp().then((response) => {
+      this.requestSignUp().then((response) => {
         console.log('sign up response: ', response);
         this.$set(this.signUpStatus, 'response', response.data);
         if (this.signUpStatus.response.error) {
@@ -153,7 +154,7 @@ export default {
         }
       });
     },
-    requestUserSignUp() {
+    requestSignUp() {
       const endpoint = this.$root.signUp;
       return axios.post(endpoint, {
         firstName: this.firstName,
@@ -188,14 +189,14 @@ export default {
       this.applyFieldChange(
         this.signUpStatus.isExistingEmail,
         'isExistingEmail',
-        this.signUpStatus.attemptedEmail === this.email.toUpperCase()
+        this.signUpStatus.attemptedEmail.toUpperCase() === this.email.toUpperCase()
       );
     },
     username() {
       this.applyFieldChange(
         this.signUpStatus.isExistingUsername,
         'isExistingUsername',
-        this.signUpStatus.attemptedUsername === this.username.toUpperCase()
+        this.signUpStatus.attemptedUsername.toUpperCase() === this.username.toUpperCase()
       );
     },
   },
@@ -248,7 +249,6 @@ export default {
     margin-bottom: 12px;
     font-family: 'Open Sans', sans-serif;
   }
-
   #signup_card .err_txt_layout {
     margin-top: -11px;
   }
