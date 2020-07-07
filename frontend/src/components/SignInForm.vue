@@ -9,7 +9,7 @@
         <FeedbackTextInput
             :value="email"
             :field-payload="getInputFieldPayload(
-                    'p-field p-col-12', loginEmailFieldError, loginEmailFeedback,
+                    'p-field p-col-12', emailFieldError, emailFeedback,
                     'email', 'p-inputtext-sm')"
             @input="(emailInput) => {this.email = emailInput}"
             :state="validateState('email')"/>
@@ -17,7 +17,7 @@
         <FeedbackTextInput
             :value="password"
             :field-payload="getInputFieldPayload(
-                  'p-field p-col-12 ', loginPasswordFieldError, loginPasswordFeedback,
+                  'p-field p-col-12 ', passwordFieldError, passwordFeedback,
                   'Password', 'p-inputtext-sm', 'password')"
             @input="(passwordInput) => {this.password = passwordInput}"
             :state="validateState('password')"/>
@@ -35,10 +35,9 @@ import axios from 'axios';
 import { required, email } from 'vuelidate/lib/validators';
 import FeedbackTextInput from './subcomponents/FeedbackTextInput.vue';
 
-const emailNotFound = (value, vm) => !vm.signInStatus.isNonexistentEmail
+const emailNotFound = (value, vm) => !vm.signInStatus.isNonexistingEmail
   && (value.toUpperCase() !== vm.signInStatus.attemptedEmail.toUpperCase());
-const incorrectPassword = (value, vm) => !vm.signInStatus.isWrongPassword
-  && value !== vm.signInStatus.attemptedPassword;
+const incorrectPassword = (value, vm) => !vm.signInStatus.isWrongPassword;
 
 export default {
   name: 'SignInForm',
@@ -50,7 +49,7 @@ export default {
       signInStatus: {
         submitClicked: false,
         response: null,
-        isNonexistentEmail: false,
+        isNonexistingEmail: false,
         isWrongPassword: false,
         attemptedEmail: '',
         attemptedPassword: '',
@@ -119,50 +118,40 @@ export default {
         this.$set(this.signInStatus, 'attemptedPassword', this.password);
       }
     },
-    applyFieldChange(signInStatusErrorObj, errorObjName, condition) {
-      if (this.signInStatus.response !== null) {
-        if (this.signInStatus.submitClicked && this.signInStatus.response.error) {
-          if (signInStatusErrorObj) this.$set(this.signInStatus, errorObjName, condition);
-        }
-      }
-    }
   },
   watch: {
     email() {
       this.applyFieldChange(
-        this.signInStatus.isNonexistentEmail,
-        'isNonexistentEmail',
+        this.signInStatus,
+        this.signInStatus.isNonexistingEmail,
+        'isNonexistingEmail',
         this.signInStatus.attemptedEmail.toUpperCase() === this.email.toUpperCase()
       );
     },
     password() {
       this.applyFieldChange(
+        this.signInStatus,
         this.signInStatus.isWrongPassword,
         'isWrongPassword',
         this.signInStatus.attemptedPassword === this.password
       );
     },
-    displayMobileSignIn(value) {
-      if (!value) {
-        Object.assign(this.$data, this.$options.data.apply(this));
-      }
-    },
   },
   computed: {
-    loginEmailFieldError() {
+    emailFieldError() {
       return this.signInStatus.submitClicked
         && (!this.$v.email.email || !this.$v.email.required || !this.$v.email.emailNotFound);
     },
-    loginEmailFeedback() {
+    emailFeedback() {
       if (!this.$v.email.required) return 'Email required';
       return !this.$v.email.emailNotFound ? 'This email is not registered. Try again.'
         : 'Email invalid';
     },
-    loginPasswordFieldError() {
+    passwordFieldError() {
       return this.signInStatus.submitClicked
         && (!this.$v.password.required || !this.$v.password.incorrectPassword);
     },
-    loginPasswordFeedback() {
+    passwordFeedback() {
       return !this.$v.password.incorrectPassword ? 'Incorrect password. Try again.'
         : 'Password required';
     },
@@ -222,9 +211,7 @@ export default {
     margin-top: 12px;
     height: 35px;
   }
-
   .separator {
     margin-bottom: 30px;
   }
-
 </style>

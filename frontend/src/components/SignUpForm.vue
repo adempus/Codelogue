@@ -172,21 +172,11 @@ export default {
         this.$set(this.signUpStatus, 'attemptedEmail', this.email);
       }
     },
-    /**
-     * To clear username and email field error messages after corrections are made to them,
-     * post server side validation.
-     * */
-    applyFieldChange(signUpStatusErrorObj, errorObjName, condition) {
-      if (this.signUpStatus.response !== null) {
-        if (this.signUpStatus.submitClicked && this.signUpStatus.response.error) {
-          if (signUpStatusErrorObj) this.$set(this.signUpStatus, errorObjName, condition);
-        }
-      }
-    }
   },
   watch: {
     email() {
       this.applyFieldChange(
+        this.signUpStatus,
         this.signUpStatus.isExistingEmail,
         'isExistingEmail',
         this.signUpStatus.attemptedEmail.toUpperCase() === this.email.toUpperCase()
@@ -194,6 +184,7 @@ export default {
     },
     username() {
       this.applyFieldChange(
+        this.signUpStatus,
         this.signUpStatus.isExistingUsername,
         'isExistingUsername',
         this.signUpStatus.attemptedUsername.toUpperCase() === this.username.toUpperCase()

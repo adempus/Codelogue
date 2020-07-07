@@ -62,6 +62,17 @@ Vue.mixin({
         size: size
       };
     },
+    /**
+     * To clear field error messages on signup and signin forms, after corrections are made to them,
+     * post server side validation.
+     * */
+    applyFieldChange(formStatusObj, statusErrorObj, errObjName, condition) {
+      if (formStatusObj.response !== null) {
+        if (formStatusObj.submitClicked && formStatusObj.response.error) {
+          if (statusErrorObj) this.$set(formStatusObj, errObjName, condition);
+        }
+      }
+    }
   }
 });
 
