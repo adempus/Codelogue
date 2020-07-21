@@ -15,7 +15,10 @@ body, html {
   height: 100%;
   background-color: #323645;
 }
-
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif, NTR;
   -webkit-font-smoothing: antialiased;

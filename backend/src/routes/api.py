@@ -23,11 +23,12 @@ def testRoute():
     return jsonify({'testData': 'Some test data!', 'sessionToken': token})
 
 
-@index.route('/protected-test', methods=['GET', 'POST'])
+@index.route('/authenticate', methods=['GET', 'POST'])
 @jwt_required
 def protectedTestRoute():
     user = get_jwt_identity()
-    return jsonify({'user': user})
+    # print(f'user shit: {user}')
+    return jsonify(user)
 
 
 ''' non-user routes '''

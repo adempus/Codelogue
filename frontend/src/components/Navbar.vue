@@ -5,13 +5,19 @@
         <h1 class="app_name">codelogue_</h1>
       </template>
       <template #end>
-        <Button type="button" class="p-button-sm login_btn" label="Sign In"
-                @click="navSignInPage()"/>
+        <div v-if="!isSignedIn">
+          <Button type="button" class="p-button-sm login_btn" label="Sign In"
+                  @click="navSignInPage()"/>
+        </div>
+        <div v-else class="p-grid">
+          <Button icon="pi pi-power-off"
+                  id="signout_btn"
+                  class="p-col p-button-rounded p-button-outlined"/>
+        </div>
       </template>
     </Menubar>
   </div>
 </template>
-
 <script>
 export default {
   name: 'Navbar',
@@ -20,7 +26,7 @@ export default {
   },
   data() {
     return {
-      items: [],
+      items: [{ label: 'Username', icon: 'pi pi-power-off', visible: this.isSignedIn }],
     };
   },
   methods: {
@@ -31,9 +37,13 @@ export default {
       this.$router.push('sign-in');
     },
   },
+  computed: {
+    isSignedIn() {
+      return this.$store.getters.isSignedIn;
+    }
+  }
 };
 </script>
-
 <style scoped>
   .navbar {
     position: fixed;
@@ -52,11 +62,32 @@ export default {
     font-weight: 400;
     color: #DB564E;
   }
-
   .login_btn {
     background-color: #DB564E;
     border-color: #DB564E;
     display: inline-block;
     height: 35px;
+  }
+
+
+  #signout_btn {
+    background-color: inherit;
+    border-color: #DB564E;
+    color: #DB564E;
+    height: 40px;
+    width: 40px;
+  }
+  #signout_btn:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  #signout_btn:hover {
+    background-color: #DB564E;
+    color: #272A36;
+  }
+  #signout_btn:active {
+    background-color: #e58883;
+    border-color: #e58883;
+    color: #272A36;
   }
 </style>

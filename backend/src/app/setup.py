@@ -9,10 +9,10 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from .models import db
 from ..routes import *
-from flask_jwt_extended import JWTManager
 
 
 load_dotenv(verbose=True)
+
 
 def createApp():
     """ :return a Flask app instance. """
@@ -43,7 +43,6 @@ def setupJWT(app):
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = duration(minutes=35)
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'error'
-    JWTManager(app)
 
 
 def getDatabaseURI():

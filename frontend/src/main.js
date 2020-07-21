@@ -6,6 +6,7 @@ import Card from 'primevue/card';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import Dialog from 'primevue/dialog';
+import Tooltip from 'primevue/tooltip';
 
 // vuelidate for form validation
 import Vuelidate from 'vuelidate';
@@ -21,10 +22,11 @@ import Landing from './components/Landing.vue';
 import SignInForm from './components/SignInForm.vue';
 import SignUpForm from './components/SignUpForm.vue';
 import FeedbackTextInput from './components/subcomponents/FeedbackTextInput.vue';
+import UserSession from './components/subcomponents/UserSession.vue';
+import NotSignedInError from './components/subcomponents/NotSignedInError.vue';
 
 // server endpoint urls
 import endpoints from './router/endpoints';
-
 import 'primevue/resources/themes/saga-blue/theme.css'; // theme
 import 'primevue/resources/primevue.min.css'; // core css
 // Importing the base PrimeIcon styles
@@ -41,9 +43,12 @@ Vue.component('Navbar', Navbar);
 Vue.component('Landing', Landing);
 Vue.component('SignInForm', SignInForm);
 Vue.component('SignUpForm', SignUpForm);
+Vue.component('NotSignedInError', NotSignedInError);
+Vue.component('UserSession', UserSession);
 Vue.component('FeedbackTextInput', FeedbackTextInput);
 Vue.component('Toast', Toast);
 Vue.component('Dialog', Dialog);
+Vue.directive('tooltip', Tooltip);
 
 Vue.use(Vuelidate);
 Vue.use(ToastService);
@@ -64,7 +69,7 @@ Vue.mixin({
     },
     /**
      * To clear field error messages on signup and signin forms, after corrections are made to them,
-     * post server side validation.
+     * post server-side validation.
      * */
     applyFieldChange(formStatusObj, statusErrorObj, errObjName, condition) {
       if (formStatusObj.response !== null) {
@@ -73,7 +78,12 @@ Vue.mixin({
         }
       }
     }
-  }
+  },
+  // computed: {
+  //   isSignedIn() {
+  //     return this.$store.getters.isSignedIn;
+  //   }
+  // }
 });
 
 new Vue({

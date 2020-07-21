@@ -4,7 +4,7 @@
       <h1 id="signin_header">Sign In</h1>
     </template>
     <template slot="content">
-      <form class="p-fluid p-formgrid p-grid p-justify-center">
+      <form v-on:keyup.enter='signInUser()' class="p-fluid p-formgrid p-grid p-justify-center">
         <!-- email input -->
         <FeedbackTextInput
             :value="email"
@@ -26,7 +26,7 @@
         <Button @click="signInUser()"
                 type="button" label="Login" class="p-button-sm login_btn" id="signin_btn"/>
       </form>
-      <p class="success_msg" v-show="signInStatus.successful">Success</p>
+      <p class="success_msg" v-show="signInStatus.success">Success</p>
     </template>
   </Card>
 </template>
@@ -53,7 +53,7 @@ export default {
         isWrongPassword: false,
         attemptedEmail: '',
         attemptedPassword: '',
-        successful: false,
+        success: false,
       },
     };
   },
@@ -82,11 +82,10 @@ export default {
         return;
       }
       this.requestSignIn().then((response) => {
-        console.log('sign in response: ', response);
         this.$set(this.signInStatus, 'response', response.data);
         if (this.signInStatus.response.error) {
           console.log('error occured');
-          this.$set(this.signInStatus, 'successful', false);
+          this.$set(this.signInStatus, 'success', false);
           this.$set(
             this.signInStatus,
             'isNonexistentEmail',
@@ -99,7 +98,7 @@ export default {
           );
           this.trackResponseErrors();
         } else {
-          this.$set(this.signInStatus, 'successful', true);
+          this.$set(this.signInStatus, 'success', true);
         }
       });
     },
@@ -136,6 +135,17 @@ export default {
         this.signInStatus.attemptedPassword === this.password
       );
     },
+    signInStatus: {
+      handler: function (value) {
+        if (value.success) {
+          const token = this.signInStatus.response.token;
+          console.log('...and voila!');
+          localStorage.setItem('token', token);
+          this.$store.dispatch('setStateSignedIn');
+        }
+      },
+      deep: true
+    }
   },
   computed: {
     emailFieldError() {

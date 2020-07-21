@@ -3,14 +3,14 @@ import Vuex from 'vuex';
 import axios from 'axios';
 import endpoints from '../router/endpoints';
 
-
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   // reactive equivalent to vue instance data attributes
   state: {
     isSignedIn: false,
-    userId: null,
+    username: null,
+
   },
   mutations: {
     // used to commit and track changes to state.
@@ -18,8 +18,8 @@ export default new Vuex.Store({
     setSignInState(currentState, newState) {
       currentState.isSignedIn = newState;
     },
-    setUserId(currentState, newState) {
-      currentState.userId = newState;
+    setUsername(currentState, newState) {
+      currentState.username = newState;
     }
   },
   actions: {
@@ -27,28 +27,27 @@ export default new Vuex.Store({
     setStateSignedIn(context) {
       context.commit('setSignInState', true);
     },
-    setStateSignedOut(context) {
-      context.commit('setSignInState', false);
-      context.commit('setUserId', null);
-    },
     updateSignInValidation(context) {
       if (localStorage.getItem('token') !== null) {
         axios.get(endpoints.auth, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }).then((response) => {
-          console.log('Auth response: ', response);
+          console.log('auth response: ', response);
           const res = response.data;
           if (res.error) {
-            console.log('authentication error response');
+            console.log('sign in error: ', res.msg);
             context.commit('setSignInState', false);
-            context.commit('setUserId', null);
+            context.commit('setUsername', null);
           } else {
             context.commit('setSignInState', true);
-            context.commit('setUserId', res.data.user.id);
+            context.commit('setUsername', res.user.username);
           }
-          console.log('Auth response: ', response);
         });
       }
+    },
+    setStateSignedOut(context) {
+      context.commit('setSignInState', false);
+      context.commit('setUsername', null);
     },
   },
   getters: {
@@ -56,10 +55,10 @@ export default new Vuex.Store({
     isSignedIn(state) {
       return state.isSignedIn;
     },
-    userId(state) {
-      return state.userId;
+    username(state) {
+      return state.username;
     }
   },
-  modules: {
-  },
 });
+
+export default store;

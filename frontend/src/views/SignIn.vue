@@ -8,7 +8,20 @@
 
 <script>
 export default {
-  name: 'SignIn'
+  name: 'SignIn',
+  watch: {
+    isSignedIn() {
+      if (this.isSignedIn) {
+        // this.$router.replace({ name: 'Home', params: { username: this.username } });
+        this.$router.replace({ name: 'Home' });
+      }
+    }
+  },
+  computed: {
+    isSignedIn() {
+      return this.$store.getters.isSignedIn;
+    }
+  },
 };
 </script>
 

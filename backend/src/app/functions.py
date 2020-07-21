@@ -2,7 +2,7 @@
 Contains app functionality for the app's features. Most of these functions are invoked via API routes.
 """
 from flask_jwt_extended import create_access_token
-from flask import make_response
+from flask import make_response, jsonify
 from .models import User
 from .setup import db
 import bcrypt
@@ -10,7 +10,7 @@ import bcrypt
 
 def signUpUser(user):
     if None not in user.values():
-        email, username = user['email'], user['username']
+        email, username = user['email'].strip(), user['username'].strip()
         emailQuery = User.query.filter_by(email=email).first()
         usernameQuery = User.query.filter_by(username=username).first()
         dbRecordConflict = {
@@ -73,5 +73,3 @@ def getSignInPayload(query):
         'firstName': query.first_name,
         'username': query.username
     }
-
-
