@@ -16,6 +16,7 @@ export default {
 <style>
   body {
     margin-top: 2vh;
-    background-color: inherit;
+    background-color: #3c3f4a;
+    /*background-color: inherit;*/
   }
 </style>

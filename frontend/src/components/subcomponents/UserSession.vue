@@ -27,5 +27,7 @@ export default {
 </script>
 
 <style scoped>
-
+body {
+  background-color: #323645 !important;
+}
 </style>
