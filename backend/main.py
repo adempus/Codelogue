@@ -1,9 +1,15 @@
 from flask_jwt_extended import create_access_token, JWTManager
 from flask import jsonify
+from flask_graphql import GraphQLView
+from src.app import *
 from src.app import createApp
 
 app = createApp()
 jwt = JWTManager(app)
+
+app.add_url_rule(
+    '/graphql', view_func=GraphQLView.as_view('graphql', schema=schema, graphiql=True)
+)
 
 @jwt.expired_token_loader
 def handleExpiredSession(expiredToken):

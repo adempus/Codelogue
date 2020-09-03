@@ -27,7 +27,7 @@ def testRoute():
 @jwt_required
 def protectedTestRoute():
     user = get_jwt_identity()
-    # print(f'user shit: {user}')
+    print(f'user info: {user}')
     return jsonify(user)
 
 

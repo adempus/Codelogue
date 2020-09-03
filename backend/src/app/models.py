@@ -23,9 +23,6 @@ class User(db.Model):
         self.email = email
         self.password = password
 
-    def __repr__(self):
-        return  f'user id: {self.id}'
-
 
 class Folder(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
@@ -46,6 +43,7 @@ class Snippet(db.Model):
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=True)
+    programmingLanguage = db.relationship('ProgrammingLanguage', backref='Snippet', lazy=True)
     snippetTags = db.relationship('Tag', secondary=snippetTags, lazy='subquery',
         backref=db.backref('snippets', lazy=True))
     date_created = db.Column(db.DateTime, nullable=False)
@@ -54,6 +52,7 @@ class Snippet(db.Model):
 class ProgrammingLanguage(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
+    snippets = db.relationship('Snippet', backref='ProgrammingLanguage', lazy=True)
 
 
 class Tag(db.Model):
