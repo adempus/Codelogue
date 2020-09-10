@@ -1,6 +1,7 @@
 """
 Contains app functionality for the app's features. Most of these functions are invoked via API routes.
 """
+from graphql_relay.node.node import from_global_id
 from flask_jwt_extended import create_access_token
 from flask import make_response, jsonify
 from .models import User
@@ -73,3 +74,14 @@ def getSignInPayload(query):
         'firstName': query.first_name,
         'username': query.username
     }
+
+
+def input_to_dictionary(input):
+    """Method to convert Graphene inputs into dictionary"""
+    dictionary = {}
+    for key in input:
+        # Convert GraphQL global id to database id
+        if key[-2:] == 'id':
+            input[key] = from_global_id(input[key])[1]
+        dictionary[key] = input[key]
+    return dictionary
