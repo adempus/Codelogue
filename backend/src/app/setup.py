@@ -1,6 +1,7 @@
 """
  code for setting up the app with a database, route blueprints, and other configurations.
 """
+
 import os
 from flask import Flask
 from pendulum import duration
@@ -9,20 +10,23 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from .models import db
 from ..routes import *
-
+import graphene
+from .queries import Query
+from .mutations import Mutation
 
 load_dotenv(verbose=True)
 
 
 def createApp():
-    """ :return a Flask app instance. """
+    """ :return a dictionary containing the flask app instance with graphql schema. """
     app = Flask(__name__)
     applyConfigs(app)
     registerBlueprints(app)
     app.app_context().push()
     db.init_app(app)
     Migrate(app, db)
-    return app
+    schema = graphene.Schema(query=Query, mutation=Mutation)
+    return { 'app': app, 'schema': schema }
 
 
 def registerBlueprints(app):
