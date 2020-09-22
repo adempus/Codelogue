@@ -20,6 +20,20 @@ class CreateFolder(graphene.Mutation):
         db.session.commit()
         return CreateFolder(folder=folder)
 
+class UpdateFolder(graphene.Mutation):
+    folder = graphene.Field(lambda: FolderObject)
+    class Arguments:
+        folder_id = graphene.ID(required=True)
+        name = graphene.String(required=True)
+
+    def mutate(self, info, **input):
+        folder_id = from_global_id(input.pop('folder_id'))[1]
+        folder = db.session.query(Folder).filter_by(id=folder_id)
+        folder.update(input)
+        db.session.commit()
+        folder = db.session.query(Folder).filter_by(id=folder_id).first()
+        return UpdateFolder(folder)
+
 
 class CreateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
@@ -46,6 +60,25 @@ class CreateSnippet(graphene.Mutation):
         db.session.commit()
         return CreateSnippet(snippet=snippet)
 
+class UpdateSnippet(graphene.Mutation):
+    snippet = graphene.Field(lambda: SnippetObject)
+    class Arguments:
+        snippet_id = graphene.ID(required=True, description="Global graphql ID of the snippet")
+        folder_id = graphene.ID(required=False)
+        language_id = graphene.ID(required=False)
+        title = graphene.String(required=False)
+        content = graphene.String(required=False)
+        description = graphene.String(required=False)
+        snippetTags = graphene.List(required=False, of_type=graphene.String)
+
+    def mutate(self, info, **input):
+        snippet_id = from_global_id(input.pop('snippet_id'))[1]
+        snippet = db.session.query(Snippet).filter_by(id=snippet_id)
+        snippet.update(input)
+        db.session.commit()
+        snippet = db.session.query(Snippet).filter_by(id=snippet_id).first()
+        return UpdateSnippet(snippet)
+
 
 class CreateTags(graphene.Mutation):
     tag = graphene.Field(lambda: TagObject)
@@ -70,7 +103,7 @@ class CreateTaggedSnippets(graphene.Mutation):
     def mutate(self, info, snippet_tag_ids):
         for idPair in snippet_tag_ids:
             print(f"snippet tag pair: {idPair}")
-            tag_id = from_global_id(idPair['tag_id'])[1]
+            tag_id, snippet_id = from_global_id(idPair['tag_id'])[1]
             snippet_id = from_global_id(idPair['snippet_id'])[1]
             taggedSnippet = TaggedSnippets(tag_id=tag_id, snippet_id=snippet_id)
             db.session.add(taggedSnippet)
@@ -79,7 +112,11 @@ class CreateTaggedSnippets(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
+    # creations
     createFolder = CreateFolder.Field()
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
     createTaggedSnippets = CreateTaggedSnippets.Field()
+    # updates
+    updateSnippet = UpdateSnippet.Field()
+    updateFolder = UpdateFolder.Field()
