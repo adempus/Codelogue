@@ -58,4 +58,3 @@ def getDatabaseURI():
     db_host = os.getenv('DB_HOST')
     db_port = os.getenv('DB_PORT')
     return f"{db_driver}://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_name}"
-

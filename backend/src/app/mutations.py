@@ -2,8 +2,8 @@ import graphene
 import pendulum
 from .setup import db
 from graphql_relay.node.node import from_global_id
-from .objects import FolderObject, SnippetObject
-from .models import Folder, Snippet
+from .objects import FolderObject, SnippetObject, TagObject, TaggedSnippetObject
+from .models import Folder, Snippet, Tag, TaggedSnippets
 
 
 class CreateFolder(graphene.Mutation):
@@ -30,6 +30,7 @@ class CreateSnippet(graphene.Mutation):
         title = graphene.String(required=True)
         content = graphene.String(required=True)
         description = graphene.String(required=False)
+        snippetTags = graphene.List(required=False, of_type=graphene.String)
 
     def mutate(self, info, user_id, folder_id, language_id, title, content, description):
         user_id = from_global_id(user_id)[1]
@@ -46,6 +47,39 @@ class CreateSnippet(graphene.Mutation):
         return CreateSnippet(snippet=snippet)
 
 
+class CreateTags(graphene.Mutation):
+    tag = graphene.Field(lambda: TagObject)
+    class Arguments:
+        user_id = graphene.ID(required=True)
+        keywords = graphene.List(required=True, of_type=graphene.String)
+
+    def mutate(self, info,  user_id, keywords):
+        user_id = from_global_id(user_id)[1]
+        for keyword in keywords:
+            tag = Tag(user_id=user_id, keyword=keyword)
+            db.session.add(tag)
+            db.session.commit()
+        return CreateTags(tag=tag)
+
+
+class CreateTaggedSnippets(graphene.Mutation):
+    taggedSnippet = graphene.Field(lambda: TaggedSnippetObject)
+    class Arguments:
+        snippet_tag_ids = graphene.List(required=True, of_type=graphene.JSONString)
+
+    def mutate(self, info, snippet_tag_ids):
+        for idPair in snippet_tag_ids:
+            print(f"snippet tag pair: {idPair}")
+            tag_id = from_global_id(idPair['tag_id'])[1]
+            snippet_id = from_global_id(idPair['snippet_id'])[1]
+            taggedSnippet = TaggedSnippets(tag_id=tag_id, snippet_id=snippet_id)
+            db.session.add(taggedSnippet)
+            db.session.commit()
+        return CreateTaggedSnippets(taggedSnippet=taggedSnippet)
+
+
 class Mutation(graphene.ObjectType):
     createFolder = CreateFolder.Field()
     createSnippet = CreateSnippet.Field()
+    createTags = CreateTags.Field()
+    createTaggedSnippets = CreateTaggedSnippets.Field()

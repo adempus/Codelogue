@@ -32,8 +32,8 @@ class Folder(db.Model):
     snippets = db.relationship('Snippet', backref='folder', lazy=True)
 
 snippetTags = db.Table('tagged_snippets',
-                         db.Column('tag_id', db.BigInteger, db.ForeignKey('tag.id'), primary_key=True),
-                         db.Column('snippet_id', db.BigInteger, db.ForeignKey('snippet.id'), primary_key=True))
+                         db.Column('tag_id', db.BigInteger, db.ForeignKey('tag.id')),
+                         db.Column('snippet_id', db.BigInteger, db.ForeignKey('snippet.id')))
 
 class Snippet(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
@@ -44,8 +44,9 @@ class Snippet(db.Model):
     content = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=True)
     programmingLanguage = db.relationship('ProgrammingLanguage', backref='Snippet', lazy=True)
-    snippetTags = db.relationship('Tag', secondary=snippetTags, lazy='subquery',
+    tags = db.relationship('Tag', secondary=snippetTags, lazy='subquery',
         backref=db.backref('snippets', lazy=True))
+    taggedSnippets = db.relationship('TaggedSnippets',  backref='snippet', lazy=True)
     date_created = db.Column(db.DateTime, nullable=False)
 
 
@@ -60,3 +61,9 @@ class Tag(db.Model):
     user_id = db.Column(db.BigInteger, db.ForeignKey('user.id'), nullable=False)
     keyword = db.Column(db.String(100), nullable=False)
 
+
+class TaggedSnippets(db.Model):
+    __table_args__ = {'extend_existing': True}
+    tag_id = db.Column(db.BigInteger, db.ForeignKey('tag.id'), primary_key=True)
+    snippet_id = db.Column(db.BigInteger, db.ForeignKey('snippet.id'), primary_key=True)
+    tag = db.relationship('Tag')
