@@ -27,11 +27,11 @@ class UpdateFolder(graphene.Mutation):
         name = graphene.String(required=True)
 
     def mutate(self, info, **input):
-        folder_id = from_global_id(input.pop('folder_id'))[1]
-        folder = db.session.query(Folder).filter_by(id=folder_id)
+        folderId = from_global_id(input.pop('folder_id'))[1]
+        folder = db.session.query(Folder).filter_by(id=folderId)
         folder.update(input)
         db.session.commit()
-        folder = db.session.query(Folder).filter_by(id=folder_id).first()
+        folder = db.session.query(Folder).filter_by(id=folderId).first()
         return UpdateFolder(folder)
 
 
@@ -47,12 +47,12 @@ class CreateSnippet(graphene.Mutation):
         snippetTags = graphene.List(required=False, of_type=graphene.String)
 
     def mutate(self, info, user_id, folder_id, language_id, title, content, description):
-        user_id = from_global_id(user_id)[1]
-        language_id = from_global_id(language_id)[1]
-        folder_id = from_global_id(folder_id)[1]
+        userId = from_global_id(user_id)[1]
+        languageId = from_global_id(language_id)[1]
+        folderId = from_global_id(folder_id)[1]
         dateCreated = pendulum.now().to_datetime_string()
         snippet = Snippet(
-            user_id=user_id, folder_id=folder_id, language_id=language_id,
+            user_id=userId, folder_id=folderId, language_id=languageId,
             title=title, content=content, description=description,
             date_created=dateCreated
         )
@@ -72,11 +72,11 @@ class UpdateSnippet(graphene.Mutation):
         snippetTags = graphene.List(required=False, of_type=graphene.String)
 
     def mutate(self, info, **input):
-        snippet_id = from_global_id(input.pop('snippet_id'))[1]
-        snippet = db.session.query(Snippet).filter_by(id=snippet_id)
+        snippetId = from_global_id(input.pop('snippet_id'))[1]
+        snippet = db.session.query(Snippet).filter_by(id=snippetId)
         snippet.update(input)
         db.session.commit()
-        snippet = db.session.query(Snippet).filter_by(id=snippet_id).first()
+        snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
         return UpdateSnippet(snippet)
 
 
@@ -87,9 +87,9 @@ class CreateTags(graphene.Mutation):
         keywords = graphene.List(required=True, of_type=graphene.String)
 
     def mutate(self, info,  user_id, keywords):
-        user_id = from_global_id(user_id)[1]
+        userId = from_global_id(user_id)[1]
         for keyword in keywords:
-            tag = Tag(user_id=user_id, keyword=keyword)
+            tag = Tag(user_id=userId, keyword=keyword)
             db.session.add(tag)
             db.session.commit()
         return CreateTags(tag=tag)
