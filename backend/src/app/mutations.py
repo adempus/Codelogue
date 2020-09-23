@@ -98,14 +98,14 @@ class CreateTags(graphene.Mutation):
 class CreateTaggedSnippets(graphene.Mutation):
     taggedSnippet = graphene.Field(lambda: TaggedSnippetObject)
     class Arguments:
-        snippet_tag_ids = graphene.List(required=True, of_type=graphene.JSONString)
+        snippet_id = graphene.ID(required=True)
+        tag_ids = graphene.List(required=True, of_type=graphene.ID)
 
-    def mutate(self, info, snippet_tag_ids):
-        for idPair in snippet_tag_ids:
-            print(f"snippet tag pair: {idPair}")
-            tag_id, snippet_id = from_global_id(idPair['tag_id'])[1]
-            snippet_id = from_global_id(idPair['snippet_id'])[1]
-            taggedSnippet = TaggedSnippets(tag_id=tag_id, snippet_id=snippet_id)
+    def mutate(self, info, snippet_id, tag_ids):
+        snippetId = from_global_id(snippet_id)[1]
+        for id in tag_ids:
+            tagId = from_global_id(id)[1]
+            taggedSnippet = TaggedSnippets(snippet_id=snippetId, tag_id=tagId)
             db.session.add(taggedSnippet)
             db.session.commit()
         return CreateTaggedSnippets(taggedSnippet=taggedSnippet)
