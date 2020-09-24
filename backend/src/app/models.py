@@ -29,7 +29,7 @@ class Folder(db.Model):
     name = db.Column(db.String(100), unique=False, nullable=False)
     user_id = db.Column(db.BigInteger, db.ForeignKey('user.id'), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False)
-    snippets = db.relationship('Snippet', backref='folder', lazy=True)
+    snippets = db.relationship('Snippet', backref='folder', lazy=True, cascade="all, delete")
 
 snippetTags = db.Table('tagged_snippets',
                          db.Column('tag_id', db.BigInteger, db.ForeignKey('tag.id')),

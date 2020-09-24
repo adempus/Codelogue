@@ -76,6 +76,10 @@ def getSignInPayload(query):
     }
 
 
+def resolveGlobalId(graphqlId):
+    return from_global_id(graphqlId)[1]
+
+
 def input_to_dictionary(input):
     """Method to convert Graphene inputs into dictionary"""
     dictionary = {}

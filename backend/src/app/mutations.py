@@ -1,10 +1,12 @@
 import graphene
 import pendulum
 from .setup import db
-from graphql_relay.node.node import from_global_id
 from .objects import FolderObject, SnippetObject, TagObject, TaggedSnippetObject
 from .models import Folder, Snippet, Tag, TaggedSnippets
+import src.app.functions as functions
 
+
+''' Folder mutations '''
 
 class CreateFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
@@ -13,7 +15,7 @@ class CreateFolder(graphene.Mutation):
         user_id = graphene.ID(required=True)
 
     def mutate(self, info, name, user_id):
-        userId = from_global_id(user_id)[1]
+        userId = functions.resolveGlobalId(user_id)
         dateCreated = pendulum.now().to_datetime_string()
         folder = Folder(name=name, user_id=userId, date_created=dateCreated)
         db.session.add(folder)
@@ -27,13 +29,27 @@ class UpdateFolder(graphene.Mutation):
         name = graphene.String(required=True)
 
     def mutate(self, info, **input):
-        folderId = from_global_id(input.pop('folder_id'))[1]
+        folderId = functions.resolveGlobalId(input.pop('foler_id'))
         folder = db.session.query(Folder).filter_by(id=folderId)
         folder.update(input)
         db.session.commit()
         folder = db.session.query(Folder).filter_by(id=folderId).first()
         return UpdateFolder(folder)
 
+class DeleteFolder(graphene.Mutation):
+    folder = graphene.Field(lambda: FolderObject)
+    class Arguments:
+        folder_id = graphene.ID(required=True)
+
+    def mutate(self, info, folder_id):
+        folderId = functions.resolveGlobalId(folder_id)
+        folder = db.session.query(Folder).filter_by(id=folderId).first()
+        db.session.delete(folder)
+        db.session.commit()
+        return DeleteFolder(folder)
+
+
+''' Snippet mutations '''
 
 class CreateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
@@ -47,9 +63,9 @@ class CreateSnippet(graphene.Mutation):
         snippetTags = graphene.List(required=False, of_type=graphene.String)
 
     def mutate(self, info, user_id, folder_id, language_id, title, content, description):
-        userId = from_global_id(user_id)[1]
-        languageId = from_global_id(language_id)[1]
-        folderId = from_global_id(folder_id)[1]
+        userId = functions.resolveGlobalId(user_id)
+        languageId = functions.resolveGlobalId(language_id)
+        folderId = functions.resolveGlobalId(folder_id)
         dateCreated = pendulum.now().to_datetime_string()
         snippet = Snippet(
             user_id=userId, folder_id=folderId, language_id=languageId,
@@ -72,13 +88,27 @@ class UpdateSnippet(graphene.Mutation):
         snippetTags = graphene.List(required=False, of_type=graphene.String)
 
     def mutate(self, info, **input):
-        snippetId = from_global_id(input.pop('snippet_id'))[1]
+        snippetId = functions.resolveGlobalId(input.pop('snippet_id'))
         snippet = db.session.query(Snippet).filter_by(id=snippetId)
         snippet.update(input)
         db.session.commit()
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
         return UpdateSnippet(snippet)
 
+class DeleteSnippet(graphene.Mutation):
+    snippet = graphene.Field(lambda: SnippetObject)
+    class Arguments:
+        snippet_id = graphene.ID(required=True, description="Global graphql ID of the snippet to delete")
+
+    def mutate(self, info, snippet_id):
+        snippetId = functions.resolveGlobalId(snippet_id)
+        snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
+        db.session.delete(snippet)
+        db.session.commit()
+        return DeleteSnippet(snippet)
+
+
+'''Tag mutations'''
 
 class CreateTags(graphene.Mutation):
     tag = graphene.Field(lambda: TagObject)
@@ -87,7 +117,7 @@ class CreateTags(graphene.Mutation):
         keywords = graphene.List(required=True, of_type=graphene.String)
 
     def mutate(self, info,  user_id, keywords):
-        userId = from_global_id(user_id)[1]
+        userId = functions.resolveGlobalId(user_id)
         for keyword in keywords:
             tag = Tag(user_id=userId, keyword=keyword)
             db.session.add(tag)
@@ -102,9 +132,9 @@ class CreateTaggedSnippets(graphene.Mutation):
         tag_ids = graphene.List(required=True, of_type=graphene.ID)
 
     def mutate(self, info, snippet_id, tag_ids):
-        snippetId = from_global_id(snippet_id)[1]
+        snippetId = functions.resolveGlobalId(snippet_id)
         for id in tag_ids:
-            tagId = from_global_id(id)[1]
+            tagId = functions.resolveGlobalId(id)
             taggedSnippet = TaggedSnippets(snippet_id=snippetId, tag_id=tagId)
             db.session.add(taggedSnippet)
             db.session.commit()
@@ -120,3 +150,6 @@ class Mutation(graphene.ObjectType):
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()
+    # deletions
+    deleteFolder = DeleteFolder.Field()
+    deleteSnippet = DeleteSnippet.Field()
