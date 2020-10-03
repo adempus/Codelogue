@@ -1,9 +1,45 @@
 import graphene
 import pendulum
 from .setup import db
-from .objects import FolderObject, SnippetObject, TagObject, TaggedSnippetObject
-from .models import Folder, Snippet, Tag, TaggedSnippets
+from .objects import UserObject, FolderObject, SnippetObject, TagObject, TaggedSnippetObject
+from .models import User, Folder, Snippet, Tag, TaggedSnippets
+from .inputs import CreateSnippetInput, UpdateSnippetInput
 import src.app.functions as functions
+
+
+''' User mutations '''
+
+class CreateUser(graphene.Mutation):
+    user = graphene.Field(lambda: UserObject)
+    class Arguments:
+        first_name = graphene.String(required=True)
+        last_name = graphene.String(required=True)
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    def mutate(self, info, first_name, last_name, username, email, password):
+        hashedPass = functions.getHashedPass(password)
+        newUser = User(
+            firstName=first_name, lastName=last_name, userName=username,
+            email=email, password=hashedPass
+        )
+        db.session.add(newUser)
+        db.session.commit()
+        return CreateUser(user=newUser)
+
+class UpadteUserPassword(graphene.Mutation):
+    user = graphene.Field(lambda: UserObject)
+    class Arguments:
+        user_id = graphene.ID(required=True)
+        new_password = graphene.String(required=True)
+
+    def mutate(self, info, user_id, new_password):
+        userId = functions.resolveGlobalId(user_id)
+        user = db.session.query(User).filter_by(id=userId)
+        user.update({'password': functions.getHashedPass(new_password)})
+        db.session.commit()
+        return UpadteUserPassword()
 
 
 ''' Folder mutations '''
@@ -54,22 +90,16 @@ class DeleteFolder(graphene.Mutation):
 class CreateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
     class Arguments:
-        user_id = graphene.ID(required=True)
-        folder_id = graphene.ID(required=False)
-        language_id = graphene.ID(required=False)
-        title = graphene.String(required=True)
-        content = graphene.String(required=True)
-        description = graphene.String(required=False)
-        snippetTags = graphene.List(required=False, of_type=graphene.String)
+        input = CreateSnippetInput(required=True)
 
-    def mutate(self, info, user_id, folder_id, language_id, title, content, description):
-        userId = functions.resolveGlobalId(user_id)
-        languageId = functions.resolveGlobalId(language_id)
-        folderId = functions.resolveGlobalId(folder_id)
+    def mutate(self, info, input):
+        userId = functions.resolveGlobalId(input['user_id'])
+        languageId = functions.resolveGlobalId(input['language_id'])
+        folderId = functions.resolveGlobalId(input['folder_id'])
         dateCreated = pendulum.now().to_datetime_string()
         snippet = Snippet(
             user_id=userId, folder_id=folderId, language_id=languageId,
-            title=title, content=content, description=description,
+            title=input['title'], content=input['content'], description=input['description'],
             date_created=dateCreated
         )
         db.session.add(snippet)
@@ -79,17 +109,13 @@ class CreateSnippet(graphene.Mutation):
 class UpdateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
     class Arguments:
-        snippet_id = graphene.ID(required=True, description="Global graphql ID of the snippet")
-        folder_id = graphene.ID(required=False)
-        language_id = graphene.ID(required=False)
-        title = graphene.String(required=False)
-        content = graphene.String(required=False)
-        description = graphene.String(required=False)
-        snippetTags = graphene.List(required=False, of_type=graphene.String)
+        input = UpdateSnippetInput(required=True)
 
-    def mutate(self, info, **input):
+    def mutate(self, info, input):
         snippetId = functions.resolveGlobalId(input.pop('snippet_id'))
         snippet = db.session.query(Snippet).filter_by(id=snippetId)
+        # transform global id strings into intger values before db insertion
+        input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
         snippet.update(input)
         db.session.commit()
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
@@ -143,6 +169,7 @@ class CreateTaggedSnippets(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     # creations
+    createUser = CreateUser.Field()
     createFolder = CreateFolder.Field()
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
@@ -150,6 +177,7 @@ class Mutation(graphene.ObjectType):
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()
+    updateUserPassword = UpadteUserPassword.Field()
     # deletions
     deleteFolder = DeleteFolder.Field()
     deleteSnippet = DeleteSnippet.Field()
