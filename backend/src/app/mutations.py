@@ -6,11 +6,16 @@ from .models import User, Folder, Snippet, Tag, TaggedSnippets
 from .inputs import CreateSnippetInput, UpdateSnippetInput
 import src.app.functions as functions
 
+class MessageField(graphene.ObjectType):
+    error = graphene.Boolean()
+    message = graphene.String()
+
 
 ''' User mutations '''
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(lambda: UserObject)
+
     class Arguments:
         first_name = graphene.String(required=True)
         last_name = graphene.String(required=True)
@@ -21,7 +26,7 @@ class CreateUser(graphene.Mutation):
     def mutate(self, info, first_name, last_name, username, email, password):
         hashedPass = functions.getHashedPass(password)
         newUser = User(
-            firstName=first_name, lastName=last_name, userName=username,
+            first_name=first_name, last_name=last_name, username=username,
             email=email, password=hashedPass
         )
         db.session.add(newUser)
@@ -30,6 +35,7 @@ class CreateUser(graphene.Mutation):
 
 class UpadteUserPassword(graphene.Mutation):
     user = graphene.Field(lambda: UserObject)
+    message = graphene.Field(MessageField)
     class Arguments:
         user_id = graphene.ID(required=True)
         new_password = graphene.String(required=True)
@@ -39,7 +45,7 @@ class UpadteUserPassword(graphene.Mutation):
         user = db.session.query(User).filter_by(id=userId)
         user.update({'password': functions.getHashedPass(new_password)})
         db.session.commit()
-        return UpadteUserPassword()
+        return UpadteUserPassword(message=MessageField(error=False, message="Password change successful"))
 
 
 ''' Folder mutations '''
@@ -181,3 +187,4 @@ class Mutation(graphene.ObjectType):
     # deletions
     deleteFolder = DeleteFolder.Field()
     deleteSnippet = DeleteSnippet.Field()
+
