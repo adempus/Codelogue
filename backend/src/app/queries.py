@@ -2,6 +2,7 @@ import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 import sqlalchemy
 from .objects import *
+from . import functions
 
 
 class Query(graphene.ObjectType):
@@ -34,15 +35,20 @@ class Query(graphene.ObjectType):
 
     def resolve_get_user_snippets(self, info, user_id):
         query = SnippetObject.get_query(info)
-        return query.filter(Snippet.user_id == user_id).all()
+        return query.filter(Snippet.user_id == functions.resolveGlobalId(user_id)).all()
 
     def resolve_get_snippet_by_language(self, info, user_id, language_id):
         query = SnippetObject.get_query(info)
-        return query.filter(sqlalchemy.and_(Snippet.user_id == user_id, Snippet.language_id == language_id))
+        return query.filter(
+            sqlalchemy.and_(
+                Snippet.user_id == functions.resolveGlobalId(user_id),
+                Snippet.language_id == functions.resolveGlobalId(language_id)
+            )
+        )
 
     def resolve_get_user_folders(self, info, user_id):
         query = FolderObject.get_query(info)
-        return query.filter(Folder.user_id == user_id).all()
+        return query.filter(Folder.user_id == functions.resolveGlobalId(user_id)).all()
 
     def resolve_get_user_tags(self, info, user_id):
         query = TagObject.get_query(info)

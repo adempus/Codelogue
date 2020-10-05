@@ -20,6 +20,3 @@ class UpdateSnippetInput(graphene.InputObjectType, SnippetAttribute):
     title = graphene.String(required=False)
     content = graphene.String(required=False)
 
-
-
-

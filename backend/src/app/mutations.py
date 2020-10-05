@@ -15,7 +15,6 @@ class MessageField(graphene.ObjectType):
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(lambda: UserObject)
-
     class Arguments:
         first_name = graphene.String(required=True)
         last_name = graphene.String(required=True)
