@@ -119,7 +119,7 @@ class UpdateSnippet(graphene.Mutation):
     def mutate(self, info, input):
         snippetId = functions.resolveGlobalId(input.pop('snippet_id'))
         snippet = db.session.query(Snippet).filter_by(id=snippetId)
-        # transform global id strings into intger values before db insertion
+        # transform global id strings present in input, to integer values before insertion
         input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
         snippet.update(input)
         db.session.commit()
