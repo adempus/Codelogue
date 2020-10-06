@@ -2,7 +2,7 @@
 Contains app functionality for the app's features. Most of these functions are invoked via API routes.
 """
 from graphql_relay.node.node import from_global_id
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
 from flask import make_response, jsonify
 from .models import User
 from .setup import db
@@ -59,6 +59,31 @@ def signInUser(user):
                 return response
 
 
+def signIn(email, password):
+    userQuery = User.query.filter_by(email=email).first()
+    signInErrors = {
+        'userNotFound': userQuery is None,
+        'passwordInvalid': False
+    }
+    if signInErrors['userNotFound']:
+        return {'error': True, 'message': "No user found with this email", **signInErrors }
+    else:
+        savedPassword = userQuery.password
+        signInErrors['passwordInvalid'] = not bcrypt.checkpw(password.encode(), savedPassword.encode())
+        if signInErrors['passwordInvalid']:
+            return {'error': True, 'message': "Password is invalid", **signInErrors }
+        else:
+            sessionToken = generateSessionToken({'user': getSignInPayload(userQuery)})
+            print(f'token: {sessionToken}')
+            response = {
+                'message': 'Sign in successful',
+                'error': False,
+                'token': sessionToken,
+            }
+            return response
+
+
+
 def getHashedPass(password):
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf8')
@@ -66,6 +91,20 @@ def getHashedPass(password):
 
 def generateSessionToken(user):
     return create_access_token(identity=user)
+
+
+def resolveUserId():
+    # token = info.context.environ['HTTP_AUTHORIZATION']
+    user = get_jwt_identity()
+    return user['user']['id']
+
+
+def isResourceMatch(object):
+    userId = resolveUserId()
+    resMatch = object.user_id == userId
+    if not resMatch:
+        raise Exception('Resource accessed does not belong to user')
+    return resMatch
 
 
 def getSignInPayload(query):

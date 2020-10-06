@@ -11,8 +11,7 @@ class SnippetAttribute:
     snippetTags = graphene.List(required=False, of_type=graphene.String)
 
 class CreateSnippetInput(graphene.InputObjectType, SnippetAttribute):
-    # attribute needed to create a snippet
-    user_id = graphene.ID(required=True)
+    pass
 
 class UpdateSnippetInput(graphene.InputObjectType, SnippetAttribute):
     # attribute needed to modify a snippet

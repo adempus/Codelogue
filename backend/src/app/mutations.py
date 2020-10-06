@@ -1,5 +1,6 @@
 import graphene
 import pendulum
+from flask_jwt_extended import jwt_required
 from .setup import db
 from .objects import UserObject, FolderObject, SnippetObject, TagObject, TaggedSnippetObject
 from .models import User, Folder, Snippet, Tag, TaggedSnippets
@@ -47,16 +48,31 @@ class UpadteUserPassword(graphene.Mutation):
         return UpadteUserPassword(message=MessageField(error=False, message="Password change successful"))
 
 
+class CreateUserToken(graphene.Mutation):
+    error = graphene.Boolean()
+    userNotFound = graphene.Boolean()
+    passwordInvalid = graphene.Boolean()
+    message = graphene.String()
+    token = graphene.String()
+    class Arguments:
+        email = graphene.String()
+        password = graphene.String()
+
+    def mutate(self, info, email, password):
+        response = functions.signIn(email, password)
+        return response
+
+
 ''' Folder mutations '''
 
 class CreateFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
     class Arguments:
         name = graphene.String(description="Name of the folder", required=True)
-        user_id = graphene.ID(required=True)
 
-    def mutate(self, info, name, user_id):
-        userId = functions.resolveGlobalId(user_id)
+    @jwt_required
+    def mutate(self, info, name):
+        userId = functions.resolveUserId()
         dateCreated = pendulum.now().to_datetime_string()
         folder = Folder(name=name, user_id=userId, date_created=dateCreated)
         db.session.add(folder)
@@ -69,25 +85,30 @@ class UpdateFolder(graphene.Mutation):
         folder_id = graphene.ID(required=True)
         name = graphene.String(required=True)
 
+    @jwt_required
     def mutate(self, info, **input):
-        folderId = functions.resolveGlobalId(input.pop('foler_id'))
-        folder = db.session.query(Folder).filter_by(id=folderId)
-        folder.update(input)
-        db.session.commit()
+        folderId = functions.resolveGlobalId(input.pop('folder_id'))
         folder = db.session.query(Folder).filter_by(id=folderId).first()
-        return UpdateFolder(folder)
+        if functions.isResourceMatch(folder):
+            db.session.query(Folder).filter_by(id=folderId).update(input)
+            db.session.commit()
+            folder = db.session.query(Folder).filter_by(id=folderId).first()
+            return UpdateFolder(folder)
+
 
 class DeleteFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
     class Arguments:
         folder_id = graphene.ID(required=True)
 
+    @jwt_required
     def mutate(self, info, folder_id):
         folderId = functions.resolveGlobalId(folder_id)
         folder = db.session.query(Folder).filter_by(id=folderId).first()
-        db.session.delete(folder)
-        db.session.commit()
-        return DeleteFolder(folder)
+        if functions.isResourceMatch(folder):
+            db.session.delete(folder)
+            db.session.commit()
+            return DeleteFolder(folder)
 
 
 ''' Snippet mutations '''
@@ -97,8 +118,9 @@ class CreateSnippet(graphene.Mutation):
     class Arguments:
         input = CreateSnippetInput(required=True)
 
+    @jwt_required
     def mutate(self, info, input):
-        userId = functions.resolveGlobalId(input['user_id'])
+        userId = functions.resolveUserId()
         languageId = functions.resolveGlobalId(input['language_id'])
         folderId = functions.resolveGlobalId(input['folder_id'])
         dateCreated = pendulum.now().to_datetime_string()
@@ -116,27 +138,31 @@ class UpdateSnippet(graphene.Mutation):
     class Arguments:
         input = UpdateSnippetInput(required=True)
 
+    @jwt_required
     def mutate(self, info, input):
         snippetId = functions.resolveGlobalId(input.pop('snippet_id'))
-        snippet = db.session.query(Snippet).filter_by(id=snippetId)
-        # transform global id strings present in input, to integer values before insertion
-        input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
-        snippet.update(input)
-        db.session.commit()
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
-        return UpdateSnippet(snippet)
+        if functions.isResourceMatch(snippet):
+            # transform global id strings present in input, to integer values before insertion
+            input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
+            db.session.query(Snippet).filter_by(id=snippetId).update(input)
+            db.session.commit()
+            snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
+            return UpdateSnippet(snippet)
 
 class DeleteSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
     class Arguments:
         snippet_id = graphene.ID(required=True, description="Global graphql ID of the snippet to delete")
 
+    @jwt_required
     def mutate(self, info, snippet_id):
         snippetId = functions.resolveGlobalId(snippet_id)
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
-        db.session.delete(snippet)
-        db.session.commit()
-        return DeleteSnippet(snippet)
+        if functions.isResourceMatch(snippet):
+            db.session.delete(snippet)
+            db.session.commit()
+            return DeleteSnippet()
 
 
 '''Tag mutations'''
@@ -144,11 +170,11 @@ class DeleteSnippet(graphene.Mutation):
 class CreateTags(graphene.Mutation):
     tag = graphene.Field(lambda: TagObject)
     class Arguments:
-        user_id = graphene.ID(required=True)
         keywords = graphene.List(required=True, of_type=graphene.String)
 
-    def mutate(self, info,  user_id, keywords):
-        userId = functions.resolveGlobalId(user_id)
+    @jwt_required
+    def mutate(self, info, keywords):
+        userId = functions.resolveUserId()
         for keyword in keywords:
             tag = Tag(user_id=userId, keyword=keyword)
             db.session.add(tag)
@@ -162,6 +188,7 @@ class CreateTaggedSnippets(graphene.Mutation):
         snippet_id = graphene.ID(required=True)
         tag_ids = graphene.List(required=True, of_type=graphene.ID)
 
+    @jwt_required
     def mutate(self, info, snippet_id, tag_ids):
         snippetId = functions.resolveGlobalId(snippet_id)
         for id in tag_ids:
@@ -179,6 +206,7 @@ class Mutation(graphene.ObjectType):
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
     createTaggedSnippets = CreateTaggedSnippets.Field()
+    signInUser = CreateUserToken.Field()
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()
