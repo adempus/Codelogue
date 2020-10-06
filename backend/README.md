@@ -14,7 +14,7 @@ To install new packages for use in the project, run: ```poetry add package-name`
 in the `poetry.lock` and `pyproject.toml` files. So make sure they're included to commit in repo. 
 
 ### IDE Integration
-If you IDE cannot resolve the project's dependencies, you have to specify the project's interpreter in your IDE's settings.
+If your IDE cannot resolve the project's dependencies, you have to specify the project's interpreter in your IDE's settings.
 Run: ```poetry env info --path``` and copy the output.
 
 This path includes the interpreter configured for the project. In an IDE like Pycharm for example, you:
