@@ -7,7 +7,7 @@ from .models import User, Folder, Snippet, Tag, TaggedSnippets
 from .inputs import CreateSnippetInput, UpdateSnippetInput
 import src.app.functions as functions
 
-class MessageField(graphene.ObjectType):
+class StatusField(graphene.ObjectType):
     error = graphene.Boolean()
     message = graphene.String()
 
@@ -15,6 +15,9 @@ class MessageField(graphene.ObjectType):
 ''' User mutations '''
 
 class CreateUser(graphene.Mutation):
+    status = graphene.Field(StatusField)
+    emailExists = graphene.Boolean()
+    usernameExists = graphene.Boolean()
     user = graphene.Field(lambda: UserObject)
     class Arguments:
         first_name = graphene.String(required=True)
@@ -24,18 +27,31 @@ class CreateUser(graphene.Mutation):
         password = graphene.String(required=True)
 
     def mutate(self, info, first_name, last_name, username, email, password):
-        hashedPass = functions.getHashedPass(password)
-        newUser = User(
-            first_name=first_name, last_name=last_name, username=username,
-            email=email, password=hashedPass
-        )
-        db.session.add(newUser)
-        db.session.commit()
-        return CreateUser(user=newUser)
+        response = functions.signUp(first_name, last_name, username, email, password)
+        status = StatusField(error=response.pop('error'), message=response.pop('message'))
+        if status.error:
+            return CreateUser(**response, status=status)
+        return CreateUser(user=response.pop('user'), status=status)
+
+
+class SignInUser(graphene.Mutation):
+    status = graphene.Field(StatusField)
+    userNotFound = graphene.Boolean()
+    passwordInvalid = graphene.Boolean()
+    token = graphene.String()
+    class Arguments:
+        email = graphene.String()
+        password = graphene.String()
+
+    def mutate(self, info, email, password):
+        response = functions.signIn(email, password)
+        status = StatusField(error=response.pop('error'), message=response.pop('message'))
+        return SignInUser(**response, status=status)
+
 
 class UpadteUserPassword(graphene.Mutation):
     user = graphene.Field(lambda: UserObject)
-    message = graphene.Field(MessageField)
+    status = graphene.Field(StatusField)
     class Arguments:
         user_id = graphene.ID(required=True)
         new_password = graphene.String(required=True)
@@ -45,28 +61,14 @@ class UpadteUserPassword(graphene.Mutation):
         user = db.session.query(User).filter_by(id=userId)
         user.update({'password': functions.getHashedPass(new_password)})
         db.session.commit()
-        return UpadteUserPassword(message=MessageField(error=False, message="Password change successful"))
-
-
-class CreateUserToken(graphene.Mutation):
-    error = graphene.Boolean()
-    userNotFound = graphene.Boolean()
-    passwordInvalid = graphene.Boolean()
-    message = graphene.String()
-    token = graphene.String()
-    class Arguments:
-        email = graphene.String()
-        password = graphene.String()
-
-    def mutate(self, info, email, password):
-        response = functions.signIn(email, password)
-        return response
+        return UpadteUserPassword(status=StatusField(error=False, message="Password change successful"))
 
 
 ''' Folder mutations '''
 
 class CreateFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         name = graphene.String(description="Name of the folder", required=True)
 
@@ -77,10 +79,12 @@ class CreateFolder(graphene.Mutation):
         folder = Folder(name=name, user_id=userId, date_created=dateCreated)
         db.session.add(folder)
         db.session.commit()
-        return CreateFolder(folder=folder)
+        return CreateFolder(folder=folder, status=StatusField(error=False, message="Folder created."))
+
 
 class UpdateFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         folder_id = graphene.ID(required=True)
         name = graphene.String(required=True)
@@ -93,11 +97,12 @@ class UpdateFolder(graphene.Mutation):
             db.session.query(Folder).filter_by(id=folderId).update(input)
             db.session.commit()
             folder = db.session.query(Folder).filter_by(id=folderId).first()
-            return UpdateFolder(folder)
+            return UpdateFolder(folder=folder, status=StatusField(error=False, message="Folder update successful"))
 
 
 class DeleteFolder(graphene.Mutation):
     folder = graphene.Field(lambda: FolderObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         folder_id = graphene.ID(required=True)
 
@@ -108,13 +113,14 @@ class DeleteFolder(graphene.Mutation):
         if functions.isResourceMatch(folder):
             db.session.delete(folder)
             db.session.commit()
-            return DeleteFolder(folder)
+            return DeleteFolder(status=StatusField(error=False, message="Folder delete successful"))
 
 
 ''' Snippet mutations '''
 
 class CreateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         input = CreateSnippetInput(required=True)
 
@@ -131,10 +137,12 @@ class CreateSnippet(graphene.Mutation):
         )
         db.session.add(snippet)
         db.session.commit()
-        return CreateSnippet(snippet=snippet)
+        return CreateSnippet(snippet=snippet, status=StatusField(error=False, message="Snippet creation successful"))
+
 
 class UpdateSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         input = UpdateSnippetInput(required=True)
 
@@ -143,15 +151,17 @@ class UpdateSnippet(graphene.Mutation):
         snippetId = functions.resolveGlobalId(input.pop('snippet_id'))
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
         if functions.isResourceMatch(snippet):
-            # transform global id strings present in input, to integer values before insertion
+            # transform string ids present in input, to integer values before insertion
             input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
             db.session.query(Snippet).filter_by(id=snippetId).update(input)
             db.session.commit()
             snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
-            return UpdateSnippet(snippet)
+            return UpdateSnippet(snippet=snippet, status=StatusField(error=False, message="Snippet update success."))
+
 
 class DeleteSnippet(graphene.Mutation):
     snippet = graphene.Field(lambda: SnippetObject)
+    status = graphene.Field(StatusField)
     class Arguments:
         snippet_id = graphene.ID(required=True, description="Global graphql ID of the snippet to delete")
 
@@ -159,10 +169,11 @@ class DeleteSnippet(graphene.Mutation):
     def mutate(self, info, snippet_id):
         snippetId = functions.resolveGlobalId(snippet_id)
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
+        snippetTitle = snippet.title
         if functions.isResourceMatch(snippet):
             db.session.delete(snippet)
             db.session.commit()
-            return DeleteSnippet()
+            return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted {snippetTitle}'))
 
 
 '''Tag mutations'''
@@ -206,7 +217,7 @@ class Mutation(graphene.ObjectType):
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
     createTaggedSnippets = CreateTaggedSnippets.Field()
-    signInUser = CreateUserToken.Field()
+    signInUser = SignInUser.Field()
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()

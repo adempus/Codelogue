@@ -38,22 +38,22 @@ def landingPage():
     return jsonify({'message': 'Hello World!'})
 
 
-@index.route('/sign-up', methods=['POST'])
-def signUp():
-    if request.method == 'POST':
-        signUpData = dict(request.get_json())
-        print(f'Sign up data: \n{signUpData}')
-        resPayload = functions.signUpUser(signUpData)
-        return jsonify(resPayload)
+# @index.route('/sign-up', methods=['POST'])
+# def signUp():
+#     if request.method == 'POST':
+#         signUpData = dict(request.get_json())
+#         print(f'Sign up data: \n{signUpData}')
+#         resPayload = functions.signUpUser(signUpData)
+#         return jsonify(resPayload)
 
 
-@index.route('/sign-in', methods=['GET', 'POST'])
-def signIn():
-    if request.method == 'POST':
-        signInData = dict(request.get_json())
-        resPayload = functions.signInUser(signInData)
-        print(f'sign in response payload: {resPayload}')
-        return resPayload
+# @index.route('/sign-in', methods=['GET', 'POST'])
+# def signIn():
+#     if request.method == 'POST':
+#         signInData = dict(request.get_json())
+#         resPayload = functions.signInUser(signInData)
+#         print(f'sign in response payload: {resPayload}')
+#         return resPayload
 
 
 ''' user routes '''
