@@ -2,7 +2,7 @@
 Contains app functionality for the app's features. Most of these functions are invoked via API routes.
 """
 from graphql_relay.node.node import from_global_id
-from flask_jwt_extended import create_access_token, get_jwt_identity
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_manager, verify_jwt_in_request
 from flask import make_response, jsonify
 from .models import User
 from .setup import db
@@ -91,7 +91,6 @@ def signIn(email, password):
             return {'error': True, 'message': "Password is invalid", **signInErrors }
         else:
             sessionToken = generateSessionToken({'user': getSignInPayload(userQuery)})
-            print(f'token: {sessionToken}')
             response = {
                 'message': 'Sign in successful',
                 'error': False,
@@ -131,3 +130,5 @@ def getSignInPayload(query):
 
 def resolveGlobalId(graphqlId):
     return from_global_id(graphqlId)[1]
+
+

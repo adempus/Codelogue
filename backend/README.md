@@ -74,3 +74,7 @@ Specify debug mode:
 ```export FLASK_ENV=development```  
 Start server:  
 ```flask run```
+
+### Testing
+Tests are included in tests/test_backend.py. Running them with: ```pytest -s --disable-warnings``` should 
+run tests of core api calls, and print their results. 

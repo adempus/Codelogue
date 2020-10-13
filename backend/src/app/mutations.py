@@ -1,24 +1,39 @@
+"""
+    Contains mutation classes for creating, upating, and deleting modeled API resources.
+"""
+
 import graphene
 import pendulum
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, verify_jwt_in_request, get_jwt_identity, jwt_manager
 from .setup import db
 from .objects import UserObject, FolderObject, SnippetObject, TagObject, TaggedSnippetObject
 from .models import User, Folder, Snippet, Tag, TaggedSnippets
 from .inputs import CreateSnippetInput, UpdateSnippetInput
+from .outputs import *
 import src.app.functions as functions
+
 
 class StatusField(graphene.ObjectType):
     error = graphene.Boolean()
     message = graphene.String()
 
 
+class CheckAuthorization(graphene.Mutation):
+    Output = AuthPayload
+    def mutate(self, info):
+        try:
+            verify_jwt_in_request()
+            user = User.query.filter_by(id=functions.resolveUserId()).first()
+        except jwt_manager.ExpiredSignatureError as ex:
+            return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenExpired=True)
+        except jwt_manager.InvalidTokenError as ex:
+            return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenInvalid=True)
+        return AuthorizationSuccessOutput(error=False, message="authentication valid", user=user)
+
+
 ''' User mutations '''
 
 class CreateUser(graphene.Mutation):
-    status = graphene.Field(StatusField)
-    emailExists = graphene.Boolean()
-    usernameExists = graphene.Boolean()
-    user = graphene.Field(lambda: UserObject)
     class Arguments:
         first_name = graphene.String(required=True)
         last_name = graphene.String(required=True)
@@ -26,27 +41,27 @@ class CreateUser(graphene.Mutation):
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
+    Output = SignUpUserPayload
+
     def mutate(self, info, first_name, last_name, username, email, password):
         response = functions.signUp(first_name, last_name, username, email, password)
-        status = StatusField(error=response.pop('error'), message=response.pop('message'))
-        if status.error:
-            return CreateUser(**response, status=status)
-        return CreateUser(user=response.pop('user'), status=status)
+        if response['error']:
+            return UserSignUpErrorOutput(error=response.pop('error'), message=response.pop('message'), **response)
+        return UserSignUpSuccessOutput(error=response['error'], message=response['message'], user=response['user'])
 
 
 class SignInUser(graphene.Mutation):
-    status = graphene.Field(StatusField)
-    userNotFound = graphene.Boolean()
-    passwordInvalid = graphene.Boolean()
-    token = graphene.String()
     class Arguments:
         email = graphene.String()
         password = graphene.String()
 
+    Output = SignInUserPayload
+
     def mutate(self, info, email, password):
         response = functions.signIn(email, password)
-        status = StatusField(error=response.pop('error'), message=response.pop('message'))
-        return SignInUser(**response, status=status)
+        if response['error']:
+            return UserSignInErrorOutput(error=response.pop('error'), message=response.pop('message'), **response)
+        return UserSignInSuccessOutput(error=response['error'], message=response['message'], token=response['token'])
 
 
 class UpadteUserPassword(graphene.Mutation):
@@ -211,6 +226,7 @@ class CreateTaggedSnippets(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
+    checkAuthorization = CheckAuthorization.Field()
     # creations
     createUser = CreateUser.Field()
     createFolder = CreateFolder.Field()
