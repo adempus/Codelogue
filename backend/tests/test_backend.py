@@ -31,9 +31,9 @@ pytest.expiredToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDIxOTk0
                       "btYgCgEPUMPI0zFkWmOXq2UmfM-Uy_SElIh4Yv0qZQ"
 
 
-def makeApiRequest(gqlApiCall, variables=None, token=None):
-    if token:
-        reqContext = app.test_request_context(headers={'Authorization': f'Bearer {token}'})
+def makeApiRequest(gqlApiCall, variables=None, accessToken=None):
+    if accessToken:
+        reqContext = app.test_request_context(headers={'Authorization': f'Bearer {accessToken}'})
         reqContext.push()
         with reqContext:
             response = pytest.client.execute(gqlApiCall, variables=variables)
@@ -86,18 +86,18 @@ class TestUserSignIn:
         )
         assert pytest.signInResponse['data']['signInUser']['__typename'] == 'UserSignInSuccessOutput'
         assert pytest.signInResponse['data']['signInUser']['error'] == False
-        assert pytest.signInResponse['data']['signInUser']['token'] is not None
-        pytest.validToken = pytest.signInResponse['data']['signInUser']['token']
+        assert pytest.signInResponse['data']['signInUser']['accessToken'] is not None
+        pytest.validToken = pytest.signInResponse['data']['signInUser']['accessToken']
 
 
 class TestUserAuthentication:
     # @pytest.mark.skip()
     def testSuccessfulUserAuthAccess(self):
-        authResponse = makeApiRequest(graphqlApi['checkAuthMutation'], token=pytest.validToken)
+        authResponse = makeApiRequest(graphqlApi['checkAuthMutation'], accessToken=pytest.validToken)
         assert authResponse['data']['checkAuthorization']['error'] == False
         assert 'user' in authResponse['data']['checkAuthorization']
 
     def testExpiredUserAuthAccess(self):
-        authResponse = makeApiRequest(graphqlApi['checkAuthMutation'], token=pytest.expiredToken)
+        authResponse = makeApiRequest(graphqlApi['checkAuthMutation'], accessToken=pytest.expiredToken)
         assert authResponse['data']['checkAuthorization']['error'] == True
         assert 'user' not in authResponse['data']['checkAuthorization']

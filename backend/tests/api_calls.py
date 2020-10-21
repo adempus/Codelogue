@@ -33,7 +33,8 @@ graphqlApi = {
                 ...on UserSignInSuccessOutput {
                     error
                     message
-                    token
+                    accessToken
+                    refreshToken
                 }
             }
         }''',

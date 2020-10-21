@@ -46,6 +46,7 @@ def applyConfigs(app):
 def setupJWT(app):
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = duration(minutes=35)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = duration(minutes=60)
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'error'
 
 

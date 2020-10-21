@@ -1,6 +1,6 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, fresh_jwt_required
 import sqlalchemy
 from .objects import *
 from . import functions
@@ -49,7 +49,7 @@ class Query(graphene.ObjectType):
             )
         )
 
-    @jwt_required
+    @fresh_jwt_required
     def resolve_get_user_folders(self, info):
         userId = functions.resolveUserId()
         query = FolderObject.get_query(info)

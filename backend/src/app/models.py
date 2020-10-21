@@ -52,7 +52,7 @@ class ProgrammingLanguage(db.Model):
 class Tag(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('user.id'), nullable=False)
-    keyword = db.Column(db.String(100), nullable=False)
+    keyword = db.Column(db.String(100), nullable=False, unique=True)
 
 
 class TaggedSnippets(db.Model):

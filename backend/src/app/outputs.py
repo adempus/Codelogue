@@ -5,6 +5,15 @@ class StatusOutput(graphene.Interface):
     error = graphene.Boolean()
     message = graphene.String()
 
+class SessionDetailOutput(graphene.Interface):
+    session_start = graphene.String()
+    session_end = graphene.String()
+    time_remaining = graphene.String()
+
+class AuthenticationOutput(graphene.Interface):
+    access_token = graphene.String()
+    refresh_token = graphene.String()
+
 class UserSignUpErrorOutput(graphene.ObjectType):
     class Meta:
         interfaces = (StatusOutput, )
@@ -31,9 +40,7 @@ class UserSignInErrorOutput(graphene.ObjectType):
 
 class UserSignInSuccessOutput(graphene.ObjectType):
     class Meta:
-        interfaces = (StatusOutput, )
-
-    token = graphene.String()
+        interfaces = (StatusOutput, AuthenticationOutput )
 
 class SignInUserPayload(graphene.Union):
     class Meta:
@@ -49,7 +56,7 @@ class AuthorizationErrorOutput(graphene.ObjectType):
 
 class AuthorizationSuccessOutput(graphene.ObjectType):
     class Meta:
-        interfaces = (StatusOutput, )
+        interfaces = (StatusOutput, SessionDetailOutput)
     user = graphene.Field(UserObject)
 
 class AuthPayload(graphene.Union):

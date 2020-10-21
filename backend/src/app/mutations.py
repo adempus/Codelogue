@@ -4,7 +4,10 @@
 
 import graphene
 import pendulum
-from flask_jwt_extended import jwt_required, verify_jwt_in_request, get_jwt_identity, jwt_manager
+from flask_jwt_extended import (
+    jwt_required, jwt_refresh_token_required, verify_jwt_in_request, get_jwt_identity, jwt_manager, create_access_token,
+    decode_token, get_raw_jwt,
+)
 from .setup import db
 from .objects import UserObject, FolderObject, SnippetObject, TagObject, TaggedSnippetObject
 from .models import User, Folder, Snippet, Tag, TaggedSnippets
@@ -23,12 +26,23 @@ class CheckAuthorization(graphene.Mutation):
     def mutate(self, info):
         try:
             verify_jwt_in_request()
+            details = functions.getSessionDetails()
             user = User.query.filter_by(id=functions.resolveUserId()).first()
         except jwt_manager.ExpiredSignatureError as ex:
             return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenExpired=True)
         except jwt_manager.InvalidTokenError as ex:
             return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenInvalid=True)
-        return AuthorizationSuccessOutput(error=False, message="authentication valid", user=user)
+        return AuthorizationSuccessOutput(error=False, message="authentication valid", user=user, **details)
+
+
+class RefreshAuthorization(graphene.Mutation):
+    newToken = graphene.String()
+
+    @jwt_refresh_token_required
+    def mutate(self, info):
+        user = get_jwt_identity()
+        newToken = create_access_token(identity=user, fresh=False)
+        return RefreshAuthorization(newToken=newToken)
 
 
 ''' User mutations '''
@@ -60,8 +74,8 @@ class SignInUser(graphene.Mutation):
     def mutate(self, info, email, password):
         response = functions.signIn(email, password)
         if response['error']:
-            return UserSignInErrorOutput(error=response.pop('error'), message=response.pop('message'), **response)
-        return UserSignInSuccessOutput(error=response['error'], message=response['message'], token=response['token'])
+            return UserSignInErrorOutput(**response)
+        return UserSignInSuccessOutput(**response)
 
 
 class UpadteUserPassword(graphene.Mutation):
@@ -191,7 +205,16 @@ class DeleteSnippet(graphene.Mutation):
             return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted {snippetTitle}'))
 
 
-'''Tag mutations'''
+""" 
+Tag mutations
+
+    change considerations for this mutation:
+    User enters a new tag in tag textbox, which triggers this mutation.
+    Existence of that tag's keyword is checked in the db.
+    If it exists, its id is sent back to the user.
+    Else, that tag is created, then its id is sent back to user.
+    The tag id responses from this mutation are included in a list of the snippet's tag section UI.
+"""
 
 class CreateTags(graphene.Mutation):
     tag = graphene.Field(lambda: TagObject)
@@ -227,6 +250,7 @@ class CreateTaggedSnippets(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     checkAuthorization = CheckAuthorization.Field()
+    refreshAuthorization = RefreshAuthorization.Field()
     # creations
     createUser = CreateUser.Field()
     createFolder = CreateFolder.Field()
