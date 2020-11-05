@@ -1,18 +1,5 @@
 # backend
 
-All dependencies for backend are packaged and managed with Poetry. Setup requires Poetry be installed first.
-If it's not, run: ```pip install --user poetry``` to install it. More details: https://python-poetry.org/docs/#installing-with-pip
-
-### Installing Project Dependencies
-If you have Poetry installed, To install dependencies for backend, just run: ``` poetry install ```
-
-### Checking dependencies
-enter ```poetry show``` in the terminal to check what python packages the backend depends on.
-
-### Installing Packages
-To install new packages for use in the project, run: ```poetry add package-name```. Newly added packages will be included
-in the `poetry.lock` and `pyproject.toml` files. So make sure they're included to commit in repo. 
-
 ### IDE Integration
 If your IDE cannot resolve the project's dependencies, you have to specify the project's interpreter in your IDE's settings.
 Run: ```poetry env info --path``` and copy the output.
@@ -83,35 +70,27 @@ Use a client like GraphQL Playground or Apollo explorer with included graphql qu
 In project root folder, there is a docker-compose.yml file. Navigate to project root.
 
 Install everthing the project needs: 
-
 ```docker-compose build```
 
 Run everything the project needs: 
-
 ```docker-compose up```
 
 Get into the shell for backend container: 
-
 ```docker-compose run backend bash```
 
 Run manage.py command to create the database tables
-
 ```python manage.py create_db```
 
 Run manage.py command to seed the database with default records
-
 ```python manage.py seed_db```
 
 That should set the backend up properly for use. The database can be accessed directly through the db container shell:
-
 ```docker-compose run db bash```
 
 Then running postgres in the container, where a password will be prompted: 
-
 ```psql -h db -p 5432 -U username -d codelogue_db``` 
 
 To remove the containers with their storage volumes: 
-
 ```docker-compose down -v```
 
 
