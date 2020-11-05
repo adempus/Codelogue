@@ -51,16 +51,6 @@ DB_PORT=5432
 #app key
 APP_KEY="secretkey123"
 ```
-Just change the quoted values to match credentials provided for your test db and app key. 
-##### NOTE: the `.env` file should be gitignored!
-
-### Running the server
-Specify app entrypoint:  
-```export FLASK_APP=main```  
-Specify debug mode:  
-```export FLASK_ENV=development```  
-Start server:  
-```flask run```
 
 ### Testing
 Use a client like GraphQL Playground or Apollo explorer with included graphql queries and mutations to test API endpoints.
