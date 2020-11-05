@@ -1,5 +1,5 @@
 """
-    Contains mutation classes for creating, upating, and deleting modeled API resources.
+ Contains mutation classes for creating, upating, and deleting modeled GraphQL API resources (CUD in CRUD).
 """
 
 import graphene
@@ -14,6 +14,7 @@ from .models import User, Folder, Snippet, Tag, TaggedSnippets
 from .inputs import CreateSnippetInput, UpdateSnippetInput
 from .outputs import *
 import src.app.functions as functions
+from sqlalchemy import func
 
 
 class StatusField(graphene.ObjectType):
@@ -181,7 +182,7 @@ class UpdateSnippet(graphene.Mutation):
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
         if functions.isResourceMatch(snippet):
             # transform string ids present in input, to integer values before insertion
-            input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
+            input.update({ k : functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
             db.session.query(Snippet).filter_by(id=snippetId).update(input)
             db.session.commit()
             snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
@@ -202,33 +203,33 @@ class DeleteSnippet(graphene.Mutation):
         if functions.isResourceMatch(snippet):
             db.session.delete(snippet)
             db.session.commit()
-            return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted {snippetTitle}'))
+            return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted { snippetTitle }'))
 
 
-""" 
-Tag mutations
-
-    change considerations for this mutation:
-    User enters a new tag in tag textbox, which triggers this mutation.
-    Existence of that tag's keyword is checked in the db.
-    If it exists, its id is sent back to the user.
-    Else, that tag is created, then its id is sent back to user.
-    The tag id responses from this mutation are included in a list of the snippet's tag section UI.
-"""
+''' 
+    CreateTags is invoked after the CreateSnippet mutation returns sucessfully. Keywords in the tags section of the 
+    'Create Snippet' form will be sent as arguments to this mutation, before CreateTaggedSnippets is called.
+'''
 
 class CreateTags(graphene.Mutation):
-    tag = graphene.Field(lambda: TagObject)
+    tags = graphene.List(lambda: TagObject)
     class Arguments:
         keywords = graphene.List(required=True, of_type=graphene.String)
 
     @jwt_required
     def mutate(self, info, keywords):
         userId = functions.resolveUserId()
+        tagList = []
         for keyword in keywords:
-            tag = Tag(user_id=userId, keyword=keyword)
-            db.session.add(tag)
-            db.session.commit()
-        return CreateTags(tag=tag)
+            tag = db.session.query(Tag).filter(func.lower(Tag.keyword) == func.lower(keyword)).first()
+            if tag is None:
+                newTag = Tag(user_id=userId, keyword=keyword)
+                tagList.append(newTag)
+                db.session.add(newTag)
+                db.session.commit()
+            else:
+                tagList.append(tag)
+        return CreateTags(tags=tagList)
 
 
 class CreateTaggedSnippets(graphene.Mutation):

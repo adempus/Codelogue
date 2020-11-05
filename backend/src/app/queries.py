@@ -1,3 +1,8 @@
+"""
+ Contains a query class which defines methods for reading modeled GraphQL API data (R in CRUD).
+"""
+
+
 import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 from flask_jwt_extended import jwt_required, fresh_jwt_required
@@ -60,3 +65,8 @@ class Query(graphene.ObjectType):
         userId = functions.resolveUserId()
         query = TagObject.get_query(info)
         return query.filter(Tag.user_id == userId).all()
+
+    @jwt_required
+    def resolve_get_all_tags(self, info):
+        query = TagObject.getQuery(info)
+        pass

@@ -1,5 +1,5 @@
 """
-Data models used for MySql migrations
+ Data models used for database migrations and resources in graphql API.
 """
 
 import sqlalchemy

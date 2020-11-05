@@ -17,13 +17,10 @@ bcrypt = "^3.1.7"
 flask-graphql = "^2.0.1"
 graphene = "^2.1.8"
 graphene-sqlalchemy = "^2.3.0"
+flask-script = "^2.0.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -33,3 +30,7 @@ testpaths = [
     "tests",
     "integration",
 ]
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+

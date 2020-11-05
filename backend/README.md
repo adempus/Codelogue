@@ -37,12 +37,12 @@ flask db init
 ```
 
 After the migrations folder is created with the above command, you can run them with 
-Before doing so, make sure flask env variables are set first.
+
 ```
 flask db migrate -m"sample comment for the migration"
 ```
 
-You then finalize the migrations by running:
+Before doing so, make sure flask env variables are set first. You then finalize the migrations by running:
 ```
 flask db upgrade
 ```
@@ -76,5 +76,45 @@ Start server:
 ```flask run```
 
 ### Testing
-Tests are included in tests/test_backend.py. Running them with: ```pytest -s --disable-warnings``` should 
-run tests of core api calls, and print their results. 
+Use a client like GraphQL Playground or Apollo explorer with included graphql queries and mutations to test API endpoints.
+
+### Docker Compose
+
+In project root folder, there is a docker-compose.yml file. Navigate to project root.
+
+Install everthing the project needs: 
+
+```docker-compose build```
+
+Run everything the project needs: 
+
+```docker-compose up```
+
+Get into the shell for backend container: 
+
+```docker-compose run backend bash```
+
+Run manage.py command to create the database tables
+
+```python manage.py create_db```
+
+Run manage.py command to seed the database with default records
+
+```python manage.py seed_db```
+
+That should set the backend up properly for use. The database can be accessed directly through the db container shell:
+
+```docker-compose run db bash```
+
+Then running postgres in the container, where a password will be prompted: 
+
+```psql -h db -p 5432 -U username -d codelogue_db``` 
+
+To remove the containers with their storage volumes: 
+
+```docker-compose down -v```
+
+
+ 
+
+

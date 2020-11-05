@@ -1,5 +1,5 @@
 """
-Contains app functionality for the app's features. Most of these functions are invoked via API routes.
+ Contains basic functionality for the app's features, invoked through the API
 """
 from graphql_relay.node.node import from_global_id
 from flask_jwt_extended import (
@@ -89,11 +89,10 @@ def getSignInPayload(query):
 def resolveGlobalId(graphqlId):
     return from_global_id(graphqlId)[1]
 
-#
+
 def getSessionDetails():
     tokenInfo =  get_raw_jwt()
     elapsedTime = period(now(), from_timestamp(tokenInfo['exp']))
-    print(elapsedTime)
     return {
         'session_start': from_timestamp(tokenInfo['iat']),
         'session_end': from_timestamp(tokenInfo['exp']),
