@@ -63,7 +63,7 @@ Install everthing the project needs:
 
 ```docker-compose build```
 
-Run everything the project needs: 
+Run all the project containers (for the first time): 
 
 ```docker-compose up```
 
@@ -87,11 +87,15 @@ Then running postgres in the container, where a password will be prompted:
 
 ```psql -h db -p 5432 -U username -d codelogue_db``` 
 
-To remove the containers with their storage volumes: 
+To stop running project containers: 
+
+```docker stop codelogue_server_container codelogue_db_container``` 
+
+For subsequent runs of the project container:
+
+```docker start codelogue_server_container codelogue_db_container```
+
+To remove the containers with their storage volumes (this deletes all data from database container): 
 
 ```docker-compose down -v```
-
-
- 
-
 

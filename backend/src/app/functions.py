@@ -98,5 +98,3 @@ def getSessionDetails():
         'session_end': from_timestamp(tokenInfo['exp']),
         'time_remaining': elapsedTime.seconds,
     }
-
-

@@ -206,9 +206,10 @@ class DeleteSnippet(graphene.Mutation):
             return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted { snippetTitle }'))
 
 
-''' 
+'''
     CreateTags is invoked after the CreateSnippet mutation returns sucessfully. Keywords in the tags section of the 
-    'Create Snippet' form will be sent as arguments to this mutation, before CreateTaggedSnippets is called.
+    Snippet form will be sent as arguments to this mutation, returning their ids to be included in the proceeding call
+    to CreateTaggedSnippet mutation.
 '''
 
 class CreateTags(graphene.Mutation):
@@ -232,7 +233,7 @@ class CreateTags(graphene.Mutation):
         return CreateTags(tags=tagList)
 
 
-class CreateTaggedSnippets(graphene.Mutation):
+class CreateTaggedSnippet(graphene.Mutation):
     taggedSnippet = graphene.Field(lambda: TaggedSnippetObject)
     class Arguments:
         snippet_id = graphene.ID(required=True)
@@ -246,10 +247,30 @@ class CreateTaggedSnippets(graphene.Mutation):
             taggedSnippet = TaggedSnippets(snippet_id=snippetId, tag_id=tagId)
             db.session.add(taggedSnippet)
             db.session.commit()
-        return CreateTaggedSnippets(taggedSnippet=taggedSnippet)
+        return CreateTaggedSnippet(taggedSnippet=taggedSnippet)
+
+
+class DeleteTaggedSnippet(graphene.Mutation):
+    status = graphene.Field(StatusField)
+    class Arguments:
+        snippet_id = graphene.ID(required=True)
+        tag_id = graphene.ID(required=True)
+
+    @jwt_required
+    def mutate(self, info, snippet_id, tag_id):
+        snippetId, tagId = functions.resolveGlobalId(snippet_id), functions.resolveGlobalId(tag_id)
+        snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
+        if functions.isResourceMatch(snippet):
+            taggedSnippet = db.session.query(TaggedSnippets).filter_by(snippet_id=snippetId, tag_id=tagId).first()
+            db.session.delete(taggedSnippet)
+            db.session.commit()
+        return DeleteTaggedSnippet(
+            status=StatusField(error=False, message=f'Successfully deleted tag id {tagId} from tagged snippet {snippetId},')
+        )
 
 
 class Mutation(graphene.ObjectType):
+    signInUser = SignInUser.Field()
     checkAuthorization = CheckAuthorization.Field()
     refreshAuthorization = RefreshAuthorization.Field()
     # creations
@@ -257,8 +278,7 @@ class Mutation(graphene.ObjectType):
     createFolder = CreateFolder.Field()
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
-    createTaggedSnippets = CreateTaggedSnippets.Field()
-    signInUser = SignInUser.Field()
+    createTaggedSnippet = CreateTaggedSnippet.Field()
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()
@@ -266,4 +286,5 @@ class Mutation(graphene.ObjectType):
     # deletions
     deleteFolder = DeleteFolder.Field()
     deleteSnippet = DeleteSnippet.Field()
+    deleteTaggedSnippet = DeleteTaggedSnippet.Field()
 
