@@ -1,6 +1,11 @@
+"""
+ Contains a query class which defines methods for reading modeled GraphQL API data (R in CRUD).
+"""
+
+
 import graphene
 from graphene_sqlalchemy import SQLAlchemyConnectionField
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, fresh_jwt_required
 import sqlalchemy
 from .objects import *
 from . import functions
@@ -49,7 +54,7 @@ class Query(graphene.ObjectType):
             )
         )
 
-    @jwt_required
+    @fresh_jwt_required
     def resolve_get_user_folders(self, info):
         userId = functions.resolveUserId()
         query = FolderObject.get_query(info)
@@ -60,3 +65,8 @@ class Query(graphene.ObjectType):
         userId = functions.resolveUserId()
         query = TagObject.get_query(info)
         return query.filter(Tag.user_id == userId).all()
+
+    @jwt_required
+    def resolve_get_all_tags(self, info):
+        query = TagObject.getQuery(info)
+        pass

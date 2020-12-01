@@ -1,52 +1,80 @@
+"""
+ Contains mutation classes for creating, upating, and deleting modeled GraphQL API resources (CUD in CRUD).
+"""
+
 import graphene
 import pendulum
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import (
+    jwt_required, jwt_refresh_token_required, verify_jwt_in_request, get_jwt_identity, jwt_manager, create_access_token,
+    decode_token, get_raw_jwt,
+)
 from .setup import db
 from .objects import UserObject, FolderObject, SnippetObject, TagObject, TaggedSnippetObject
 from .models import User, Folder, Snippet, Tag, TaggedSnippets
 from .inputs import CreateSnippetInput, UpdateSnippetInput
+from .outputs import *
 import src.app.functions as functions
+from sqlalchemy import func
+
 
 class StatusField(graphene.ObjectType):
     error = graphene.Boolean()
     message = graphene.String()
 
 
+class CheckAuthorization(graphene.Mutation):
+    Output = AuthPayload
+    def mutate(self, info):
+        try:
+            verify_jwt_in_request()
+            details = functions.getSessionDetails()
+            user = User.query.filter_by(id=functions.resolveUserId()).first()
+        except jwt_manager.ExpiredSignatureError as ex:
+            return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenExpired=True)
+        except jwt_manager.InvalidTokenError as ex:
+            return AuthorizationErrorOutput(error=True, message=f"{ex}", tokenInvalid=True)
+        return AuthorizationSuccessOutput(error=False, message="authentication valid", user=user, **details)
+
+
+class RefreshAuthorization(graphene.Mutation):
+    newToken = graphene.String()
+
+    @jwt_refresh_token_required
+    def mutate(self, info):
+        user = get_jwt_identity()
+        newToken = create_access_token(identity=user, fresh=False)
+        return RefreshAuthorization(newToken=newToken)
+
+
 ''' User mutations '''
 
 class CreateUser(graphene.Mutation):
-    status = graphene.Field(StatusField)
-    emailExists = graphene.Boolean()
-    usernameExists = graphene.Boolean()
-    user = graphene.Field(lambda: UserObject)
     class Arguments:
-        first_name = graphene.String(required=True)
-        last_name = graphene.String(required=True)
         username = graphene.String(required=True)
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    def mutate(self, info, first_name, last_name, username, email, password):
-        response = functions.signUp(first_name, last_name, username, email, password)
-        status = StatusField(error=response.pop('error'), message=response.pop('message'))
-        if status.error:
-            return CreateUser(**response, status=status)
-        return CreateUser(user=response.pop('user'), status=status)
+    Output = SignUpUserPayload
+
+    def mutate(self, info,  username, email, password):
+        response = functions.signUp(username, email, password)
+        if response['error']:
+            return UserSignUpErrorOutput(error=response.pop('error'), message=response.pop('message'), **response)
+        return UserSignUpSuccessOutput(error=response['error'], message=response['message'], user=response['user'])
 
 
 class SignInUser(graphene.Mutation):
-    status = graphene.Field(StatusField)
-    userNotFound = graphene.Boolean()
-    passwordInvalid = graphene.Boolean()
-    token = graphene.String()
     class Arguments:
         email = graphene.String()
         password = graphene.String()
 
+    Output = SignInUserPayload
+
     def mutate(self, info, email, password):
         response = functions.signIn(email, password)
-        status = StatusField(error=response.pop('error'), message=response.pop('message'))
-        return SignInUser(**response, status=status)
+        if response['error']:
+            return UserSignInErrorOutput(**response)
+        return UserSignInSuccessOutput(**response)
 
 
 class UpadteUserPassword(graphene.Mutation):
@@ -152,7 +180,7 @@ class UpdateSnippet(graphene.Mutation):
         snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
         if functions.isResourceMatch(snippet):
             # transform string ids present in input, to integer values before insertion
-            input.update({ k: functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
+            input.update({ k : functions.resolveGlobalId(v) for (k,v) in input.items() if 'id' in k.split('_') })
             db.session.query(Snippet).filter_by(id=snippetId).update(input)
             db.session.commit()
             snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
@@ -173,27 +201,37 @@ class DeleteSnippet(graphene.Mutation):
         if functions.isResourceMatch(snippet):
             db.session.delete(snippet)
             db.session.commit()
-            return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted {snippetTitle}'))
+            return DeleteSnippet(status=StatusField(error=False, message=f'Successfully deleted { snippetTitle }'))
 
 
-'''Tag mutations'''
+'''
+    CreateTags is invoked after the CreateSnippet mutation returns sucessfully. Keywords in the tags section of the 
+    Snippet form will be sent as arguments to this mutation, returning their ids to be included in the proceeding call
+    to CreateTaggedSnippet mutation.
+'''
 
 class CreateTags(graphene.Mutation):
-    tag = graphene.Field(lambda: TagObject)
+    tags = graphene.List(lambda: TagObject)
     class Arguments:
         keywords = graphene.List(required=True, of_type=graphene.String)
 
     @jwt_required
     def mutate(self, info, keywords):
         userId = functions.resolveUserId()
+        tagList = []
         for keyword in keywords:
-            tag = Tag(user_id=userId, keyword=keyword)
-            db.session.add(tag)
-            db.session.commit()
-        return CreateTags(tag=tag)
+            tag = db.session.query(Tag).filter(func.lower(Tag.keyword) == func.lower(keyword)).first()
+            if tag is None:
+                newTag = Tag(user_id=userId, keyword=keyword)
+                tagList.append(newTag)
+                db.session.add(newTag)
+                db.session.commit()
+            else:
+                tagList.append(tag)
+        return CreateTags(tags=tagList)
 
 
-class CreateTaggedSnippets(graphene.Mutation):
+class CreateTaggedSnippet(graphene.Mutation):
     taggedSnippet = graphene.Field(lambda: TaggedSnippetObject)
     class Arguments:
         snippet_id = graphene.ID(required=True)
@@ -207,17 +245,38 @@ class CreateTaggedSnippets(graphene.Mutation):
             taggedSnippet = TaggedSnippets(snippet_id=snippetId, tag_id=tagId)
             db.session.add(taggedSnippet)
             db.session.commit()
-        return CreateTaggedSnippets(taggedSnippet=taggedSnippet)
+        return CreateTaggedSnippet(taggedSnippet=taggedSnippet)
+
+
+class DeleteTaggedSnippet(graphene.Mutation):
+    status = graphene.Field(StatusField)
+    class Arguments:
+        snippet_id = graphene.ID(required=True)
+        tag_id = graphene.ID(required=True)
+
+    @jwt_required
+    def mutate(self, info, snippet_id, tag_id):
+        snippetId, tagId = functions.resolveGlobalId(snippet_id), functions.resolveGlobalId(tag_id)
+        snippet = db.session.query(Snippet).filter_by(id=snippetId).first()
+        if functions.isResourceMatch(snippet):
+            taggedSnippet = db.session.query(TaggedSnippets).filter_by(snippet_id=snippetId, tag_id=tagId).first()
+            db.session.delete(taggedSnippet)
+            db.session.commit()
+        return DeleteTaggedSnippet(
+            status=StatusField(error=False, message=f'Successfully deleted tag id {tagId} from tagged snippet {snippetId},')
+        )
 
 
 class Mutation(graphene.ObjectType):
+    signInUser = SignInUser.Field()
+    checkAuthorization = CheckAuthorization.Field()
+    refreshAuthorization = RefreshAuthorization.Field()
     # creations
     createUser = CreateUser.Field()
     createFolder = CreateFolder.Field()
     createSnippet = CreateSnippet.Field()
     createTags = CreateTags.Field()
-    createTaggedSnippets = CreateTaggedSnippets.Field()
-    signInUser = SignInUser.Field()
+    createTaggedSnippet = CreateTaggedSnippet.Field()
     # updates
     updateSnippet = UpdateSnippet.Field()
     updateFolder = UpdateFolder.Field()
@@ -225,4 +284,5 @@ class Mutation(graphene.ObjectType):
     # deletions
     deleteFolder = DeleteFolder.Field()
     deleteSnippet = DeleteSnippet.Field()
+    deleteTaggedSnippet = DeleteTaggedSnippet.Field()
 

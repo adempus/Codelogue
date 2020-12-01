@@ -27,4 +27,4 @@ def handleExpiredSession(expiredToken):
 
 
 if __name__=='__main__':
-    app.run(host='0.0.0.0', threaded=True, debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5001, threaded=True, debug=True)

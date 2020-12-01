@@ -1,5 +1,6 @@
 """
- code for setting up the app with a database, route blueprints, and other configurations.
+ Contains function definitions to initialize server settings, database, route blueprints, and other configs
+ on createApp() invocation.
 """
 
 import os
@@ -46,15 +47,16 @@ def applyConfigs(app):
 def setupJWT(app):
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = duration(minutes=35)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = duration(minutes=60)
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'error'
 
 
 def getDatabaseURI():
     """ :return str database URI from parsed .env variables """
     db_driver = os.getenv('DB_DRIVER')
-    db_user = os.getenv('DB_USER')
-    db_passwd = os.getenv('DB_PASSWORD')
-    db_name = os.getenv('DB_NAME')
-    db_host = os.getenv('DB_HOST')
-    db_port = os.getenv('DB_PORT')
+    db_user = os.getenv('POSTGRES_USER')
+    db_passwd = os.getenv('POSTGRES_PASSWORD')
+    db_name = os.getenv('POSTGRES_DB')
+    db_host = os.getenv('POSTGRES_HOST')
+    db_port = os.getenv('POSTGRES_PORT')
     return f"{db_driver}://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_name}"

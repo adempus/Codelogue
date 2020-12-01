@@ -1,0 +1,17 @@
+mutation signInUser($email: String!, $password: String!) {
+    signInUser(email: $email, password: $password) {
+        __typename
+        ...on UserSignInErrorOutput {
+            error
+            message
+            userNotFound
+            passwordInvalid
+        }
+        ...on UserSignInSuccessOutput {
+            error
+            message
+            accessToken
+            refreshToken
+        }
+    }
+}

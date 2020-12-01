@@ -1,6 +1,6 @@
 .DS_Store
+node_modules
 /dist
-.idea/
 
 # local env files
 .env.local
@@ -13,14 +13,13 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Editor directories and files
+.idea
 .vscode
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-
 
 # Created by https://www.toptal.com/developers/gitignore/api/vuejs,node,yarn,linux,windows,macos,webstorm
 # Edit at https://www.toptal.com/developers/gitignore?templates=vuejs,node,yarn,linux,windows,macos,webstorm
@@ -104,7 +103,6 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules
 jspm_packages/
 
 # TypeScript v1 declaration files
