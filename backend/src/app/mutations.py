@@ -50,16 +50,14 @@ class RefreshAuthorization(graphene.Mutation):
 
 class CreateUser(graphene.Mutation):
     class Arguments:
-        first_name = graphene.String(required=True)
-        last_name = graphene.String(required=True)
         username = graphene.String(required=True)
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
     Output = SignUpUserPayload
 
-    def mutate(self, info, first_name, last_name, username, email, password):
-        response = functions.signUp(first_name, last_name, username, email, password)
+    def mutate(self, info,  username, email, password):
+        response = functions.signUp(username, email, password)
         if response['error']:
             return UserSignUpErrorOutput(error=response.pop('error'), message=response.pop('message'), **response)
         return UserSignUpSuccessOutput(error=response['error'], message=response['message'], user=response['user'])

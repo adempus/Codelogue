@@ -29,13 +29,13 @@ services:
     depends_on:
       - db
 
-#  frontend:
-#    container_name: codelogue_client_container
-#    build: ./frontend
-#    volumes:
-#      - ./frontend:/client
-#    ports:
-#      - 8080:8080
+  frontend:
+    container_name: codelogue_client_container
+    build: ./frontend
+    volumes:
+      - ./frontend:/client
+    ports:
+      - 8080:8080
 
 
 volumes:

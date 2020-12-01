@@ -1,0 +1,10 @@
+query GetLanguages{
+    allLanguages {
+        edges {
+            node {
+                id
+                name
+            }
+        }
+    }
+}

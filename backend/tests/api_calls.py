@@ -17,7 +17,7 @@ graphqlApi = {
                         username
                         email
                     }
-                }
+                }   
             }
         }''',
     "signInMutation":

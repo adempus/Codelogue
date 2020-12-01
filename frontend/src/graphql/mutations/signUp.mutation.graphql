@@ -1,0 +1,20 @@
+mutation signUpUser($username: String!, $email: String!, $password: String!) {
+    signUpUser: createUser(email: $email, username: $username, password: $password) {
+        __typename
+        ...on UserSignUpErrorOutput {
+            error
+            message
+            emailExists
+            usernameExists
+        }
+        ...on UserSignUpSuccessOutput {
+            error
+            message
+            user {
+                id
+                username
+                email
+            }
+        }
+    }
+}

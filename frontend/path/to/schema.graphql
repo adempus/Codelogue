@@ -1,0 +1,363 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+interface AuthenticationOutput {
+    accessToken: String
+    refreshToken: String
+}
+
+"An object with an ID"
+interface Node {
+    "The ID of the object."
+    id: ID!
+}
+
+interface SessionDetailOutput {
+    sessionEnd: String
+    sessionStart: String
+    timeRemaining: String
+}
+
+interface StatusOutput {
+    error: Boolean
+    message: String
+}
+
+union AuthPayload = AuthorizationErrorOutput | AuthorizationSuccessOutput
+
+union SignInUserPayload = UserSignInErrorOutput | UserSignInSuccessOutput
+
+union SignUpUserPayload = UserSignUpErrorOutput | UserSignUpSuccessOutput
+
+type AuthorizationErrorOutput implements StatusOutput {
+    error: Boolean
+    message: String
+    tokenExpired: Boolean
+    tokenInvalid: Boolean
+}
+
+type AuthorizationSuccessOutput implements SessionDetailOutput & StatusOutput {
+    error: Boolean
+    message: String
+    sessionEnd: String
+    sessionStart: String
+    timeRemaining: String
+    user: UserObject
+}
+
+type CreateFolder {
+    folder: FolderObject
+    status: StatusField
+}
+
+type CreateSnippet {
+    snippet: SnippetObject
+    status: StatusField
+}
+
+type CreateTaggedSnippet {
+    taggedSnippet: TaggedSnippetObject
+}
+
+type CreateTags {
+    tags: [TagObject]
+}
+
+type DeleteFolder {
+    folder: FolderObject
+    status: StatusField
+}
+
+type DeleteSnippet {
+    snippet: SnippetObject
+    status: StatusField
+}
+
+type DeleteTaggedSnippet {
+    status: StatusField
+}
+
+type FolderObject implements Node {
+    dateCreated: DateTime!
+    "The ID of the object."
+    id: ID!
+    name: String!
+    snippets(after: String, before: String, first: Int, last: Int): SnippetObjectConnection
+    userId: Float!
+}
+
+type FolderObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [FolderObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `FolderObject` and its cursor."
+type FolderObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: FolderObject
+}
+
+type Mutation {
+    checkAuthorization: AuthPayload
+    createFolder(
+        "Name of the folder"
+        name: String!
+    ): CreateFolder
+    createSnippet(input: CreateSnippetInput!): CreateSnippet
+    createTaggedSnippet(snippetId: ID!, tagIds: [ID]!): CreateTaggedSnippet
+    createTags(keywords: [String]!): CreateTags
+    createUser(email: String!, firstName: String!, lastName: String!, password: String!, username: String!): SignUpUserPayload
+    deleteFolder(folderId: ID!): DeleteFolder
+    deleteSnippet(
+        "Global graphql ID of the snippet to delete"
+        snippetId: ID!
+    ): DeleteSnippet
+    deleteTaggedSnippet(snippetId: ID!, tagId: ID!): DeleteTaggedSnippet
+    refreshAuthorization: RefreshAuthorization
+    signInUser(email: String, password: String): SignInUserPayload
+    updateFolder(folderId: ID!, name: String!): UpdateFolder
+    updateSnippet(input: UpdateSnippetInput!): UpdateSnippet
+    updateUserPassword(newPassword: String!, userId: ID!): UpadteUserPassword
+}
+
+"The Relay compliant `PageInfo` type, containing data necessary to paginate this connection."
+type PageInfo {
+    "When paginating forwards, the cursor to continue."
+    endCursor: String
+    "When paginating forwards, are there more items?"
+    hasNextPage: Boolean!
+    "When paginating backwards, are there more items?"
+    hasPreviousPage: Boolean!
+    "When paginating backwards, the cursor to continue."
+    startCursor: String
+}
+
+type ProgrammingLanguageObject implements Node {
+    Snippet(after: String, before: String, first: Int, last: Int): SnippetObjectConnection
+    "The ID of the object."
+    id: ID!
+    name: String!
+    snippets(after: String, before: String, first: Int, last: Int): SnippetObjectConnection
+}
+
+type ProgrammingLanguageObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [ProgrammingLanguageObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `ProgrammingLanguageObject` and its cursor."
+type ProgrammingLanguageObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: ProgrammingLanguageObject
+}
+
+type Query {
+    allFolders(after: String, before: String, first: Int, last: Int): FolderObjectConnection
+    allLanguages(after: String, before: String, first: Int, last: Int): ProgrammingLanguageObjectConnection
+    allSnippets(after: String, before: String, first: Int, last: Int): SnippetObjectConnection
+    allTags(after: String, before: String, first: Int, last: Int): TagObjectConnection
+    allUsers(after: String, before: String, first: Int, last: Int): UserObjectConnection
+    getAllTags: [TagObject]
+    getSnippetByLanguage(languageId: ID): [SnippetObject]
+    getUser: UserObject
+    getUserFolders: [FolderObject]
+    getUserSnippets: [SnippetObject]
+    getUserTags: [TagObject]
+    "The ID of the object"
+    node(id: ID!): Node
+}
+
+type RefreshAuthorization {
+    newToken: String
+}
+
+type SnippetObject implements Node {
+    ProgrammingLanguage: ProgrammingLanguageObject
+    content: String!
+    dateCreated: DateTime!
+    description: String
+    folder: FolderObject
+    folderId: Float
+    "The ID of the object."
+    id: ID!
+    languageId: Float!
+    programmingLanguage: ProgrammingLanguageObject
+    taggedSnippets(after: String, before: String, first: Int, last: Int): TaggedSnippetObjectConnection
+    tags(after: String, before: String, first: Int, last: Int): TagObjectConnection
+    title: String!
+    userId: Float!
+}
+
+type SnippetObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [SnippetObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `SnippetObject` and its cursor."
+type SnippetObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: SnippetObject
+}
+
+type StatusField {
+    error: Boolean
+    message: String
+}
+
+type TagObject implements Node {
+    "The ID of the object."
+    id: ID!
+    keyword: String!
+    snippets(after: String, before: String, first: Int, last: Int): SnippetObjectConnection
+    userId: Float!
+}
+
+type TagObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [TagObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `TagObject` and its cursor."
+type TagObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: TagObject
+}
+
+type TaggedSnippetObject implements Node {
+    "The ID of the object."
+    id: ID!
+    snippet: SnippetObject
+    snippetId: Float!
+    tag: TagObject
+    tagId: Float!
+}
+
+type TaggedSnippetObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [TaggedSnippetObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `TaggedSnippetObject` and its cursor."
+type TaggedSnippetObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: TaggedSnippetObject
+}
+
+type UpadteUserPassword {
+    status: StatusField
+    user: UserObject
+}
+
+type UpdateFolder {
+    folder: FolderObject
+    status: StatusField
+}
+
+type UpdateSnippet {
+    snippet: SnippetObject
+    status: StatusField
+}
+
+type UserObject implements Node {
+    email: String!
+    firstName: String!
+    "The ID of the object."
+    id: ID!
+    lastName: String!
+    password: String!
+    username: String!
+}
+
+type UserObjectConnection {
+    "Contains the nodes in this connection."
+    edges: [UserObjectEdge]!
+    "Pagination data for this connection."
+    pageInfo: PageInfo!
+}
+
+"A Relay edge containing a `UserObject` and its cursor."
+type UserObjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: UserObject
+}
+
+type UserSignInErrorOutput implements StatusOutput {
+    error: Boolean
+    message: String
+    passwordInvalid: Boolean
+    userNotFound: Boolean
+}
+
+type UserSignInSuccessOutput implements AuthenticationOutput & StatusOutput {
+    accessToken: String
+    error: Boolean
+    message: String
+    refreshToken: String
+}
+
+type UserSignUpErrorOutput implements StatusOutput {
+    emailExists: Boolean
+    error: Boolean
+    message: String
+    usernameExists: Boolean
+}
+
+type UserSignUpSuccessOutput implements StatusOutput {
+    error: Boolean
+    message: String
+    user: UserObject
+}
+
+input CreateSnippetInput {
+    content: String!
+    description: String
+    folderId: ID
+    languageId: ID
+    snippetTags: [String]
+    title: String!
+}
+
+input UpdateSnippetInput {
+    content: String
+    description: String
+    folderId: ID
+    languageId: ID
+    "Global graphql ID of the snippet"
+    snippetId: ID!
+    snippetTags: [String]
+    title: String
+}
+
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime

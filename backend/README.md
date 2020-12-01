@@ -89,11 +89,11 @@ Then running postgres in the container, where a password will be prompted:
 
 To stop running project containers: 
 
-```docker stop codelogue_server_container codelogue_db_container``` 
+```docker stop codelogue_db_container codelogue_server_container codelogue_client_container``` 
 
 For subsequent runs of the project container:
 
-```docker start codelogue_server_container codelogue_db_container```
+```docker start codelogue_db_container codelogue_server_container codelogue_client_container```
 
 To remove the containers with their storage volumes (this deletes all data from database container): 
 

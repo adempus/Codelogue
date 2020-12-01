@@ -13,7 +13,7 @@ from .setup import db
 import bcrypt
 
 
-def signUp(firstName, lastName, username, email, password):
+def signUp(username, email, password):
     dbRecordConflict = {
         'emailExists': User.query.filter_by(email=email).first() is not None,
         'usernameExists':  User.query.filter_by(username=username).first() is not None
@@ -22,7 +22,6 @@ def signUp(firstName, lastName, username, email, password):
         return { 'error': True, 'message': "There is a record containing username and/or email", **dbRecordConflict }
     else:
         newUser = User(
-            first_name=firstName, last_name=lastName,
             username=username, email=email,
             password=getHashedPass(password)
         )

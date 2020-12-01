@@ -6,10 +6,10 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
     ln -s /opt/poetry/bin/poetry && \
     poetry config virtualenvs.create false
 # copy project contents
-COPY . /app
+COPY . /server
 # copy project dependencies file
-COPY pyproject.toml poetry.lock* /app/
-WORKDIR /app
+COPY pyproject.toml poetry.lock* /server/
+WORKDIR /server
 # install project dependencies
 RUN poetry install --no-root --no-dev
 CMD ["export FLASK_ENV=development", "export FLASK_APP=main", "flask run"]
