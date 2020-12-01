@@ -26,20 +26,15 @@
           />
         </div>
       </form>
-      <!-- credential feedback -->
-      <div v-if="signInFormError" class="feedback_section">
-        <div
-          v-for="(error, index) of [
-            emailErrorFeedback,
-            passwordErrorFeedback,
-            signInErrorResponseFeedback
-          ]"
-          :key="index"
-        >
+    </template>
+    <!-- credential feedback -->
+    <template #footer>
+      <div v-if="signInFormError">
+        <div v-for="(error, index) of allErrorFeedback" :key="index">
           <small class="p-invalid">{{ error }}</small>
         </div>
       </div>
-      <div v-else-if="signInSuccess" class="feedback_section">
+      <div v-else-if="signInSuccess">
         <small class="p-valid">Sign in successful</small>
       </div>
     </template>
@@ -168,6 +163,13 @@ export default {
       return (
         this.signInForm.response["__typename"] === "UserSignInSuccessOutput"
       );
+    },
+    allErrorFeedback() {
+      return [
+        this.emailErrorFeedback,
+        this.passwordErrorFeedback,
+        this.signInErrorResponseFeedback
+      ];
     }
   }
 };
@@ -202,9 +204,6 @@ export default {
   text-align: left;
   font-weight: 500;
 }
-.feedback_section {
-  padding-top: 25px;
-}
 .signin_label {
   padding-top: 10px;
 }
@@ -229,7 +228,6 @@ export default {
   border-color: #db564e;
   color: #db564e !important;
   outline-color: #db564e;
-  /*margin-top: 30px;*/
 }
 </style>
 

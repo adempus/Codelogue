@@ -4,19 +4,28 @@
     <template v-slot:content>
       <form class="p-fluid p-formgrid p-grid">
         <!-- username input -->
-        <div class="p-float-label p-field p-col-12" style="margin-bottom: 20px;">
+        <div
+          class="p-float-label p-field p-col-12"
+          style="margin-bottom: 20px;"
+        >
           <InputText id="username" type="text" v-model="signUpForm.username" />
           <label for="username" class="signin_label inputPadding"
             >Username</label
           >
         </div>
         <!-- email input -->
-        <div class="p-float-label p-field p-col-12" style="margin-bottom: 20px;">
+        <div
+          class="p-float-label p-field p-col-12"
+          style="margin-bottom: 20px;"
+        >
           <InputText id="email" type="text" v-model="signUpForm.email" />
           <label for="email" class="signin_label inputPadding">Email</label>
         </div>
         <!-- password -->
-        <div class="p-float-label p-field p-col-12 p-md-6" style="margin-bottom: 20px;">
+        <div
+          class="p-float-label p-field p-col-12 p-md-6"
+          style="margin-bottom: 20px;"
+        >
           <InputText
             id="password"
             type="password"
@@ -27,7 +36,10 @@
           >
         </div>
         <!-- confirm password -->
-        <div class="p-float-label p-field p-col-12 p-md-6" style="margin-bottom: 20px;">
+        <div
+          class="p-float-label p-field p-col-12 p-md-6"
+          style="margin-bottom: 20px;"
+        >
           <InputText
             id="password_confirm"
             type="password"
@@ -47,17 +59,11 @@
           />
         </div>
       </form>
-      <!-- credential feedback -->
+    </template>
+    <!-- credential feedback -->
+    <template #footer>
       <div v-if="signUpFormError" class="feedback_section">
-        <div
-          v-for="(error, index) of [
-            usernameErrorFeedback,
-            emailErrorFeedback,
-            passwordErrorFeedback,
-            ...signUpErrorResponseFeedback
-          ]"
-          :key="index"
-        >
+        <div v-for="(error, index) of allErrorFeedback" :key="index">
           <small class="p-invalid">{{ error }}</small>
         </div>
       </div>
@@ -122,7 +128,6 @@ export default {
     submit() {
       this.$v.$touch();
       if (this.$v.$error) return;
-      this.trackInputAttempt();
       this.signUpUser({
         username: this.signUpForm.username,
         email: this.signUpForm.email,
@@ -138,10 +143,6 @@ export default {
             }, 3000);
           }
         });
-    },
-    trackInputAttempt() {
-      this.inputAttempt.username = this.signUpForm.username;
-      this.inputAttempt.email = this.signUpForm.email;
     },
     notifySuccess() {
       this.toast.add({
@@ -211,6 +212,14 @@ export default {
       return (
         this.signUpForm.response["__typename"] === "UserSignUpSuccessOutput"
       );
+    },
+    allErrorFeedback() {
+      return [
+        this.usernameErrorFeedback,
+        this.emailErrorFeedback,
+        this.passwordErrorFeedback,
+        ...this.signUpErrorResponseFeedback
+      ];
     }
   }
 };
@@ -220,5 +229,4 @@ export default {
 .inputPadding {
   padding-left: 7px;
 }
-
 </style>
