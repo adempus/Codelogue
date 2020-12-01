@@ -62,12 +62,12 @@
     </template>
     <!-- credential feedback -->
     <template #footer>
-      <div v-if="signUpFormError" class="feedback_section">
+      <div v-if="signUpFormError">
         <div v-for="(error, index) of allErrorFeedback" :key="index">
           <small class="p-invalid">{{ error }}</small>
         </div>
       </div>
-      <div v-else-if="signUpSuccess" class="feedback_section">
+      <div v-else-if="signUpSuccess">
         <small class="p-valid">Sign Up successful</small>
       </div>
     </template>
