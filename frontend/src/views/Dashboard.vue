@@ -6,48 +6,21 @@
     <router-link to="/sign-in" class="link">Click here to sign in</router-link>
   </div>
   <div v-else>
-    <h1>Welcome {{ user.username }}</h1>
-    <p >{{ authResponse }}</p>
+    <h1>Welcome {{ userInfo.username }}</h1>
   </div>
 </template>
 
 <script>
-import { useMutation } from "@vue/apollo-composable";
-import checkAuthorizationMutation from "../graphql/mutations/checkAuthorization.mutation.graphql";
-
 export default {
   name: "Dashboard",
-  setup() {
-    const { mutate: checkAuthorization } = useMutation(
-      checkAuthorizationMutation
-    );
-    return { checkAuthorization };
-  },
   beforeMount() {
     this.setAccessToken();
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.checkUserAuthorization();
-    });
+    this.$store.dispatch("checkUserAuthorization");
   },
   data() {
-    return {
-      authResponse: null,
-      user: null
-    };
+    return {};
   },
   methods: {
-    checkUserAuthorization() {
-      const token = this.getAccessToken;
-      console.log("token: ", token);
-      this.checkAuthorization()
-        .then(res => (this.authResponse = res["data"]["checkAuthorization"]))
-        .catch(err => console.log("An error occurred", err))
-        .finally(() => {
-          if (this.userSignedIn) this.user = this.authResponse.user;
-        });
-    },
     setAccessToken() {
       if (localStorage.getItem("accessToken") !== null) {
         this.$store.dispatch("storeAccessToken");
@@ -58,9 +31,12 @@ export default {
     getAccessToken() {
       return this.$store.getters.getAccessToken;
     },
+    userInfo() {
+      return this.$store.getters.getUserInfo;
+    },
     userSignedIn() {
-      if (this.authResponse === null) return false;
-      return !this.authResponse.error;
+      if (this.$store.getters.authorizationState === null) return false;
+      return !this.$store.getters.authorizationState.error;
     }
   }
 };

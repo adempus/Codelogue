@@ -6,7 +6,15 @@
 import Navbar from "@/components/Navbar.vue";
 
 export default {
-  components: { Navbar }
+  components: { Navbar },
+  setup() {
+    const g = () => {
+      if (this.$store.getters.authorizationState === null) return false;
+      return !this.$store.getters.authorizationState.error;
+      // return this.$store.getters.isSignedIn;
+    };
+    return { g };
+  },
 };
 </script>
 <style>
