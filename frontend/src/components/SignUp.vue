@@ -163,7 +163,7 @@ export default {
         this.signUpForm.response.error === true
       );
     },
-    signUpErrorResponseFeedback() {
+    signUpResponseErrorFeedback() {
       if (!this.signUpResponseError) return "";
       const errors = [];
       if (this.signUpForm.response["emailExists"])
@@ -218,7 +218,7 @@ export default {
         this.usernameErrorFeedback,
         this.emailErrorFeedback,
         this.passwordErrorFeedback,
-        ...this.signUpErrorResponseFeedback
+        ...this.signUpResponseErrorFeedback
       ];
     }
   }

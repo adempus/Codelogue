@@ -1,0 +1,22 @@
+mutation CheckAuthorization {
+    checkAuthorization {
+        ...on AuthorizationErrorOutput {
+            __typename
+            error
+            message
+            tokenExpired
+            tokenInvalid
+        }
+        ...on AuthorizationSuccessOutput {
+            __typename
+            error
+            message
+            user {
+                id
+                username
+                email
+            }
+            timeRemaining
+        }
+    }
+}

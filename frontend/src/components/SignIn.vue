@@ -90,7 +90,10 @@ export default {
         .then(res => (this.signInForm.response = res["data"]["signInUser"]))
         .catch(err => console.log("An error has occurred: ", err))
         .finally(() => {
-          if (this.signInSuccess) this.storeTokens();
+          if (this.signInSuccess) {
+            this.storeTokens();
+            this.$router.push("dashboard");
+          }
         });
     },
     trackInputAttempt() {
@@ -122,7 +125,7 @@ export default {
         this.signInForm.response.error === true
       );
     },
-    signInErrorResponseFeedback() {
+    signInResponseErrorFeedback() {
       if (!this.signInResponseError) return "";
       return this.signInForm.response.message;
     },
@@ -168,7 +171,7 @@ export default {
       return [
         this.emailErrorFeedback,
         this.passwordErrorFeedback,
-        this.signInErrorResponseFeedback
+        this.signInResponseErrorFeedback
       ];
     }
   }
