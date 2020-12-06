@@ -1,6 +1,12 @@
 <template>
-  <Navbar></Navbar>
-  <router-view />
+  <div class="p-grid p-flex-column">
+    <div class="p-col">
+      <Navbar></Navbar>
+    </div>
+    <div class="p-col">
+      <router-view />
+    </div>
+  </div>
 </template>
 <script>
 import Navbar from "@/components/Navbar.vue";
@@ -11,10 +17,9 @@ export default {
     const g = () => {
       if (this.$store.getters.authorizationState === null) return false;
       return !this.$store.getters.authorizationState.error;
-      // return this.$store.getters.isSignedIn;
     };
     return { g };
-  },
+  }
 };
 </script>
 <style>
@@ -22,12 +27,15 @@ export default {
 @import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
 
-body {
-  padding-top: 10%;
-}
-body, html {
+body,
+html {
   height: 100%;
   background-color: #323645;
+  overflow-y: hidden;
+  padding-bottom: 17px;
+}
+.top_placement {
+  margin-top: 83px !important;
 }
 button:focus {
   outline: none !important;

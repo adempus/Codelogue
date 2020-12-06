@@ -2,7 +2,7 @@
   <Toast position="top-right" />
   <Card id="card_input">
     <template v-slot:content>
-      <form class="p-fluid p-formgrid p-grid">
+      <form v-on:keyup.enter="submit" class="p-fluid p-formgrid p-grid">
         <!-- username input -->
         <div
           class="p-float-label p-field p-col-12"

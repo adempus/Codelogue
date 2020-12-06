@@ -1,7 +1,7 @@
-<template>
+<template style="padding-bottom: 50px;">
   <Card id="card_input">
     <template v-slot:content>
-      <form class="p-fluid">
+      <form v-on:keyup.enter="submit" class="p-fluid">
         <!-- email input -->
         <div class="p-float-label p-field" style="margin-bottom: 20px;">
           <InputText id="email" type="text" v-model="signInForm.email" />

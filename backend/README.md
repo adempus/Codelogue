@@ -95,7 +95,20 @@ For subsequent runs of the project container:
 
 ```docker start codelogue_db_container codelogue_server_container codelogue_client_container```
 
-To remove the containers with their storage volumes (this deletes all data from database container): 
-
+To remove the containers with their storage volumes (this deletes all data from database container):
 ```docker-compose down -v```
 
+
+### Rebuild a single container
+
+To rebuild a single container, first remove it:
+
+```docker rm codelogue_server_container```
+
+Then rebuild it:
+
+```docker-compose build backend```
+
+Then re-run it: 
+
+```docker-compose up backend```
