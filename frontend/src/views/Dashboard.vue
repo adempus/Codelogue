@@ -46,7 +46,10 @@ export default {
 </script>
 
 <style scoped>
-
+body,
+html {
+  overflow-y: hidden !important;
+}
 * {
   color: #ffffff;
 }

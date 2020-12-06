@@ -1,8 +1,13 @@
 <template>
   <div id="folder_pane">
     <div class="p-grid p-fluid">
-      <div class="p-col-12">
-        <div id="new_folder_form" class="p-inputgroup">
+      <!-- new folder input form -->
+      <div class="p-col-12" style="position: relative;">
+        <div
+          id="new_folder_form"
+          class="p-inputgroup"
+          style="position: sticky;"
+        >
           <InputText
             placeholder="New Folder"
             v-model="newFolderName"
@@ -18,6 +23,7 @@
           />
         </div>
       </div>
+      <!-- blank folder name error msg -->
       <small
         v-if="newFolderNameBlank"
         id="cannot_be_blank_error"
@@ -25,17 +31,29 @@
         >Folder name is required</small
       >
     </div>
+    <!-- folder tree section -->
+    <ScrollPanel style="width: inherit; height: auto; margin-top: 15px;">
+      <Tree :value="folders" id="folder_tree" selectionMode="single"></Tree>
+    </ScrollPanel>
   </div>
 </template>
 
 <script>
 import { required, minLength } from "@vuelidate/validators";
+import apolloClient from "@/graphql";
+import userFoldersQuery from "@/graphql/queries/userFolders.query.graphql";
 
 export default {
   name: "FolderPane",
+  beforeMount() {
+    this.queryUserFolders();
+  },
   data() {
     return {
-      newFolderName: ""
+      newFolderName: "",
+      foldersResponse: null,
+      folders: null,
+      expandedKeys: {}
     };
   },
   validations() {
@@ -47,6 +65,12 @@ export default {
     };
   },
   methods: {
+    queryUserFolders() {
+      apolloClient.query({ query: { ...userFoldersQuery } }).then(res => {
+        this.foldersResponse = res["data"]["getUserFolders"];
+        this.folders = this.parseFolderQueryResponse(res);
+      });
+    },
     createNewFolder() {
       this.$v.$touch();
       if (this.$v.$error) {
@@ -54,9 +78,35 @@ export default {
         return;
       }
       this.newFolderName = this.newFolderName.trim();
-      console.log("new folder " + this.newFolderName + " created.");
+      this.folders.push({
+        label: this.newFolderName,
+        data: "New Folder",
+        icon: "pi pi-fw pi-folder"
+      });
       this.newFolderName = "";
       this.$v.$reset();
+    },
+    parseFolderQueryResponse() {
+      const folderArr = [];
+      this.foldersResponse.forEach(folder => {
+        let newObj = {};
+        newObj["label"] = folder["name"];
+        newObj["id"] = folder["id"];
+        newObj["icon"] = "pi pi-fw pi-folder";
+        newObj["children"] = [];
+        console.log(folder);
+        folder["snippets"]["edges"].forEach(snippet => {
+          console.log(snippet);
+          newObj["children"].push({
+            label: snippet["node"]["title"],
+            data: snippet["node"]["id"],
+            icon: "pi pi-fw pi-file"
+          });
+        });
+        folderArr.push(newObj);
+      });
+
+      return folderArr;
     }
   },
   computed: {
@@ -72,6 +122,7 @@ export default {
   background-color: #272a36;
   height: 90vh !important;
   padding: 15px 15px 20px 15px;
+  overflow-y: auto;
 }
 #new_folder_form {
   padding-bottom: 15px;
@@ -82,9 +133,19 @@ export default {
   padding-left: 10px;
 }
 #new_folder_name_input {
+  border-width: 3px;
 }
 #new_folder_name_input:focus {
   outline: none;
+  box-shadow: none;
+}
+#folder_tree {
+  background-color: #272a36;
+  color: #d3d4d6;
+  border: none;
+  font-size: 14px;
+  padding: 0px;
+  outline: none !important;
   box-shadow: none;
 }
 </style>

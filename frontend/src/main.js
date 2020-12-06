@@ -19,6 +19,8 @@ import Card from "primevue/card";
 import TabMenu from "primevue/tabmenu";
 import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
+import Tree from "primevue/tree";
+import ScrollPanel from 'primevue/scrollpanel';
 
 const app = createApp({
   setup() {
@@ -41,6 +43,8 @@ app.component("InputText", InputText);
 app.component("TabMenu", TabMenu);
 app.component("Card", Card);
 app.component("Toast", Toast);
+app.component("Tree", Tree);
+app.component("ScrollPanel", ScrollPanel);
 app.mount("#app");
 
 export default app
