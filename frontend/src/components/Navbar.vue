@@ -10,7 +10,7 @@
             type="button"
             class="p-button-sm login_btn"
             label="Sign In"
-            v-on:click="navSignInPage()"
+            @click="navSignInPage"
           />
         </div>
         <div v-else class="p-grid">
@@ -18,6 +18,7 @@
             icon="pi pi-power-off"
             id="signout_btn"
             class="p-col p-button-rounded p-button-outlined"
+            @click="signOut"
           />
         </div>
       </template>
@@ -30,6 +31,7 @@ export default {
   mounted() {
     this.hideDefaultNavButton();
   },
+
   data() {
     return {
       items: [
@@ -44,11 +46,16 @@ export default {
     },
     navSignInPage() {
       this.$router.push("sign-in");
+    },
+    signOut() {
+      localStorage.clear();
+      this.$router.push("sign-in");
     }
   },
   computed: {
     isSignedIn() {
-      return this.$store.getters.isSignedIn;
+      if (this.$store.getters.authorizationState === null) return false;
+      return !this.$store.getters.authorizationState.error;
     }
   }
 };

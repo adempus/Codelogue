@@ -1,5 +1,5 @@
 <template>
-  <div class="p-d-flex p-jc-center">
+  <div class="p-d-flex p-jc-center top_placement top_padding">
     <div class="p-d-flex p-flex-column" style="width: 20vw;">
       <div class="p-mb-2">
         <TabMenu :model="items" id="credentialsMenu" />
@@ -38,6 +38,9 @@ export default {
 </script>
 
 <style>
+.top_padding {
+  padding-top: 120px;
+}
 .p-tabmenu .p-tabmenu-nav {
   background: #272a36 !important;
   border: none !important;

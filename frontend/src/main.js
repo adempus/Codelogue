@@ -1,12 +1,10 @@
 import { createApp, provide, h } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
+import App from "@/App.vue";
+import router from "@/router";
+import store from "@/store";
 import { VuelidatePlugin } from "@vuelidate/core";
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { DefaultApolloClient } from "@vue/apollo-composable";
-// import gql from "@apollo/client";
-
+import apolloClient from "@/graphql";
 // PrimeVue imports
 import "primeflex/primeflex.css";
 import "primevue/resources/themes/saga-blue/theme.css"; // theme
@@ -22,27 +20,6 @@ import TabMenu from "primevue/tabmenu";
 import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
 
-const apolloClient = new ApolloClient({
-  uri: "http://127.0.0.1:5001/graphql",
-  cache: new InMemoryCache()
-});
-
-// const query = gql`
-//   query GetLanguages {
-//     allLanguages {
-//       edges {
-//         node {
-//           id
-//           name
-//         }
-//       }
-//     }
-//   }
-// `;
-//
-// apolloClient.query({ query }).then(res => console.log(res));
-
-// const app = createApp(App);
 const app = createApp({
   setup() {
     provide(DefaultApolloClient, apolloClient);
@@ -53,6 +30,7 @@ const app = createApp({
 });
 
 app.use(store);
+
 app.use(router);
 app.use(VuelidatePlugin);
 app.use(ToastService);
@@ -65,4 +43,4 @@ app.component("Card", Card);
 app.component("Toast", Toast);
 app.mount("#app");
 
-export default app;
+export default app

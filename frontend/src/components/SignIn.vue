@@ -1,7 +1,7 @@
-<template>
+<template style="padding-bottom: 50px;">
   <Card id="card_input">
     <template v-slot:content>
-      <form class="p-fluid">
+      <form v-on:keyup.enter="submit" class="p-fluid">
         <!-- email input -->
         <div class="p-float-label p-field" style="margin-bottom: 20px;">
           <InputText id="email" type="text" v-model="signInForm.email" />
@@ -26,20 +26,15 @@
           />
         </div>
       </form>
-      <!-- credential feedback -->
-      <div v-if="signInFormError" class="feedback_section">
-        <div
-          v-for="(error, index) of [
-            emailErrorFeedback,
-            passwordErrorFeedback,
-            signInErrorResponseFeedback
-          ]"
-          :key="index"
-        >
+    </template>
+    <!-- credential feedback -->
+    <template #footer>
+      <div v-if="signInFormError">
+        <div v-for="(error, index) of allErrorFeedback" :key="index">
           <small class="p-invalid">{{ error }}</small>
         </div>
       </div>
-      <div v-else-if="signInSuccess" class="feedback_section">
+      <div v-else-if="signInSuccess">
         <small class="p-valid">Sign in successful</small>
       </div>
     </template>
@@ -95,7 +90,10 @@ export default {
         .then(res => (this.signInForm.response = res["data"]["signInUser"]))
         .catch(err => console.log("An error has occurred: ", err))
         .finally(() => {
-          if (this.signInSuccess) this.storeTokens();
+          if (this.signInSuccess) {
+            this.storeTokens();
+            this.$router.push("dashboard");
+          }
         });
     },
     trackInputAttempt() {
@@ -127,7 +125,7 @@ export default {
         this.signInForm.response.error === true
       );
     },
-    signInErrorResponseFeedback() {
+    signInResponseErrorFeedback() {
       if (!this.signInResponseError) return "";
       return this.signInForm.response.message;
     },
@@ -168,6 +166,13 @@ export default {
       return (
         this.signInForm.response["__typename"] === "UserSignInSuccessOutput"
       );
+    },
+    allErrorFeedback() {
+      return [
+        this.emailErrorFeedback,
+        this.passwordErrorFeedback,
+        this.signInResponseErrorFeedback
+      ];
     }
   }
 };
@@ -202,9 +207,6 @@ export default {
   text-align: left;
   font-weight: 500;
 }
-.feedback_section {
-  padding-top: 25px;
-}
 .signin_label {
   padding-top: 10px;
 }
@@ -229,7 +231,6 @@ export default {
   border-color: #db564e;
   color: #db564e !important;
   outline-color: #db564e;
-  /*margin-top: 30px;*/
 }
 </style>
 

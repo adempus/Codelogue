@@ -3,18 +3,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import Index from "@/views/Index.vue";
 import SignIn from "@/components/SignIn.vue";
 import SignUp from "@/components/SignUp.vue";
+import Dashboard from "@/views/Dashboard";
 
 const routes = [
-  // {
-  //   path: "/",
-  //   name: "Home",
-  //   component: Home
-  // },
-  // {
-  //   path: "/",
-  //   name: "Index",
-  //   component: Index
-  // },
   {
     path: "/",
     component: Index,
@@ -41,6 +32,11 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue")
+  },
+  {
+    path: "/dashboard",
+    name: "dashboard",
+    component: Dashboard
   }
 ];
 

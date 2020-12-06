@@ -1,0 +1,14 @@
+query userFolders{
+    getUserFolders {
+        id
+        name
+        snippets {
+            edges {
+                node {
+                    id
+                    title
+                }
+            }
+        }
+    }
+}
