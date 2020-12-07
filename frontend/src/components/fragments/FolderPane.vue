@@ -30,30 +30,51 @@
         class="p-invalid"
         >Folder name is required</small
       >
+      <div style="position: relative;">
+        <ToggleButton
+          v-model="deleteMode"
+          style="height: 25px; width: 25px;"
+          id="deleteFolderBtn"
+          class="p-button-sm"
+          onIcon="pi pi-ban"
+          offIcon="pi pi-trash"
+        />
+      </div>
     </div>
     <!-- folder tree section -->
     <ScrollPanel style="width: inherit; height: auto; margin-top: 15px;">
-      <Tree :value="folders" id="folder_tree" selectionMode="single"></Tree>
+      <Tree
+        :value="folders"
+        id="folder_tree"
+        :selectionMode="deleteMode ? 'checkbox' : 'single'"
+      ></Tree>
     </ScrollPanel>
   </div>
 </template>
 
 <script>
-import { required, minLength } from "@vuelidate/validators";
 import apolloClient from "@/graphql";
+import { useMutation } from "@vue/apollo-composable";
+import { required, minLength } from "@vuelidate/validators";
 import userFoldersQuery from "@/graphql/queries/userFolders.query.graphql";
+import createFolderMutation from "@/graphql/mutations/createFolder.mutation.graphql";
 
 export default {
   name: "FolderPane",
+  setup() {
+    const { mutate: createFolder } = useMutation(createFolderMutation);
+    return { createFolder };
+  },
   beforeMount() {
     this.queryUserFolders();
   },
   data() {
     return {
-      newFolderName: "",
-      foldersResponse: null,
       folders: null,
-      expandedKeys: {}
+      newFolderName: "",
+      folderQueryResponse: null,
+      folderMutationResponse: null,
+      deleteMode: false
     };
   },
   validations() {
@@ -67,46 +88,45 @@ export default {
   methods: {
     queryUserFolders() {
       apolloClient.query({ query: { ...userFoldersQuery } }).then(res => {
-        this.foldersResponse = res["data"]["getUserFolders"];
+        this.folderQueryResponse = res["data"]["getUserFolders"];
         this.folders = this.parseFolderQueryResponse(res);
       });
     },
     createNewFolder() {
       this.$v.$touch();
-      if (this.$v.$error) {
-        console.error("Folder name cannot be blank");
-        return;
-      }
-      this.newFolderName = this.newFolderName.trim();
-      this.folders.push({
-        label: this.newFolderName,
-        data: "New Folder",
-        icon: "pi pi-fw pi-folder"
-      });
-      this.newFolderName = "";
-      this.$v.$reset();
+      if (this.$v.$error) return;
+      this.createFolder({ name: this.newFolderName.trim() })
+        .then(
+          res => (this.folderMutationResponse = res["data"]["createFolder"])
+        )
+        .catch(err => console.log("CreateFolderMutation error.", err))
+        .finally(() => {
+          if (!this.folderMutationResponse["status"]["error"]) {
+            this.folders.push({
+              key: this.folderMutationResponse["folder"]["id"],
+              label: this.newFolderName,
+              icon: "pi pi-fw pi-folder"
+            });
+            this.newFolderName = "";
+            this.$v.$reset();
+          }
+        });
     },
     parseFolderQueryResponse() {
-      const folderArr = [];
-      this.foldersResponse.forEach(folder => {
-        let newObj = {};
-        newObj["label"] = folder["name"];
-        newObj["id"] = folder["id"];
-        newObj["icon"] = "pi pi-fw pi-folder";
-        newObj["children"] = [];
-        console.log(folder);
-        folder["snippets"]["edges"].forEach(snippet => {
-          console.log(snippet);
-          newObj["children"].push({
-            label: snippet["node"]["title"],
-            data: snippet["node"]["id"],
-            icon: "pi pi-fw pi-file"
-          });
-        });
-        folderArr.push(newObj);
+      return this.folderQueryResponse.map(folder => {
+        return {
+          key: folder["id"],
+          label: folder["name"],
+          icon: "pi pi-fw pi-folder",
+          children: folder["snippets"]["edges"].map(snippet => {
+            return {
+              key: snippet["node"]["id"],
+              label: snippet["node"]["title"],
+              icon: "pi pi-fw pi-file"
+            };
+          })
+        };
       });
-
-      return folderArr;
     }
   },
   computed: {
@@ -128,8 +148,8 @@ export default {
   padding-bottom: 15px;
 }
 #cannot_be_blank_error {
-  position: relative;
-  margin-top: -17px;
+  position: absolute;
+  margin-top: 55px;
   padding-left: 10px;
 }
 #new_folder_name_input {
@@ -147,5 +167,11 @@ export default {
   padding: 0px;
   outline: none !important;
   box-shadow: none;
+}
+#deleteFolderBtn {
+  position: absolute;
+  right: 12px;
+  top: 55px;
+  z-index: 100;
 }
 </style>
