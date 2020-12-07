@@ -36,7 +36,7 @@
           style="height: 25px; width: 25px;"
           id="deleteFolderBtn"
           class="p-button-sm"
-          onIcon="pi pi-ban"
+          onIcon="pi pi-check"
           offIcon="pi pi-trash"
         />
       </div>
@@ -171,7 +171,13 @@ export default {
 #deleteFolderBtn {
   position: absolute;
   right: 12px;
-  top: 55px;
+  top: 60px;
   z-index: 100;
+  background-color: #272a36;
+  border-color: #6c757d;
+}
+#deleteFolderBtn:focus {
+  outline: none;
+  box-shadow: none;
 }
 </style>
