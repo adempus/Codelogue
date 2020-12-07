@@ -17,7 +17,7 @@
             v-on:keyup.enter="createNewFolder()"
           />
           <Button
-            icon="pi pi-plus"
+            icon="pi pi-plus-circle"
             class="p-button-warning"
             @click="createNewFolder()"
           />
@@ -171,7 +171,7 @@ export default {
 #deleteFolderBtn {
   position: absolute;
   right: 12px;
-  top: 60px;
+  top: 56px;
   z-index: 100;
   background-color: #272a36;
   border-color: #6c757d;
