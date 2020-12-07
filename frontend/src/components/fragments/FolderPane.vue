@@ -38,6 +38,7 @@
           class="p-button-sm"
           onIcon="pi pi-check"
           offIcon="pi pi-trash"
+          @change="promptDeletionNotice"
         />
       </div>
     </div>
@@ -46,7 +47,10 @@
       <Tree
         :value="folders"
         id="folder_tree"
+        v-model:selectionKeys="selectionKeys"
         :selectionMode="deleteMode ? 'checkbox' : 'single'"
+        @node-select="selectForDeletion"
+        @node-unselect="unselectForDeletion"
       ></Tree>
     </ScrollPanel>
   </div>
@@ -74,7 +78,9 @@ export default {
       newFolderName: "",
       folderQueryResponse: null,
       folderMutationResponse: null,
-      deleteMode: false
+      deleteMode: false,
+      deletionList: [],
+      selectionKeys: []
     };
   },
   validations() {
@@ -116,17 +122,33 @@ export default {
       return this.folderQueryResponse.map(folder => {
         return {
           key: folder["id"],
+          type: "folder",
           label: folder["name"],
           icon: "pi pi-fw pi-folder",
           children: folder["snippets"]["edges"].map(snippet => {
             return {
               key: snippet["node"]["id"],
+              type: "snippet",
               label: snippet["node"]["title"],
               icon: "pi pi-fw pi-file"
             };
           })
         };
       });
+    },
+    selectForDeletion(folder) {
+      if (!this.deleteMode) return;
+      if (this.deletionList.includes(folder)) this.unselectForDeletion(folder);
+      else this.deletionList.push(folder);
+    },
+    unselectForDeletion(folder) {
+      if (!this.deleteMode) return;
+      this.deletionList = this.deletionList.filter(selected => {
+        return selected !== folder;
+      });
+    },
+    promptDeletionNotice() {
+      if (!this.deleteMode) console.log("Are you sure you want to delete?");
     }
   },
   computed: {
