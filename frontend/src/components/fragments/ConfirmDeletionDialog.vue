@@ -56,27 +56,32 @@ export default {
     showMessage() {
       return this.shouldDisplay;
     },
-    getCount(item) {
+    folderCount() {
       return this.deletionSelections.filter(selected => {
-        return selected.type === item;
+        return selected.type === "folder";
+      }).length;
+    },
+    snippetCount() {
+      return this.deletionSelections.filter(selected => {
+        return selected.type === "snippet";
       }).length;
     },
     folderNoun() {
-      return this.getCount("folder") > 1 ? "folders" : "folder";
+      return this.folderCount > 1 ? "folders" : "folder";
     },
     snippetNoun() {
-      return this.getCount("snippet") > 1 ? "snippets" : "snippet";
+      return this.snippetCount > 1 ? "snippets" : "snippet";
     },
     folderDeletionMessage() {
       return `Deleting a folder will also delete its contents.
-      Continue deleting ${this.getCount("folder")} ${this.folderNoun}?`;
+      Continue deleting ${this.folderCount} ${this.folderNoun}?`;
     },
     snippetDeletionMessage() {
-      return `Continue deleting ${this.getCount("snippet")} ${this.snippetNoun}?`;
+      return `Continue deleting ${this.snippetCount} ${this.snippetNoun}?`;
     },
     bothDeletionMessage() {
-      return `You are about to delete ${this.getCount("folder")} ${this.folderNoun}
-      and ${this.getCount("snippet")} separate ${this.snippetNoun}. Proceed?`;
+      return `You are about to delete ${this.folderCount} ${this.folderNoun}
+      and ${this.snippetCount} separate ${this.snippetNoun}. Proceed?`;
     }
   }
 };
