@@ -157,10 +157,8 @@ export default {
       let snippets = this.folders.flatMap(folder => {
         return folder.children.filter(snippet => {
           let parent = snippet.parentKey;
-          if (
-            parent in this.selectionKeys &&
-            this.selectionKeys[parent].partialChecked
-          )
+          let parentPresent = parent in this.selectionKeys;
+          if (parentPresent && this.selectionKeys[parent].partialChecked)
             return snippet.key in this.selectionKeys;
         });
       });
