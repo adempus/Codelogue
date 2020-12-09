@@ -1,4 +1,10 @@
 <template>
+  <ConfirmDeletionDialog
+    :should-display="displayConfirmation"
+    :deletion-selections="deletionList"
+    @confirm-deletion="deleteFolders"
+    @cancel-deletion="cancelDeletion"
+  />
   <div id="folder_pane">
     <div class="p-grid p-fluid">
       <!-- new folder input form -->
@@ -38,7 +44,7 @@
           class="p-button-sm"
           onIcon="pi pi-check"
           offIcon="pi pi-trash"
-          @change="promptDeletionNotice"
+          @change="handleDeletionAction"
         />
       </div>
     </div>
@@ -49,8 +55,8 @@
         id="folder_tree"
         v-model:selectionKeys="selectionKeys"
         :selectionMode="deleteMode ? 'checkbox' : 'single'"
-        @node-select="selectForDeletion"
-        @node-unselect="unselectForDeletion"
+        @node-select="updateDeletionSelection"
+        @node-unselect="updateDeletionSelection"
       ></Tree>
     </ScrollPanel>
   </div>
@@ -62,9 +68,11 @@ import { useMutation } from "@vue/apollo-composable";
 import { required, minLength } from "@vuelidate/validators";
 import userFoldersQuery from "@/graphql/queries/userFolders.query.graphql";
 import createFolderMutation from "@/graphql/mutations/createFolder.mutation.graphql";
+import ConfirmDeletionDialog from "@/components/fragments/ConfirmDeletionDialog";
 
 export default {
   name: "FolderPane",
+  components: { ConfirmDeletionDialog },
   setup() {
     const { mutate: createFolder } = useMutation(createFolderMutation);
     return { createFolder };
@@ -80,7 +88,8 @@ export default {
       folderMutationResponse: null,
       deleteMode: false,
       deletionList: [],
-      selectionKeys: []
+      selectionKeys: [],
+      displayConfirmation: false
     };
   },
   validations() {
@@ -129,6 +138,7 @@ export default {
             return {
               key: snippet["node"]["id"],
               type: "snippet",
+              parentFolder: folder["id"],
               label: snippet["node"]["title"],
               icon: "pi pi-fw pi-file"
             };
@@ -136,24 +146,70 @@ export default {
         };
       });
     },
-    selectForDeletion(folder) {
+    updateDeletionSelection() {
       if (!this.deleteMode) return;
-      if (this.deletionList.includes(folder)) this.unselectForDeletion(folder);
-      else this.deletionList.push(folder);
+      this.deletionList = this.folders.filter(folder => {
+        if (folder.key in this.selectionKeys && folder.type === "folder") {
+          let item = this.selectionKeys[folder.key];
+          if (item.checked && !item.partialChecked) return folder;
+        }
+      });
+      let snippets = this.folders.flatMap(folder => {
+        return folder.children.filter(snippet => {
+          let parent = snippet.parentFolder;
+          if (this.selectionKeys[parent].partialChecked)
+            return snippet.key in this.selectionKeys;
+        });
+      });
+      this.deletionList = this.deletionList.concat(snippets);
     },
-    unselectForDeletion(folder) {
-      if (!this.deleteMode) return;
+    removeNode(node) {
       this.deletionList = this.deletionList.filter(selected => {
-        return selected !== folder;
+        return selected !== node;
       });
     },
-    promptDeletionNotice() {
-      if (!this.deleteMode) console.log("Are you sure you want to delete?");
+    clearDeletionSelections() {
+      this.selectionKeys = [];
+      this.deletionList = [];
+    },
+    handleDeletionAction() {
+      this.selectionKeys = null;
+      if (!this.deleteMode && !this.deletionSelectionsEmpty) {
+        this.enableDeleteMode();
+        this.showDeletionConfirmation();
+      }
+    },
+    deleteFolders() {
+      console.log("folders deleted!");
+      this.finalizeDeletion();
+    },
+    cancelDeletion() {
+      this.finalizeDeletion();
+    },
+    showDeletionConfirmation() {
+      this.displayConfirmation = true;
+    },
+    hideDeletionConfirmation() {
+      this.displayConfirmation = false;
+    },
+    enableDeleteMode() {
+      this.deleteMode = true;
+    },
+    disableDeleteMode() {
+      this.deleteMode = false;
+    },
+    finalizeDeletion() {
+      this.hideDeletionConfirmation();
+      this.clearDeletionSelections();
+      this.disableDeleteMode();
     }
   },
   computed: {
     newFolderNameBlank() {
       return this.$v.newFolderName.required.$invalid;
+    },
+    deletionSelectionsEmpty() {
+      return this.deletionList.length < 1;
     }
   }
 };
