@@ -138,7 +138,7 @@ export default {
             return {
               key: snippet["node"]["id"],
               type: "snippet",
-              parentFolder: folder["id"],
+              parentKey: folder["id"],
               label: snippet["node"]["title"],
               icon: "pi pi-fw pi-file"
             };
@@ -156,8 +156,11 @@ export default {
       });
       let snippets = this.folders.flatMap(folder => {
         return folder.children.filter(snippet => {
-          let parent = snippet.parentFolder;
-          if (this.selectionKeys[parent].partialChecked)
+          let parent = snippet.parentKey;
+          if (
+            parent in this.selectionKeys &&
+            this.selectionKeys[parent].partialChecked
+          )
             return snippet.key in this.selectionKeys;
         });
       });
@@ -173,8 +176,8 @@ export default {
       this.deletionList = [];
     },
     handleDeletionAction() {
-      this.selectionKeys = null;
       if (!this.deleteMode && !this.deletionSelectionsEmpty) {
+        this.selectionKeys = null;
         this.enableDeleteMode();
         this.showDeletionConfirmation();
       }
