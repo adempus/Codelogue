@@ -199,6 +199,7 @@ export default {
         .finally(() => {
           if (!this.folderMutationResponse["status"]["error"]) {
             this.queryUserFolders();
+            // ui update trigger here
           }
           this.finalizeDeletion();
         });
