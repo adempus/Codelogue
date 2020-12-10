@@ -104,10 +104,13 @@ export default {
   },
   methods: {
     queryUserFolders() {
-      apolloClient.query({ query: { ...userFoldersQuery } }).then(res => {
-        this.folderQueryResponse = res["data"]["getUserFolders"];
-        this.folders = this.parseFolderQueryResponse(res);
-      });
+      apolloClient
+        .query({ query: { ...userFoldersQuery } })
+        .then(res => {
+          this.folderQueryResponse = res["data"]["getUserFolders"];
+          this.folders = this.parseFolderQueryResponse(res);
+        })
+        .catch(err => console.log("UserFoldersQuery error occurred.", err));
     },
     createNewFolder() {
       this.$v.$touch();
@@ -152,6 +155,7 @@ export default {
     },
     updateDeletionSelection() {
       if (!this.deleteMode) return;
+      // collect folders
       this.deletionList = this.folders.filter(folder => {
         if (folder.key in this.selectionKeys && folder.type === "folder") {
           let selectedFolder = this.selectionKeys[folder.key];
@@ -160,12 +164,13 @@ export default {
             return selectedFolder;
         }
       });
+      // collect snippets
       let snippets = this.folders.flatMap(folder => {
         return folder.children.filter(snippet => {
           let parentFolder = snippet.parentKey;
-          let parentPresent = parentFolder in this.selectionKeys;
-          // if a folder's contents are selected but not the folder itself, return its selected contents exclusively.
-          if (parentPresent && this.selectionKeys[parentFolder].partialChecked)
+          let parentSelected = parentFolder in this.selectionKeys;
+          // if some folder's contents are selected but not the folder itself, return its selected contents exclusively.
+          if (parentSelected && this.selectionKeys[parentFolder].partialChecked)
             return snippet.key in this.selectionKeys;
         });
       });
@@ -198,10 +203,11 @@ export default {
         .catch(err => console.log("DeleteFolderMutation occurred. ", err))
         .finally(() => {
           if (!this.folderMutationResponse["status"]["error"]) {
-            this.queryUserFolders();
-            // ui update trigger here
+            this.folders = this.folders.filter(item => {
+              return !this.folderDeletionIds.includes(item.key);
+            });
+            this.finalizeDeletion();
           }
-          this.finalizeDeletion();
         });
     },
     cancelDeletion() {
