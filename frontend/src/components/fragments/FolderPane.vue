@@ -2,7 +2,7 @@
   <ConfirmDeletionDialog
     :should-display="displayConfirmation"
     :deletion-selections="deletionList"
-    @confirm-deletion="deleteFolders"
+    @confirm-deletion="deleteSelectedFolders"
     @cancel-deletion="cancelDeletion"
   />
   <div id="folder_pane">
@@ -68,6 +68,7 @@ import { useMutation } from "@vue/apollo-composable";
 import { required, minLength } from "@vuelidate/validators";
 import userFoldersQuery from "@/graphql/queries/userFolders.query.graphql";
 import createFolderMutation from "@/graphql/mutations/createFolder.mutation.graphql";
+import deleteFoldersMutation from "@/graphql/mutations/deleteFolders.mutation.graphql";
 import ConfirmDeletionDialog from "@/components/fragments/ConfirmDeletionDialog";
 
 export default {
@@ -75,7 +76,8 @@ export default {
   components: { ConfirmDeletionDialog },
   setup() {
     const { mutate: createFolder } = useMutation(createFolderMutation);
-    return { createFolder };
+    const { mutate: deleteFolders } = useMutation(deleteFoldersMutation);
+    return { createFolder, deleteFolders };
   },
   beforeMount() {
     this.queryUserFolders();
@@ -119,8 +121,10 @@ export default {
           if (!this.folderMutationResponse["status"]["error"]) {
             this.folders.push({
               key: this.folderMutationResponse["folder"]["id"],
+              type: "folder",
               label: this.newFolderName,
-              icon: "pi pi-fw pi-folder"
+              icon: "pi pi-fw pi-folder",
+              children: []
             });
             this.newFolderName = "";
             this.$v.$reset();
@@ -150,15 +154,18 @@ export default {
       if (!this.deleteMode) return;
       this.deletionList = this.folders.filter(folder => {
         if (folder.key in this.selectionKeys && folder.type === "folder") {
-          let item = this.selectionKeys[folder.key];
-          if (item.checked && !item.partialChecked) return folder;
+          let selectedFolder = this.selectionKeys[folder.key];
+          // if a folder itself is selected, all of its contents are as well. Return the folder exclusively.
+          if (selectedFolder.checked && !selectedFolder.partialChecked)
+            return selectedFolder;
         }
       });
       let snippets = this.folders.flatMap(folder => {
         return folder.children.filter(snippet => {
-          let parent = snippet.parentKey;
-          let parentPresent = parent in this.selectionKeys;
-          if (parentPresent && this.selectionKeys[parent].partialChecked)
+          let parentFolder = snippet.parentKey;
+          let parentPresent = parentFolder in this.selectionKeys;
+          // if a folder's contents are selected but not the folder itself, return its selected contents exclusively.
+          if (parentPresent && this.selectionKeys[parentFolder].partialChecked)
             return snippet.key in this.selectionKeys;
         });
       });
@@ -174,15 +181,27 @@ export default {
       this.deletionList = [];
     },
     handleDeletionAction() {
+      // confirmation to be shown when deletion is toggled off
       if (!this.deleteMode && !this.deletionSelectionsEmpty) {
-        this.selectionKeys = null;
         this.enableDeleteMode();
         this.showDeletionConfirmation();
       }
     },
-    deleteFolders() {
+    deleteSelectedFolders() {
       console.log("folders deleted!");
-      this.finalizeDeletion();
+      const folderIds = this.folderDeletionIds;
+      this.deleteFolders({ folderIds: folderIds })
+        .then(res => {
+          this.folderMutationResponse = res["data"]["deleteFolders"];
+          console.log(res["data"]);
+        })
+        .catch(err => console.log("DeleteFolderMutation occurred. ", err))
+        .finally(() => {
+          if (!this.folderMutationResponse["status"]["error"]) {
+            this.queryUserFolders();
+          }
+          this.finalizeDeletion();
+        });
     },
     cancelDeletion() {
       this.finalizeDeletion();
@@ -211,6 +230,18 @@ export default {
     },
     deletionSelectionsEmpty() {
       return this.deletionList.length < 1;
+    },
+    folderDeletionIds() {
+      return this.deletionList
+        .filter(selected => {
+          return selected.type === "folder";
+        })
+        .map(folder => {
+          return folder.key;
+        });
+    },
+    snippetDeletionIds() {
+      return [];
     }
   }
 };
