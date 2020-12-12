@@ -73,15 +73,15 @@ export default {
       return this.snippetCount > 1 ? "snippets" : "snippet";
     },
     folderDeletionMessage() {
-      return `Deleting a folder will also delete its contents.
-      Continue deleting ${this.folderCount} ${this.folderNoun}?`;
+      return `Continue deleting ${this.folderCount} ${this.folderNoun}?
+        Deleting a folder will also delete its contents.`;
     },
     snippetDeletionMessage() {
       return `Continue deleting ${this.snippetCount} ${this.snippetNoun}?`;
     },
     bothDeletionMessage() {
       return `You are about to delete ${this.folderCount} ${this.folderNoun}
-      and ${this.snippetCount} separate ${this.snippetNoun}. Proceed?`;
+        and ${this.snippetCount} separate ${this.snippetNoun}. Proceed?`;
     }
   }
 };

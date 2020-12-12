@@ -2,7 +2,7 @@
   <ConfirmDeletionDialog
     :should-display="displayConfirmation"
     :deletion-selections="deletionList"
-    @confirm-deletion="deleteSelectedFolders"
+    @confirm-deletion="deleteSelected"
     @cancel-deletion="cancelDeletion"
   />
   <Card id="folder_pane">
@@ -21,7 +21,7 @@
               id="new_folder_name_input"
               :class="{ 'p-invalid': newFolderNameBlank }"
               aria-describedby="cannot_be_blank_error"
-              v-on:keyup.enter="createNewFolder()"
+              v-on:keypress.enter="createNewFolder()"
               :disabled="deleteMode"
             />
             <Button
@@ -198,19 +198,17 @@ export default {
         this.showDeletionConfirmation();
       }
     },
-    deleteSelectedFolders() {
-      console.log("folders deleted!");
+    deleteSelected() {
       const folderIds = this.folderDeletionIds;
       this.deleteFolders({ folderIds: folderIds })
         .then(res => {
           this.folderMutationResponse = res["data"]["deleteFolders"];
-          console.log(res["data"]);
         })
         .catch(err => console.log("DeleteFolderMutation occurred. ", err))
         .finally(() => {
           if (!this.folderMutationResponse["status"]["error"]) {
-            this.folders = this.folders.filter(item => {
-              return !this.folderDeletionIds.includes(item.key);
+            this.folders = this.folders.filter(folder => {
+              return !this.folderDeletionIds.includes(folder.key);
             });
             this.finalizeDeletion();
           }
