@@ -49,7 +49,7 @@ export default {
     },
     signOut() {
       localStorage.clear();
-      this.$router.push("sign-in");
+      window.location.pathname = "/sign-in";
     }
   },
   computed: {

@@ -207,6 +207,7 @@ export default {
         .catch(err => console.log("DeleteFolderMutation occurred. ", err))
         .finally(() => {
           if (!this.folderMutationResponse["status"]["error"]) {
+            // update UI
             this.folders = this.folders.filter(folder => {
               return !this.folderDeletionIds.includes(folder.key);
             });
