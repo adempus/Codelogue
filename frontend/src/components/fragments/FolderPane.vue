@@ -42,7 +42,6 @@
         <div style="position: relative;">
           <ToggleButton
             v-model="deleteMode"
-            style="height: 25px; width: 25px;"
             id="deleteFolderBtn"
             class="p-button-sm"
             onIcon="pi pi-check"
@@ -54,7 +53,7 @@
     </template>
     <!-- folder tree section -->
     <template v-slot:content>
-      <ScrollPanel style="width: inherit; height: auto; margin-top: 15px;">
+      <ScrollPanel id="folder_list">
         <Tree
           :value="folders"
           id="folder_tree"
@@ -266,7 +265,7 @@ export default {
 #folder_pane {
   background-color: #272a36;
   height: 90vh !important;
-  padding: 15px 15px 20px 15px;
+  padding: 15px 15px 0 15px;
   overflow-y: auto;
 }
 #new_folder_form {
@@ -294,8 +293,10 @@ export default {
   box-shadow: none;
 }
 #deleteFolderBtn {
+  height: 35px;
+  width: 35px;
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 56px;
   z-index: 100;
   background-color: #272a36;
@@ -304,5 +305,25 @@ export default {
 #deleteFolderBtn:focus {
   outline: none;
   box-shadow: none;
+}
+#folder_list {
+  width: 428px;
+  height: 710px;
+  margin-top: 15px;
+  padding-right: 10px;
+}
+#folder_list .p-scrollpanel-wrapper {
+  background-color: #6c757d !important;
+  border-right: 9px solid #6c757d !important;
+}
+
+#folder_list .p-scrollpanel-bar {
+  background-color: #6c757d !important;
+  opacity: 1;
+  transition: background-color 0.3s;
+}
+
+#folder_list .p-scrollpanel-bar:hover {
+  background-color: #135ba1;
 }
 </style>
