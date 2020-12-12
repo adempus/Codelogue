@@ -2,7 +2,7 @@
   <div>
     <Menubar class="navbar p-shadow-1" v-model="items">
       <template #start>
-        <h1 class="app_name">codelogue_</h1>
+        <h1 class="app_name">codelog_</h1>
       </template>
       <template #end>
         <div v-if="!isSignedIn">

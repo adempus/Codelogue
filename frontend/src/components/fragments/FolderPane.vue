@@ -5,61 +5,67 @@
     @confirm-deletion="deleteSelectedFolders"
     @cancel-deletion="cancelDeletion"
   />
-  <div id="folder_pane">
-    <div class="p-grid p-fluid">
-      <!-- new folder input form -->
-      <div class="p-col-12" style="position: relative;">
-        <div
-          id="new_folder_form"
-          class="p-inputgroup"
-          style="position: sticky;"
+  <Card id="folder_pane">
+    <template v-slot:header>
+      <div class="p-grid p-fluid">
+        <!-- new folder input form -->
+        <div class="p-col-12" style="position: relative;">
+          <div
+            id="new_folder_form"
+            class="p-inputgroup"
+            style="position: sticky;"
+          >
+            <InputText
+              placeholder="New Folder"
+              v-model="newFolderName"
+              id="new_folder_name_input"
+              :class="{ 'p-invalid': newFolderNameBlank }"
+              aria-describedby="cannot_be_blank_error"
+              v-on:keyup.enter="createNewFolder()"
+              :disabled="deleteMode"
+            />
+            <Button
+              icon="pi pi-plus-circle"
+              class="p-button-warning"
+              @click="createNewFolder()"
+              :disabled="deleteMode"
+            />
+          </div>
+        </div>
+        <!-- blank folder name error msg -->
+        <small
+          v-if="newFolderNameBlank"
+          id="cannot_be_blank_error"
+          class="p-invalid"
+          >Folder name is required</small
         >
-          <InputText
-            placeholder="New Folder"
-            v-model="newFolderName"
-            id="new_folder_name_input"
-            :class="{ 'p-invalid': newFolderNameBlank }"
-            aria-describedby="cannot_be_blank_error"
-            v-on:keyup.enter="createNewFolder()"
-          />
-          <Button
-            icon="pi pi-plus-circle"
-            class="p-button-warning"
-            @click="createNewFolder()"
+        <div style="position: relative;">
+          <ToggleButton
+            v-model="deleteMode"
+            style="height: 25px; width: 25px;"
+            id="deleteFolderBtn"
+            class="p-button-sm"
+            onIcon="pi pi-check"
+            offIcon="pi pi-trash"
+            @change="handleDeletionAction"
           />
         </div>
       </div>
-      <!-- blank folder name error msg -->
-      <small
-        v-if="newFolderNameBlank"
-        id="cannot_be_blank_error"
-        class="p-invalid"
-        >Folder name is required</small
-      >
-      <div style="position: relative;">
-        <ToggleButton
-          v-model="deleteMode"
-          style="height: 25px; width: 25px;"
-          id="deleteFolderBtn"
-          class="p-button-sm"
-          onIcon="pi pi-check"
-          offIcon="pi pi-trash"
-          @change="handleDeletionAction"
-        />
-      </div>
-    </div>
+    </template>
     <!-- folder tree section -->
-    <ScrollPanel style="width: inherit; height: auto; margin-top: 15px;">
-      <Tree
-        :value="folders"
-        id="folder_tree"
-        v-model:selectionKeys="selectionKeys"
-        :selectionMode="deleteMode ? 'checkbox' : 'single'"
-        @node-select="updateDeletionSelection"
-        @node-unselect="updateDeletionSelection"
-      ></Tree>
-    </ScrollPanel>
-  </div>
+    <template v-slot:content>
+      <ScrollPanel style="width: inherit; height: auto; margin-top: 15px;">
+        <Tree
+          :value="folders"
+          id="folder_tree"
+          v-model:selectionKeys="selectionKeys"
+          :selectionMode="deleteMode ? 'checkbox' : 'single'"
+          @node-select="updateDeletionSelection"
+          @node-unselect="updateDeletionSelection"
+        ></Tree>
+      </ScrollPanel>
+    </template>
+  </Card>
 </template>
 
 <script>
@@ -229,6 +235,15 @@ export default {
       this.hideDeletionConfirmation();
       this.clearDeletionSelections();
       this.disableDeleteMode();
+    },
+    filterDeletionIds(type) {
+      return this.deletionList
+        .filter(selected => {
+          return selected.type === type;
+        })
+        .map(item => {
+          return item.key;
+        });
     }
   },
   computed: {
@@ -239,16 +254,10 @@ export default {
       return this.deletionList.length < 1;
     },
     folderDeletionIds() {
-      return this.deletionList
-        .filter(selected => {
-          return selected.type === "folder";
-        })
-        .map(folder => {
-          return folder.key;
-        });
+      return this.filterDeletionIds("folder");
     },
     snippetDeletionIds() {
-      return [];
+      return this.filterDeletionIds("snippet");
     }
   }
 };
@@ -262,7 +271,7 @@ export default {
   overflow-y: auto;
 }
 #new_folder_form {
-  padding-bottom: 15px;
+  padding-bottom: 0;
 }
 #cannot_be_blank_error {
   position: absolute;
