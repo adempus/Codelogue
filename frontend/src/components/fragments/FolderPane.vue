@@ -323,18 +323,18 @@ export default {
   margin-top: 15px;
   padding-right: 10px;
 }
-#folder_list .p-scrollpanel-wrapper {
+#folder_list > .p-scrollpanel-wrapper {
   background-color: #6c757d !important;
   border-right: 9px solid #6c757d !important;
 }
 
-#folder_list .p-scrollpanel-bar {
+#folder_list > .p-scrollpanel-bar {
   background-color: #6c757d !important;
   opacity: 1;
   transition: background-color 0.3s;
 }
 
 #folder_list .p-scrollpanel-bar:hover {
-  background-color: #135ba1;
+  background-color: #135ba1 !important;
 }
 </style>

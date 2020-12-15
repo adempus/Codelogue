@@ -1,10 +1,10 @@
 <template>
-  <div id="snippet_pane">{{ previewObject }}</div>
+  <div id="preview_pane">{{ previewTarget }}</div>
 </template>
 
 <script>
 export default {
-  name: "SnippetPane",
+  name: "PreviewPane",
   props: {
     previewSelection: {
       type: Object,
@@ -12,7 +12,7 @@ export default {
     }
   },
   computed: {
-    previewObject() {
+    previewTarget() {
       return this.previewSelection;
     }
   }
@@ -20,7 +20,7 @@ export default {
 </script>
 
 <style scoped>
-#snippet_pane {
+#preview_pane {
   background-color: #272a36;
   height: 90vh !important;
 }

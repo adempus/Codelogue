@@ -7,7 +7,7 @@
     </div>
     <div class="p-col-9">
       <div class="box box-stretched">
-        <SnippetPane :preview-selection="previewTarget"></SnippetPane>
+        <PreviewPane :preview-selection="previewTarget"></PreviewPane>
       </div>
     </div>
   </div>
@@ -15,11 +15,11 @@
 
 <script>
 import FolderPane from "@/components/fragments/FolderPane";
-import SnippetPane from "@/components/fragments/SnippetPane";
+import PreviewPane from "@/components/fragments/PreviewPane";
 
 export default {
   name: "UserPanel",
-  components: { FolderPane, SnippetPane },
+  components: { FolderPane, PreviewPane },
   data() {
     return {
       previewTarget: {}
@@ -28,7 +28,7 @@ export default {
   methods: {
     previewSelected(previewTarget) {
       this.previewTarget = previewTarget;
-      console.log("an item has been selected in folder pane: ", previewTarget);
+      // console.log("an item has been selected in folder pane: ", previewTarget);
     }
   }
 };
