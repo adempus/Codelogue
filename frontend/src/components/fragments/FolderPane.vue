@@ -59,8 +59,8 @@
           id="folder_tree"
           v-model:selectionKeys="selectionKeys"
           :selectionMode="deleteMode ? 'checkbox' : 'single'"
-          @node-select="updateDeletionSelection"
-          @node-unselect="updateDeletionSelection"
+          @node-select="handleSelectionAction"
+          @node-unselect="handleSelectionAction"
         ></Tree>
       </ScrollPanel>
     </template>
@@ -95,6 +95,7 @@ export default {
       folderMutationResponse: null,
       deleteMode: false,
       deletionList: [],
+      previewTarget: null,
       selectionKeys: [],
       displayConfirmation: false
     };
@@ -157,6 +158,13 @@ export default {
           })
         };
       });
+    },
+    handleSelectionAction(node) {
+      if (this.previewMode) {
+        this.$emit("preview-selection", node);
+        return;
+      }
+      if (this.deleteMode) this.updateDeletionSelection();
     },
     updateDeletionSelection() {
       if (!this.deleteMode) return;
@@ -256,6 +264,9 @@ export default {
     },
     snippetDeletionIds() {
       return this.filterDeletionIds("snippet");
+    },
+    previewMode() {
+      return !this.deleteMode;
     }
   }
 };
@@ -266,7 +277,7 @@ export default {
   background-color: #272a36;
   height: 90vh !important;
   padding: 15px 15px 0 15px;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 #new_folder_form {
   padding-bottom: 0;
@@ -307,8 +318,8 @@ export default {
   box-shadow: none;
 }
 #folder_list {
-  width: 428px;
-  height: 710px;
+  width: 107%;
+  height: 75vh;
   margin-top: 15px;
   padding-right: 10px;
 }
