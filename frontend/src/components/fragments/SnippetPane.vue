@@ -1,10 +1,21 @@
 <template>
-  <div id="snippet_pane">Snippet pane</div>
+  <div id="snippet_pane">{{ previewObject }}</div>
 </template>
 
 <script>
 export default {
-  name: "SnippetPane"
+  name: "SnippetPane",
+  props: {
+    previewSelection: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    previewObject() {
+      return this.previewSelection;
+    }
+  }
 };
 </script>
 

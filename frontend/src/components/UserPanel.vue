@@ -7,7 +7,7 @@
     </div>
     <div class="p-col-9">
       <div class="box box-stretched">
-        <SnippetPane></SnippetPane>
+        <SnippetPane :preview-selection="previewTarget"></SnippetPane>
       </div>
     </div>
   </div>
@@ -22,13 +22,13 @@ export default {
   components: { FolderPane, SnippetPane },
   data() {
     return {
-      selected: null
+      previewTarget: {}
     };
   },
   methods: {
     previewSelected(previewTarget) {
-      console.log("an item has been selected in folder pane");
-      console.log(previewTarget);
+      this.previewTarget = previewTarget;
+      console.log("an item has been selected in folder pane: ", previewTarget);
     }
   }
 };
