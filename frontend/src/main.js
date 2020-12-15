@@ -19,6 +19,10 @@ import Card from "primevue/card";
 import TabMenu from "primevue/tabmenu";
 import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
+import Tree from "primevue/tree";
+import ScrollPanel from "primevue/scrollpanel";
+import ToggleButton from "primevue/togglebutton";
+import BlockUI from "primevue/blockui";
 
 const app = createApp({
   setup() {
@@ -41,6 +45,11 @@ app.component("InputText", InputText);
 app.component("TabMenu", TabMenu);
 app.component("Card", Card);
 app.component("Toast", Toast);
+app.component("Tree", Tree);
+app.component("ScrollPanel", ScrollPanel);
+app.component("ToggleButton", ToggleButton);
+app.component("BlockUI", BlockUI);
+
 app.mount("#app");
 
 export default app

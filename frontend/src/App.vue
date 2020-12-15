@@ -45,6 +45,7 @@ button:focus {
   font-family: Avenir, Helvetica, Arial, sans-serif, NTR;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-y: hidden;
   text-align: center;
   color: #2c3e50;
 }

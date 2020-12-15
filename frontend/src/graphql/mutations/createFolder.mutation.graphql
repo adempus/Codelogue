@@ -1,0 +1,13 @@
+mutation createFolder($name: String!) {
+    createFolder(name: $name) {
+        folder {
+            id
+            name
+            userId
+        }
+        status {
+            error
+            message
+        }
+    }
+}

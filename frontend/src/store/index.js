@@ -1,6 +1,5 @@
 import { createStore } from "vuex";
 import apolloClient from "@/graphql";
-// import {gql} from "@apollo/client";
 import checkAuthorizationMutation from "../graphql/mutations/checkAuthorization.mutation.graphql";
 
 export default createStore({

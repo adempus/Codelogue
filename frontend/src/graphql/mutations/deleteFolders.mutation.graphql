@@ -1,0 +1,12 @@
+mutation deleteFolders($folderIds: [String!]!) {
+    deleteFolders(folderIds: $folderIds) {
+        folders {
+            id
+            name
+        }
+        status {
+            error
+            message
+        }
+    }
+}

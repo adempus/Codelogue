@@ -1,4 +1,4 @@
-query userFolders{
+query userFolders {
     getUserFolders {
         id
         name

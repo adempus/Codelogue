@@ -16,7 +16,7 @@ import UserPanel from "@/components/UserPanel";
 export default {
   name: "Dashboard",
   components: { UserPanel },
-  beforeMount() {
+  mounted() {
     this.setAccessToken();
     this.$store.dispatch("checkUserAuthorization");
   },
@@ -46,7 +46,10 @@ export default {
 </script>
 
 <style scoped>
-
+body,
+html {
+  overflow-y: hidden !important;
+}
 * {
   color: #ffffff;
 }

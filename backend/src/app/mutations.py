@@ -128,20 +128,23 @@ class UpdateFolder(graphene.Mutation):
             return UpdateFolder(folder=folder, status=StatusField(error=False, message="Folder update successful"))
 
 
-class DeleteFolder(graphene.Mutation):
-    folder = graphene.Field(lambda: FolderObject)
+class DeleteFolders(graphene.Mutation):
+    folders = graphene.List(lambda: FolderObject)
     status = graphene.Field(StatusField)
     class Arguments:
-        folder_id = graphene.ID(required=True)
+        folder_ids = graphene.List(required=True, of_type=graphene.String)
 
     @jwt_required
-    def mutate(self, info, folder_id):
-        folderId = functions.resolveGlobalId(folder_id)
-        folder = db.session.query(Folder).filter_by(id=folderId).first()
-        if functions.isResourceMatch(folder):
-            db.session.delete(folder)
-            db.session.commit()
-            return DeleteFolder(status=StatusField(error=False, message="Folder delete successful"))
+    def mutate(self, info, folder_ids):
+        folderIds = [functions.resolveGlobalId(id) for id in folder_ids]
+        for id in folderIds:
+            folder = db.session.query(Folder).filter_by(id=id).first()
+            if functions.isResourceMatch(folder):
+                db.session.delete(folder)
+                db.session.commit()
+            else:
+                return DeleteFolders(status=StatusField(error=True, message="Folder resource does not match user."))
+        return DeleteFolders(status=StatusField(error=False, message="Folder deletion successful"))
 
 
 ''' Snippet mutations '''
@@ -282,7 +285,7 @@ class Mutation(graphene.ObjectType):
     updateFolder = UpdateFolder.Field()
     updateUserPassword = UpadteUserPassword.Field()
     # deletions
-    deleteFolder = DeleteFolder.Field()
+    deleteFolders = DeleteFolders.Field()
     deleteSnippet = DeleteSnippet.Field()
     deleteTaggedSnippet = DeleteTaggedSnippet.Field()
 
