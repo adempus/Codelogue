@@ -1,5 +1,8 @@
 <template>
-  <div id="preview_pane">{{ previewTarget }}</div>
+  <div id="preview_pane">
+    <div v-if="previewTarget !== null">{{ previewTarget }}</div>
+    <div v-else>Preview Pane</div>
+  </div>
 </template>
 
 <script>

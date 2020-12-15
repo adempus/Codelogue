@@ -22,7 +22,7 @@ export default {
   components: { FolderPane, PreviewPane },
   data() {
     return {
-      previewTarget: {}
+      previewTarget: null
     };
   },
   methods: {

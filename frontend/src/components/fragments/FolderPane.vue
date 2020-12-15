@@ -323,18 +323,63 @@ export default {
   margin-top: 15px;
   padding-right: 10px;
 }
-#folder_list > .p-scrollpanel-wrapper {
-  background-color: #6c757d !important;
-  border-right: 9px solid #6c757d !important;
-}
 
-#folder_list > .p-scrollpanel-bar {
+/*.p-scrollpanel-wrapper {*/
+/*  width: 2px !important;*/
+/*  background-color: #6c757d !important;*/
+/*  border-right: 9px solid #6c757d !important;*/
+/*}*/
+
+/*.p-scrollpanel-bar {*/
+/*  width: 2px !important;*/
+/*  background-color: #6c757d !important;*/
+/*  opacity: 1;*/
+/*  transition: background-color 0.3s;*/
+/*}*/
+
+/*.p-scrollpanel-bar {*/
+/*  width: 2px !important;*/
+/*  background-color: #6c757d !important;*/
+/*  opacity: 1;*/
+/*  transition: background-color 0.3s;*/
+/*}*/
+</style>
+<style>
+.p-scrollpanel-bar {
+  width: 4px !important;
+  /*background-color: #3c4049 !important;*/
   background-color: #6c757d !important;
   opacity: 1;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
-#folder_list .p-scrollpanel-bar:hover {
-  background-color: #135ba1 !important;
+.p-scrollpanel-bar:hover {
+  background-color: #6c757d !important;
+  /*background-color: #51545e !important;*/
+}
+.p-treenode-content:hover {
+  /*background-color: #464d63 !important;*/
+  background-color: #323645 !important;
+  color: #ffffff !important;
+}
+.p-treenode-content:active {
+  /*background-color: #464d63 !important;*/
+  background-color: #323645 !important;
+  color: #ffffff !important;
+}
+.p-treenode-content:focus {
+  /*background-color: #464d63 !important;*/
+  background-color: #323645 !important;
+  color: #ffffff !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.p-highlight {
+  /*background-color: #464d63 !important;*/
+  background-color: #323645 !important;
+  color: #ffffff !important;
+}
+.p-treenode-icon {
+  color: #6c757d !important;
 }
 </style>
