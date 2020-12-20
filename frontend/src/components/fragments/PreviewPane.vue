@@ -1,13 +1,26 @@
 <template>
   <div id="preview_pane">
-    <div v-if="previewTarget !== null">{{ previewTarget }}</div>
-    <div v-else>Preview Pane</div>
+    <div v-if="previewTarget !== null">
+      <div v-if="previewTargetIsFolder">
+        <FolderPreview :folder-selection="previewTargetId" />
+      </div>
+      <div v-else-if="previewTargetIsSnippet">
+        <SnippetPreview :snippet-selection="previewTargetId" />
+      </div>
+    </div>
+    <div v-else>
+      <h2>Preview pane</h2>
+    </div>
   </div>
 </template>
 
 <script>
+import FolderPreview from "@/components/fragments/FolderPreview";
+import SnippetPreview from "@/components/fragments/SnippetPreview";
+
 export default {
   name: "PreviewPane",
+  components: { SnippetPreview, FolderPreview },
   props: {
     previewSelection: {
       type: Object,
@@ -16,6 +29,16 @@ export default {
   },
   computed: {
     previewTarget() {
+      return this.previewSelection;
+    },
+    previewTargetIsSnippet() {
+      return this.previewSelection.type === "snippet";
+    },
+    previewTargetIsFolder() {
+      return this.previewSelection.type === "folder";
+    },
+    previewTargetId() {
+      // return this.previewSelection.key;
       return this.previewSelection;
     }
   }

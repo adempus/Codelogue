@@ -24,6 +24,7 @@ class Query(graphene.ObjectType):
     get_user_snippets = graphene.Field(lambda: graphene.List(SnippetObject))
     # retrieve user snippet by id
     get_snippet_by_id = graphene.Field(lambda: graphene.List(SnippetObject), snippet_id=graphene.ID())
+    get_snippets_by_folder = graphene.Field(lambda: graphene.List(SnippetObject), folder_id=graphene.ID())
     # retrieve user snippets by language
     get_snippet_by_language = graphene.Field(lambda: graphene.List(SnippetObject),language_id=graphene.ID())
     # retrieve a list of folders by user_id
@@ -59,6 +60,17 @@ class Query(graphene.ObjectType):
         )
 
     @jwt_required
+    def resolve_get_snippets_by_folder(self, info, folder_id):
+        userId = functions.resolveUserId()
+        query = SnippetObject.get_query(info)
+        return query.filter(
+            sqlalchemy.and_(
+                Snippet.user_id == userId,
+                Snippet.folder_id == functions.resolveGlobalId(folder_id)
+            )
+        )
+
+    @jwt_required
     def resolve_get_snippet_by_language(self, info, language_id):
         print("in snippet language resolver")
         userId = functions.resolveUserId()
@@ -70,11 +82,13 @@ class Query(graphene.ObjectType):
             )
         )
 
-    @fresh_jwt_required
+    @jwt_required
     def resolve_get_user_folders(self, info):
         userId = functions.resolveUserId()
         query = FolderObject.get_query(info)
-        return query.filter(Folder.user_id == userId).all()
+        return query.filter(Folder.user_id == userId).order_by(
+            Folder.date_created.asc()
+        ).all()
 
     @jwt_required
     def resolve_get_user_tags(self, info):

@@ -71,7 +71,7 @@
 import apolloClient from "@/graphql";
 import { useMutation } from "@vue/apollo-composable";
 import { required, minLength } from "@vuelidate/validators";
-import userFoldersQuery from "@/graphql/queries/userFolders.query.graphql";
+import getFolders from "@/graphql/queries/getFolders.query.graphql";
 import createFolderMutation from "@/graphql/mutations/createFolder.mutation.graphql";
 import deleteFoldersMutation from "@/graphql/mutations/deleteFolders.mutation.graphql";
 import ConfirmDeletionDialog from "@/components/fragments/ConfirmDeletionDialog";
@@ -111,7 +111,7 @@ export default {
   methods: {
     queryUserFolders() {
       apolloClient
-        .query({ query: { ...userFoldersQuery } })
+        .query({ query: { ...getFolders } })
         .then(res => {
           this.folderQueryResponse = res["data"]["getUserFolders"];
           this.folders = this.parseFolderQueryResponse(res);

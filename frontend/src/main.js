@@ -34,7 +34,6 @@ const app = createApp({
 });
 
 app.use(store);
-
 app.use(router);
 app.use(VuelidatePlugin);
 app.use(ToastService);
@@ -52,4 +51,4 @@ app.component("BlockUI", BlockUI);
 
 app.mount("#app");
 
-export default app
+export default app;
