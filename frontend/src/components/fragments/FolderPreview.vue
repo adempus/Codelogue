@@ -6,7 +6,9 @@
           {{ selectedFolder.label }}
         </p>
       </div>
-      <div class="p-mb-2" id="sub_header">Folder</div>
+      <div class="p-mb-2" id="sub_header">
+        {{ snippetCount }}
+      </div>
     </div>
     <div>
       <Button class="p-button-warning p-button-raised">
@@ -64,6 +66,10 @@ export default {
           })
         };
       });
+    },
+    snippetCount() {
+      const length = this.selectedFolder.children.length;
+      return `${length} ${length === 1 ? "snippet" : "snippets"}`;
     }
   }
 };
