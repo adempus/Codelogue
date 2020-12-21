@@ -25,6 +25,8 @@ import ToggleButton from "primevue/togglebutton";
 import BlockUI from "primevue/blockui";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import Tag from "primevue/tag";
+import Chips from "primevue/chips";
 
 const app = createApp({
   setup() {
@@ -52,6 +54,8 @@ app.component("Column", Column);
 app.component("ScrollPanel", ScrollPanel);
 app.component("ToggleButton", ToggleButton);
 app.component("BlockUI", BlockUI);
+app.component("Tag", Tag);
+app.component("Chips", Chips);
 
 app.mount("#app");
 
