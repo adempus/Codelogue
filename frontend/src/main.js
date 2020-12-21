@@ -23,6 +23,8 @@ import Tree from "primevue/tree";
 import ScrollPanel from "primevue/scrollpanel";
 import ToggleButton from "primevue/togglebutton";
 import BlockUI from "primevue/blockui";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 
 const app = createApp({
   setup() {
@@ -45,6 +47,8 @@ app.component("TabMenu", TabMenu);
 app.component("Card", Card);
 app.component("Toast", Toast);
 app.component("Tree", Tree);
+app.component("DataTable", DataTable);
+app.component("Column", Column);
 app.component("ScrollPanel", ScrollPanel);
 app.component("ToggleButton", ToggleButton);
 app.component("BlockUI", BlockUI);

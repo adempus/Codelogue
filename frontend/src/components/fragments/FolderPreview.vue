@@ -1,9 +1,18 @@
 <template>
-  <div>
-    <h2>Folder</h2>
-    {{ folderSnippets }}
-    <!--    {{ parseSnippetsByFolderResponse() }}-->
-    <!--    {{ parse() }}-->
+  <div class="p-d-flex p-jc-between">
+    <div class="p-flex-column">
+      <div class="p-mb-2">
+        <p style="margin-top: 0; font-size: 50px;">
+          {{ selectedFolder.label }}
+        </p>
+      </div>
+      <div class="p-mb-2" id="sub_header">Folder</div>
+    </div>
+    <div>
+      <Button class="p-button-warning p-button-raised">
+        <b style="color: #323645">New Snippet</b>
+      </Button>
+    </div>
   </div>
 </template>
 
@@ -24,11 +33,6 @@ export default {
     );
     return { snippetsByFolder };
   },
-  mounted() {
-    this.$nextTick(() => {
-      // this.snippetsByFolderQueryResponse = this.snippetsByFolder();
-    });
-  },
   props: {
     folderSelection: {
       required: true,
@@ -36,9 +40,7 @@ export default {
     }
   },
   data() {
-    return {
-      snippetsByFolderQueryResponse: null
-    };
+    return {};
   },
   methods: {},
   computed: {
@@ -67,4 +69,12 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#sub_header {
+  position: fixed;
+  margin-top: -50px;
+  padding-left: 5px;
+  color: #6c757d;
+  font-size: 20px;
+}
+</style>

@@ -323,26 +323,6 @@ export default {
   margin-top: 15px;
   padding-right: 10px;
 }
-
-/*.p-scrollpanel-wrapper {*/
-/*  width: 2px !important;*/
-/*  background-color: #6c757d !important;*/
-/*  border-right: 9px solid #6c757d !important;*/
-/*}*/
-
-/*.p-scrollpanel-bar {*/
-/*  width: 2px !important;*/
-/*  background-color: #6c757d !important;*/
-/*  opacity: 1;*/
-/*  transition: background-color 0.3s;*/
-/*}*/
-
-/*.p-scrollpanel-bar {*/
-/*  width: 2px !important;*/
-/*  background-color: #6c757d !important;*/
-/*  opacity: 1;*/
-/*  transition: background-color 0.3s;*/
-/*}*/
 </style>
 <style>
 .p-scrollpanel-bar {
