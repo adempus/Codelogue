@@ -295,7 +295,7 @@ export default {
   box-shadow: none;
 }
 #folder_tree {
-  background-color: #272a36;
+  background-color: inherit;
   color: #d3d4d6;
   border: none;
   font-size: 14px;

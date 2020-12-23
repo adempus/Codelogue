@@ -15,33 +15,32 @@
       </Button>
     </div>
   </div>
-  <div class="p-d-flex p-jc-center">
-    <DataTable
-      id="snippet_list"
-      :value="folderSnippets"
-      v-model:selection="selectedSnippet"
-      selectionMode="single"
-      dataKey="id"
-    >
-      <Column field="title" header="Title" />
-      <Column field="programmingLanguage" header="Programming Language">
-        <template #body="slotProps">
-          <Tag :value="slotProps.data.programmingLanguage" />
-        </template>
-      </Column>
-      <Column field="created" header="Created" />
-      <Column field="tags" header="Tags">
-        <template #body="tagProps">
-          <Chips
-            v-model="tagProps.data.tags"
-            style="overflow-x: visible; width: 100%;"
-          >
-            <template #chip="chipProps">{{ chipProps.value }}</template>
-          </Chips>
-        </template>
-      </Column>
-    </DataTable>
-  </div>
+  <!-- snippet list -->
+  <DataTable
+    id="snippet_list"
+    :value="folderSnippets"
+    v-model:selection="selectedSnippet"
+    selectionMode="single"
+    dataKey="id"
+  >
+    <Column field="title" header="Title" />
+    <Column field="programmingLanguage" header="Programming Language">
+      <template #body="slotProps">
+        <Tag :value="slotProps.data.programmingLanguage" />
+      </template>
+    </Column>
+    <Column field="created" header="Created" />
+    <Column field="tags" header="Tags">
+      <template #body="tagProps">
+        <Chips
+          v-model="tagProps.data.tags"
+          style="overflow-x: visible; width: 100%;"
+        >
+          <template #chip="chipProps">{{ chipProps.value }}</template>
+        </Chips>
+      </template>
+    </Column>
+  </DataTable>
 </template>
 
 <script>
@@ -111,6 +110,31 @@ export default {
   font-size: 20px;
 }
 #snippet_list {
-  background-color: #323645 !important;
+  border-left: #6c757d;
+  /*font-size: px;*/
 }
+</style>
+<style>
+#snippet_list.p-datatable .p-datatable-thead > tr > th {
+  /*background-color: #323645 !important;*/
+  background-color: #272a36 !important;
+  color: #ffffff !important;
+  border-color: #61667b;
+}
+#snippet_list.p-datatable .p-datatable-tbody > tr > td {
+  background-color: #272a36;
+  color: #ffffff;
+  border-color: #454a5e;
+}
+/*#snippet_list.p-highlight > tr{*/
+/*    background-color: #323645 !important;*/
+/*}*/
+
+/*#snippet_list.p-datatable .p-datatable-tbody .p-selectable-row :hover {*/
+/*  background-color: #ffffff !important;*/
+/*}*/
+
+/*#snippet_list :hover {*/
+/*  background-color: #323645 !important;*/
+/*}*/
 </style>

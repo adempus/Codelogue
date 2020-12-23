@@ -52,4 +52,5 @@ export default {
   padding: 15px 15px 0 25px;
   overflow-y: hidden;
 }
+
 </style>
