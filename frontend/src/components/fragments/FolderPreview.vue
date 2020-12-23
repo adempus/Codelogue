@@ -34,7 +34,7 @@
       <template #body="tagProps">
         <Chips
           v-model="tagProps.data.tags"
-          style="overflow-x: visible; width: 100%;"
+          style="overflow-x: visible; height: 50%;"
         >
           <template #chip="chipProps">{{ chipProps.value }}</template>
         </Chips>
@@ -125,6 +125,12 @@ export default {
   background-color: #272a36;
   color: #ffffff;
   border-color: #454a5e;
+}
+.p-chips-multiple-container {
+  display: flex;
+  width: 300px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
 }
 /*#snippet_list.p-highlight > tr{*/
 /*    background-color: #323645 !important;*/
