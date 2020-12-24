@@ -10,8 +10,13 @@
       <div class="p-mb-2" id="sub_header">{{ snippetCount }}</div>
     </div>
     <div>
-      <Button class="p-button-warning p-button-raised">
-        <b style="color: #323645">New Snippet</b>
+      <Button
+        class="p-button-outlined p-button-warning p-button-raised"
+        label="New Snippet"
+        icon="pi pi-plus"
+        iconPos="left"
+        id="new_snippet_btn"
+      >
       </Button>
     </div>
   </div>
@@ -114,6 +119,11 @@ export default {
 #tag_list {
   width: 100%;
   height: 45px;
+}
+#new_snippet_btn {
+  margin-top: 15px;
+  margin-right: 15px;
+  font-weight: bold;
 }
 .preview-tag {
   background-color: #61667b;
