@@ -32,12 +32,11 @@
     <Column field="created" header="Created" />
     <Column field="tags" header="Tags">
       <template #body="tagProps">
-        <Chips
-          v-model="tagProps.data.tags"
-          style="overflow-x: visible; height: 50%;"
-        >
-          <template #chip="chipProps">{{ chipProps.value }}</template>
-        </Chips>
+        <ScrollPanel id="tag_list">
+          <template v-for="tag in tagProps.data.tags" v-bind:key="tag">
+            <Tag class="preview-tag p-mr-2 p-mb-2 p-mt-2 p-ml-1">{{ tag }}</Tag>
+          </template>
+        </ScrollPanel>
       </template>
     </Column>
   </DataTable>
@@ -111,12 +110,17 @@ export default {
 }
 #snippet_list {
   border-left: #6c757d;
-  /*font-size: px;*/
+}
+#tag_list {
+  width: 100%;
+  height: 45px;
+}
+.preview-tag {
+  background-color: #61667b;
 }
 </style>
 <style>
 #snippet_list.p-datatable .p-datatable-thead > tr > th {
-  /*background-color: #323645 !important;*/
   background-color: #272a36 !important;
   color: #ffffff !important;
   border-color: #61667b;
@@ -126,21 +130,20 @@ export default {
   color: #ffffff;
   border-color: #454a5e;
 }
-.p-chips-multiple-container {
-  display: flex;
-  width: 300px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
+
+#tag_list.p-scrollpanel .p-scrollpanel-content {
+  background-color: #272a36 !important;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  width: 100%;
 }
-/*#snippet_list.p-highlight > tr{*/
-/*    background-color: #323645 !important;*/
-/*}*/
 
-/*#snippet_list.p-datatable .p-datatable-tbody .p-selectable-row :hover {*/
-/*  background-color: #ffffff !important;*/
-/*}*/
-
-/*#snippet_list :hover {*/
-/*  background-color: #323645 !important;*/
-/*}*/
+#tag_list.p-scrollpanel .p-scrollpanel-bar-x {
+  height: 2px;
+  background-color: #454a5e;
+}
+#tag_list.p-scrollpanel .p-scrollpanel-bar-y {
+  visibility: hidden;
+}
 </style>

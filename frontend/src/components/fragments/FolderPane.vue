@@ -325,14 +325,13 @@ export default {
 }
 </style>
 <style>
-.p-scrollpanel-bar {
+#folder_list.p-scrollpanel .p-scrollpanel-bar {
   width: 4px !important;
   /*background-color: #3c4049 !important;*/
   background-color: #6c757d !important;
   opacity: 1;
   transition: background-color 0.2s;
 }
-
 .p-scrollpanel-bar:hover {
   background-color: #6c757d !important;
   /*background-color: #51545e !important;*/
