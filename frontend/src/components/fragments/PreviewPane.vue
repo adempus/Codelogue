@@ -49,7 +49,7 @@ export default {
   background-color: #272a36;
   height: 90vh !important;
   padding: 15px 15px 0 25px;
-  overflow-y: hidden;
+  overflow: hidden;
   border-radius: 5px;
 }
 </style>

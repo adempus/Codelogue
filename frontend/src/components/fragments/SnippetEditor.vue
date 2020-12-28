@@ -1,4 +1,4 @@
-<template>
+<template style="overflow-x: hidden">
   <div v-if="editModeNew">
     <div class="p-d-flex p-jc-between">
       <div class="p-flex-column">
@@ -7,6 +7,7 @@
         </div>
       </div>
       <div>
+        <!-- cancel button -->
         <Button
           label="Cancel"
           icon="pi pi-times"
@@ -23,9 +24,9 @@
         <div class="p-grid p-jc-start p-md-1">
           <label for="title">Title</label>
         </div>
-        <InputText id="title" type="text" />
+        <InputText v-model="snippetForm.title" id="title" type="text" />
       </div>
-      <!-- snippet folder -->
+      <!-- folder dropdown -->
       <div class="p-field p-col-12 p-md-2" style="margin-left: 460px;">
         <div class="p-grid p-jc-start p-md-1">
           <label for="folder">Folder</label>
@@ -33,26 +34,29 @@
         <Dropdown
           id="folder"
           v-model="snippetForm.folder"
-          :options="options.folders"
-          :scrollHeight="200"
+          :options="folderOptions"
+          scrollHeight="275px"
           optionLabel="name"
           placeholder="Folder"
           :filter="true"
         />
       </div>
       <div class="p-field p-col-12 p-md-2">
+        <!-- language dropdown -->
         <div class="p-grid p-jc-start p-md-12">
           <label for="folder">Programming Language</label>
         </div>
         <Dropdown
           id="language"
           v-model="snippetForm.programmingLanguage"
-          :options="options.programmingLanguages"
-          optionLabel="Programming Language"
+          :options="languageOptions"
+          scrollHeight="275px"
+          optionLabel="name"
           placeholder="Language"
           :filter="true"
         />
       </div>
+      <!-- code editor -->
       <div class="p-field p-col-12 p-md-12">
         <div class="p-grid p-jc-start p-md-1">
           <label for="content">Content</label>
@@ -108,8 +112,31 @@
 </template>
 
 <script>
+import { useQuery, useResult } from "@vue/apollo-composable";
+import folderAndLanguageOptions from "@/graphql/queries/folderAndLanguageOptions.query.graphql";
+
 export default {
   name: "SnippetEditor",
+  setup() {
+    const { result } = useQuery(folderAndLanguageOptions);
+    const folderQueryResult = useResult(
+      result,
+      null,
+      data => data["getUserFolders"]
+    );
+    const languageQueryResult = useResult(
+      result,
+      null,
+      data => data["allLanguages"]["edges"]
+    );
+    return { folderQueryResult, languageQueryResult };
+  },
+  mounted() {
+    this.snippetForm.folder = {
+      id: this.selectedFolder["key"],
+      name: this.selectedFolder["label"]
+    };
+  },
   props: {
     editMode: {
       required: true,
@@ -150,6 +177,19 @@ export default {
     },
     selectedFolder() {
       return this.targetFolder;
+    },
+    folderOptions() {
+      if (this.folderQueryResult === null) return [];
+      return this.folderQueryResult;
+    },
+    languageOptions() {
+      if (this.languageQueryResult === null) return [];
+      return this.languageQueryResult.map(lang => {
+        return {
+          id: lang["node"]["id"],
+          name: lang["node"]["name"]
+        };
+      });
     }
   }
 };
