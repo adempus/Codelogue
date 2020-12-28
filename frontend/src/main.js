@@ -27,6 +27,11 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Tag from "primevue/tag";
 import Chips from "primevue/chips";
+import Ripple from "primevue/ripple";
+import Dropdown from "primevue/dropdown";
+import Editor from "primevue/editor";
+import Textarea from "primevue/textarea";
+// import Inplace from "primevue/inplace";
 
 const app = createApp({
   setup() {
@@ -41,6 +46,7 @@ app.use(store);
 app.use(router);
 app.use(VuelidatePlugin);
 app.use(ToastService);
+app.directive("ripple", Ripple);
 app.component("Button", Button);
 app.component("Dialog", Dialog);
 app.component("Menubar", Menubar);
@@ -56,6 +62,10 @@ app.component("ToggleButton", ToggleButton);
 app.component("BlockUI", BlockUI);
 app.component("Tag", Tag);
 app.component("Chips", Chips);
+// app.component("Inplace", Inplace);
+app.component("Dropdown", Dropdown);
+app.component("Editor", Editor);
+app.component("Textarea", Textarea);
 
 app.mount("#app");
 

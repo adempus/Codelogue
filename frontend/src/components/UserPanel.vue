@@ -37,6 +37,6 @@ export default {
 <style scoped>
 .user_panel {
   margin-top: 60px;
-  padding: 0 5px 0px 5px;
+  padding: 0 2px 0px 2px;
 }
 </style>

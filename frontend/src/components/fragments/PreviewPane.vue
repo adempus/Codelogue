@@ -1,5 +1,5 @@
 <template>
-  <div id="preview_pane">
+  <div class="p-shadow-3" id="preview_pane">
     <div v-if="previewTarget !== null">
       <div v-if="previewTargetIsFolder">
         <FolderPreview :folder-selection="previewTargetId" />
@@ -38,7 +38,6 @@ export default {
       return this.previewSelection.type === "folder";
     },
     previewTargetId() {
-      // return this.previewSelection.key;
       return this.previewSelection;
     }
   }
@@ -51,6 +50,6 @@ export default {
   height: 90vh !important;
   padding: 15px 15px 0 25px;
   overflow-y: hidden;
+  border-radius: 5px;
 }
-
 </style>

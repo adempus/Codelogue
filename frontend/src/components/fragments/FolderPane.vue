@@ -5,7 +5,7 @@
     @confirm-deletion="deleteSelected"
     @cancel-deletion="cancelDeletion"
   />
-  <Card id="folder_pane">
+  <Card class="p-shadow-3" id="folder_pane">
     <template v-slot:header>
       <div class="p-grid p-fluid">
         <!-- new folder input form -->
@@ -278,6 +278,7 @@ export default {
   height: 90vh !important;
   padding: 15px 15px 0 15px;
   overflow-y: hidden;
+  border-radius: 5px;
 }
 #new_folder_form {
   padding-bottom: 0;
@@ -343,7 +344,7 @@ export default {
 }
 .p-treenode-content:active {
   /*background-color: #464d63 !important;*/
-  background-color: #323645 !important;
+  background-color: #61667b !important;
   color: #ffffff !important;
 }
 .p-treenode-content:focus {
