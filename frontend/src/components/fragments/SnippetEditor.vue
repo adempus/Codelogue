@@ -26,6 +26,7 @@
         </div>
         <InputText
           v-model="snippetForm.title"
+          :class="{ 'p-invalid': snippetTitleBlank }"
           id="title"
           type="text"
           aria-describedby="title-help"
@@ -47,6 +48,7 @@
         </div>
         <Dropdown
           id="folder"
+          :class="{ 'p-invalid': snippetFolderNotSelected }"
           v-model="snippetForm.folder"
           :options="folderOptions"
           scrollHeight="275px"
@@ -84,6 +86,7 @@
         </div>
         <Dropdown
           id="language"
+          :class="{ 'p-invalid': snippetLanguageNotSelected }"
           v-model="snippetForm.programmingLanguage"
           :options="languageOptions"
           scrollHeight="275px"
@@ -206,7 +209,7 @@ export default {
     this.snippetForm.folder = this.selectedFolder;
   },
   beforeUnmount() {
-    this.$v.$reset();
+    this.resetValidations();
   },
   props: {
     editMode: {
@@ -220,6 +223,7 @@ export default {
   },
   data() {
     return {
+      prev: {},
       snippetForm: {
         title: "",
         folder: {},
@@ -248,6 +252,12 @@ export default {
       this.$v.$touch();
       if (this.$v.$error) return;
       console.log("create snippet mutation");
+    },
+    resetValidations() {
+      this.$v.snippetForm.title.$dirty = false;
+      this.$v.snippetForm.content.$dirty = false;
+      this.$v.snippetForm.folder.$dirty = false;
+      this.$v.snippetForm.programmingLanguage.$dirty = false;
     }
   },
   computed: {
@@ -277,16 +287,28 @@ export default {
       });
     },
     snippetTitleBlank() {
-      return this.$v.snippetForm.title.required.$invalid;
+      return (
+        this.snippetForm.title.trim().length === 0 &&
+        this.$v.snippetForm.title.$dirty
+      );
     },
     snippetContentBlank() {
-      return this.$v.snippetForm.content.required.$invalid;
+      return (
+        this.snippetForm.content.trim().length === 0 &&
+        this.$v.snippetForm.content.$dirty
+      );
     },
     snippetFolderNotSelected() {
-      return this.$v.snippetForm.folder.required.$invalid;
+      return (
+        Object.keys(this.snippetForm.folder).length === 0 &&
+        this.$v.snippetForm.folder.$dirty
+      );
     },
     snippetLanguageNotSelected() {
-      return this.$v.snippetForm.programmingLanguage.required.$invalid;
+      return (
+        Object.keys(this.snippetForm.programmingLanguage).length === 0 &&
+        this.$v.snippetForm.programmingLanguage.$dirty
+      );
     }
   }
 };
