@@ -289,7 +289,7 @@ export default {
   padding-left: 10px;
 }
 #new_folder_name_input {
-  border-width: 3px;
+  border-width: 2px;
 }
 #new_folder_name_input:focus {
   outline: none;

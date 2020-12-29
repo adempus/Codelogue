@@ -18,7 +18,7 @@
         />
       </div>
     </div>
-    <div class="p-fluid p-formgrid p-grid" style="margin-top: -15px;">
+    <form class="p-fluid p-formgrid p-grid" style="margin-top: -15px;">
       <!-- title input -->
       <div class="p-field p-col-12 p-md-4">
         <div class="p-grid p-jc-start p-ml-1 p-mb-2">
@@ -164,20 +164,20 @@
       </div>
       <!-- submit button -->
       <div class="p-field p-col-12 p-md-12">
-        <div class="p-d-flex p-jc-end">
+        <div class="p-d-flex p-jc-end p-mt-auto">
           <div>
             <Button
-              label="Submit"
-              icon="pi pi-check"
+              label="Done"
+              icon="pi pi-check-circle"
               iconPos="left"
-              class="p-button-outlined p-button-success p-button-raised"
+              class="p-button-warning p-button-raised"
               id="submit_snippet_btn"
               @click="submit"
             ></Button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   </div>
   <div v-else-if="editModeModify">
     <h1>Modify Snippet</h1>
@@ -327,5 +327,10 @@ export default {
 }
 #submit_snippet_btn {
   font-weight: bold;
+}
+#title,
+#folder,
+#language {
+  border-width: 2px;
 }
 </style>
