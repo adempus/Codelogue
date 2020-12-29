@@ -18,10 +18,10 @@
         />
       </div>
     </div>
-    <div class="p-fluid p-formgrid p-grid" style="margin-top: -20px;">
+    <div class="p-fluid p-formgrid p-grid" style="margin-top: -15px;">
       <!-- title input -->
       <div class="p-field p-col-12 p-md-4">
-        <div class="p-grid p-jc-start p-md-1">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="title">Title</label>
         </div>
         <InputText
@@ -43,7 +43,7 @@
       </div>
       <!-- folder dropdown -->
       <div class="p-field p-col-12 p-md-2" style="margin-left: 460px;">
-        <div class="p-grid p-jc-start p-md-1">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="folder">Folder</label>
         </div>
         <Dropdown
@@ -81,7 +81,7 @@
       </div>
       <div class="p-field p-col-12 p-md-2">
         <!-- programming language dropdown -->
-        <div class="p-grid p-jc-start p-md-12">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="folder">Programming Language</label>
         </div>
         <Dropdown
@@ -121,7 +121,7 @@
       </div>
       <!-- code editor -->
       <div class="p-field p-col-12 p-md-12">
-        <div class="p-grid p-jc-start p-md-1">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="content">Content</label>
         </div>
         <Editor
@@ -144,7 +144,7 @@
       </div>
       <!-- description editor -->
       <div class="p-field p-col-12 p-md-12">
-        <div class="p-grid p-jc-start p-md-1">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="description">Description</label>
         </div>
         <Textarea
@@ -157,7 +157,7 @@
       </div>
       <!-- tags input -->
       <div class="p-field p-col-12 p-md-12">
-        <div class="p-grid p-jc-start p-md-1">
+        <div class="p-grid p-jc-start p-ml-1 p-mb-2">
           <label for="tags">Tags</label>
         </div>
         <Chips id="tags" v-model="snippetForm.tags" style="height: 36px;" />
