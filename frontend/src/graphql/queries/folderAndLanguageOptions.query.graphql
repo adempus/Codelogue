@@ -1,4 +1,8 @@
 query FolderAndLanguageOptions {
+    getUserFolders {
+        id
+        name
+    }
     allLanguages {
         edges {
             node {
@@ -6,9 +10,5 @@ query FolderAndLanguageOptions {
                 name
             }
         }
-    }
-    getUserFolders {
-        id
-        name
     }
 }

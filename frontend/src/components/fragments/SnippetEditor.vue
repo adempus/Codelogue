@@ -14,17 +14,31 @@
           iconPos="left"
           class="p-button-outlined p-button-danger p-button-raised"
           id="cancel_snippet_btn"
-          @click="cancelEdit()"
+          @click="cancelEdit"
         />
       </div>
     </div>
-    <div class="p-fluid p-formgrid p-grid">
-      <!-- snippet title -->
+    <div class="p-fluid p-formgrid p-grid" style="margin-top: -20px;">
+      <!-- title input -->
       <div class="p-field p-col-12 p-md-4">
         <div class="p-grid p-jc-start p-md-1">
           <label for="title">Title</label>
         </div>
-        <InputText v-model="snippetForm.title" id="title" type="text" />
+        <InputText
+          v-model="snippetForm.title"
+          id="title"
+          type="text"
+          aria-describedby="title-help"
+        />
+        <!-- title required error notice -->
+        <div class="p-grid p-jc-start p-md-12">
+          <small
+            v-if="snippetTitleBlank"
+            id="title-help"
+            class="p-invalid p-mt-1"
+            >Title cannot be blank</small
+          >
+        </div>
       </div>
       <!-- folder dropdown -->
       <div class="p-field p-col-12 p-md-2" style="margin-left: 460px;">
@@ -39,7 +53,9 @@
           optionLabel="name"
           :placeholder="selectedFolder['name']"
           :filter="true"
+          aria-describedby="folder-help"
         >
+          <!-- templating to left align dropdown options -->
           <template #value="slotProps">
             <div class="p-d-flex">
               <div>{{ slotProps.value.name }}</div>
@@ -51,9 +67,18 @@
             </div>
           </template>
         </Dropdown>
+        <!-- folder required error notice -->
+        <div class="p-grid p-jc-start p-md-12">
+          <small
+            v-if="snippetFolderNotSelected"
+            id="folder-help"
+            class="p-invalid p-mt-1"
+            >Must select a folder</small
+          >
+        </div>
       </div>
       <div class="p-field p-col-12 p-md-2">
-        <!-- language dropdown -->
+        <!-- programming language dropdown -->
         <div class="p-grid p-jc-start p-md-12">
           <label for="folder">Programming Language</label>
         </div>
@@ -64,12 +89,13 @@
           scrollHeight="275px"
           optionLabel="name"
           :filter="true"
+          aria-describedby="language-help"
         >
-          <!-- templating for left dropdown item alignment -->
+          <!-- templating to left align dropdown options -->
           <template #value="slotProps">
             <div class="p-d-flex">
               <div v-if="Object.keys(slotProps.value).length === 0">
-                Plaintext
+                Select
               </div>
               <div v-else>{{ slotProps.value.name }}</div>
             </div>
@@ -80,6 +106,15 @@
             </div>
           </template>
         </Dropdown>
+        <!-- programming language required error notice -->
+        <div class="p-grid p-jc-start p-md-12">
+          <small
+            v-if="snippetLanguageNotSelected"
+            id="language-help"
+            class="p-invalid p-mt-1"
+            >Must select a language</small
+          >
+        </div>
       </div>
       <!-- code editor -->
       <div class="p-field p-col-12 p-md-12">
@@ -91,9 +126,18 @@
           id="content"
           editorStyle="height: 300px;"
           placeholder="Type code here"
+          aria-describedby="content-help"
         >
           <template #toolbar></template>
         </Editor>
+        <div class="p-grid p-jc-start p-md-12">
+          <small
+            v-if="snippetContentBlank"
+            id="content-help"
+            class="p-invalid p-mt-1"
+            >Content cannot be blank</small
+          >
+        </div>
       </div>
       <!-- description editor -->
       <div class="p-field p-col-12 p-md-12">
@@ -125,6 +169,7 @@
               iconPos="left"
               class="p-button-outlined p-button-success p-button-raised"
               id="submit_snippet_btn"
+              @click="submit"
             ></Button>
           </div>
         </div>
@@ -139,6 +184,7 @@
 <script>
 import { useQuery, useResult } from "@vue/apollo-composable";
 import folderAndLanguageOptions from "@/graphql/queries/folderAndLanguageOptions.query.graphql";
+import { required } from "@vuelidate/validators";
 
 export default {
   name: "SnippetEditor",
@@ -159,6 +205,9 @@ export default {
   mounted() {
     this.snippetForm.folder = this.selectedFolder;
   },
+  beforeUnmount() {
+    this.$v.$reset();
+  },
   props: {
     editMode: {
       required: true,
@@ -178,16 +227,27 @@ export default {
         content: "",
         description: "",
         tags: []
-      },
-      options: {
-        programmingLanguages: [],
-        folders: []
+      }
+    };
+  },
+  validations() {
+    return {
+      snippetForm: {
+        title: { required },
+        folder: { required },
+        programmingLanguage: { required },
+        content: { required }
       }
     };
   },
   methods: {
     cancelEdit() {
       this.$emit("cancel-edit");
+    },
+    submit() {
+      this.$v.$touch();
+      if (this.$v.$error) return;
+      console.log("create snippet mutation");
     }
   },
   computed: {
@@ -215,6 +275,18 @@ export default {
           name: lang["node"]["name"]
         };
       });
+    },
+    snippetTitleBlank() {
+      return this.$v.snippetForm.title.required.$invalid;
+    },
+    snippetContentBlank() {
+      return this.$v.snippetForm.content.required.$invalid;
+    },
+    snippetFolderNotSelected() {
+      return this.$v.snippetForm.folder.required.$invalid;
+    },
+    snippetLanguageNotSelected() {
+      return this.$v.snippetForm.programmingLanguage.required.$invalid;
     }
   }
 };
