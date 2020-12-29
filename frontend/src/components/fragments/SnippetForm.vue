@@ -31,7 +31,6 @@
         :options="folderOptions"
         scrollHeight="275px"
         optionLabel="name"
-        :placeholder="autoSelectedFolder['name']"
         :filter="true"
         aria-describedby="folder-help"
       >
@@ -205,7 +204,6 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      // this.snippetForm.folder = this.selectedFolder;
       this.snippetForm.folder = this.autoSelectedFolder;
       // delay to initialize after api call
       setTimeout(() => {

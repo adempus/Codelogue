@@ -1,3 +1,7 @@
+<!--
+This component contains a separate form component for creating and editing snippets, and makes queries for data
+to be passed into the form component depending on whether edit mode is "new" or "modify".
+ -->
 <template style="overflow-x: hidden">
   <div v-if="editModeNew">
     <div class="p-d-flex p-jc-between">
@@ -19,7 +23,7 @@
         />
       </div>
     </div>
-    <!-- form for new snippet -->
+    <!-- new snippet form -->
     <SnippetForm
       :folders-query-result="foldersQueryResult"
       :languages-query-result="languagesQueryResult"
