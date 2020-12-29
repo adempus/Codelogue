@@ -37,9 +37,20 @@
           :options="folderOptions"
           scrollHeight="275px"
           optionLabel="name"
-          placeholder="Folder"
+          :placeholder="selectedFolder['name']"
           :filter="true"
-        />
+        >
+          <template #value="slotProps">
+            <div class="p-d-flex">
+              <div>{{ slotProps.value.name }}</div>
+            </div>
+          </template>
+          <template #option="slotProps">
+            <div class="p-d-flex">
+              <div>{{ slotProps.option.name }}</div>
+            </div>
+          </template>
+        </Dropdown>
       </div>
       <div class="p-field p-col-12 p-md-2">
         <!-- language dropdown -->
@@ -52,9 +63,23 @@
           :options="languageOptions"
           scrollHeight="275px"
           optionLabel="name"
-          placeholder="Language"
           :filter="true"
-        />
+        >
+          <!-- templating for left dropdown item alignment -->
+          <template #value="slotProps">
+            <div class="p-d-flex">
+              <div v-if="Object.keys(slotProps.value).length === 0">
+                Plaintext
+              </div>
+              <div v-else>{{ slotProps.value.name }}</div>
+            </div>
+          </template>
+          <template #option="slotProps">
+            <div class="p-d-flex">
+              <div>{{ slotProps.option.name }}</div>
+            </div>
+          </template>
+        </Dropdown>
       </div>
       <!-- code editor -->
       <div class="p-field p-col-12 p-md-12">
@@ -132,10 +157,7 @@ export default {
     return { folderQueryResult, languageQueryResult };
   },
   mounted() {
-    this.snippetForm.folder = {
-      id: this.selectedFolder["key"],
-      name: this.selectedFolder["label"]
-    };
+    this.snippetForm.folder = this.selectedFolder;
   },
   props: {
     editMode: {
@@ -176,7 +198,10 @@ export default {
       return this.editMode.modifySnippet;
     },
     selectedFolder() {
-      return this.targetFolder;
+      return {
+        id: this.targetFolder["key"],
+        name: this.targetFolder["label"]
+      };
     },
     folderOptions() {
       if (this.folderQueryResult === null) return [];
