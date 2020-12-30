@@ -85,6 +85,9 @@ export default {
       type: Object
     }
   },
+  mounted() {
+    this.snippetList = this.folderSnippets;
+  },
   updated() {
     this.$nextTick(() => {});
   },
@@ -94,7 +97,8 @@ export default {
       editMode: {
         newSnippet: false,
         modifySnippet: false
-      }
+      },
+      snippetList: []
     };
   },
   watch: {
@@ -190,7 +194,6 @@ export default {
 tr.p-selectable-row:active {
   background-color: #d3d4d6;
 }
-
 #snippet_list tr:hover {
   background-color: #6c757d !important;
 }

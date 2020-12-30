@@ -124,4 +124,10 @@ export default {
 #submit_snippet_btn {
   font-weight: bold;
 }
+#title,
+#folder,
+#language {
+  border-width: 2px;
+  background-color: #313645;
+}
 </style>

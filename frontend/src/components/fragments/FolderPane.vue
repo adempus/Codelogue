@@ -213,6 +213,7 @@ export default {
         })
         .catch(err => console.log("DeleteFolderMutation occurred. ", err))
         .finally(() => {
+          console.log("bugcheck: ", this.folderMutationResponse);
           if (!this.folderMutationResponse["status"]["error"]) {
             // update UI
             this.folders = this.folders.filter(folder => {

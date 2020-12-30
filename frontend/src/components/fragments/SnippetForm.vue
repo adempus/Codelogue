@@ -246,7 +246,6 @@ export default {
       this.$v.$touch();
       if (this.$v.$error) return;
       this.createNewSnippet();
-      // console.log("create snippet mutation");
     },
     createNewSnippet() {
       const newSnippet = this.newSnippetPayload;
@@ -291,11 +290,9 @@ export default {
         })
         .finally(() => {
           if (this.createSnippetSuccess) {
-            console.log("snippet tags mutation complete! nav away.");
+            console.log("snippet tags mutation complete!");
             this.showSuccessMessage();
-            setTimeout(() => {
-              this.$emit("new-submission-complete");
-            }, 1000);
+            this.navToFolderPreview();
             return;
           }
           console.log("show error message");
@@ -308,6 +305,11 @@ export default {
         summary: `Created new snippet: ${this.snippetForm.title}`,
         life: 2000
       });
+    },
+    navToFolderPreview() {
+      setTimeout(() => {
+        this.$emit("new-submission-complete");
+      }, 1000);
     },
     resetValidations() {
       this.$v.snippetForm.title.$dirty = false;

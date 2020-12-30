@@ -37,7 +37,7 @@ class Snippet(db.Model):
     programmingLanguage = db.relationship('ProgrammingLanguage', backref='Snippet', lazy=True)
     tags = db.relationship('Tag', secondary=snippetTags, lazy='subquery',
         backref=db.backref('snippets', lazy=True))
-    taggedSnippets = db.relationship('TaggedSnippets',  backref='snippet', lazy=True)
+    taggedSnippets = db.relationship('TaggedSnippets',  backref='snippet', lazy=True, cascade="all, delete")
     date_created = db.Column(db.DateTime, nullable=False)
 
 
