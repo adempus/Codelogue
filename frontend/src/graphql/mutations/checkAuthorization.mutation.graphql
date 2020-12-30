@@ -1,4 +1,4 @@
-mutation CheckAuthorization {
+mutation checkAuthorization {
     checkAuthorization {
         ...on AuthorizationErrorOutput {
             __typename

@@ -19,7 +19,7 @@ to be passed into the form component depending on whether edit mode is "new" or 
           iconPos="left"
           class="p-button-outlined p-button-danger p-button-raised"
           id="cancel_snippet_btn"
-          @click="cancelEdit"
+          @click="closeEdit"
         />
       </div>
     </div>
@@ -29,6 +29,7 @@ to be passed into the form component depending on whether edit mode is "new" or 
       :languages-query-result="languagesQueryResult"
       :default-folder="selectedFolder"
       :default-language="selectedLanguage"
+      @new-submission-complete="closeEdit"
     />
   </div>
   <div v-else-if="editModeModify">
@@ -69,8 +70,8 @@ export default {
     }
   },
   methods: {
-    cancelEdit() {
-      this.$emit("cancel-edit");
+    closeEdit() {
+      this.$emit("close-edit");
     }
   },
   computed: {

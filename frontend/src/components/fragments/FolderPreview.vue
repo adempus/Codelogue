@@ -54,7 +54,7 @@
     <SnippetEditor
       :edit-mode="editMode"
       :target-folder="selectedFolder"
-      @cancel-edit="disableEditMode"
+      @close-edit="disableEditMode"
     />
   </div>
 </template>
@@ -84,6 +84,9 @@ export default {
       type: Object
     }
   },
+  updated() {
+    this.$nextTick(() => {});
+  },
   data() {
     return {
       selectedSnippet: null,
@@ -110,7 +113,7 @@ export default {
     disableEditMode() {
       this.editMode.newSnippet = false;
       this.editMode.modifySnippet = false;
-    }
+    },
   },
   computed: {
     selectedFolder() {

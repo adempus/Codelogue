@@ -1,4 +1,5 @@
 <template>
+  <Toast position="top-right" />
   <form class="p-fluid p-formgrid p-grid" style="margin-top: -10px;">
     <!-- title input -->
     <div class="p-field p-col-12 p-md-4">
@@ -137,7 +138,12 @@
       <div class="p-grid p-jc-start p-ml-1 p-mb-2">
         <label for="tags">Tags</label>
       </div>
-      <Chips id="tags" v-model="snippetForm.tags" style="height: 36px;" />
+      <Chips
+        id="tags"
+        v-model="snippetForm.tags"
+        :allowDuplicate="false"
+        style="height: 36px;"
+      />
     </div>
     <!-- submit button -->
     <div class="p-field p-col-12 p-md-12">
@@ -159,6 +165,10 @@
 
 <script>
 import { required } from "@vuelidate/validators";
+import { useMutation } from "@vue/apollo-composable";
+import createSnippetMutation from "@/graphql/mutations/createSnippet.mutation.graphql";
+import createTagsMutation from "@/graphql/mutations/createTags.mutation.graphql";
+import createTaggedSnippetMutation from "@/graphql/mutations/createTaggedSnippet.mutation.graphql";
 
 export default {
   name: "SnippetForm",
@@ -178,29 +188,20 @@ export default {
     defaultLanguage: {
       required: true,
       type: Object
+    },
+    snippetQueryResult: {
+      // only required if a snippet is being updated
+      required: false,
+      type: Object
     }
   },
-  data() {
-    return {
-      snippetForm: {
-        title: "",
-        folder: {},
-        programmingLanguage: {},
-        content: "",
-        description: "",
-        tags: []
-      }
-    };
-  },
-  validations() {
-    return {
-      snippetForm: {
-        title: { required },
-        folder: { required },
-        programmingLanguage: { required },
-        content: { required }
-      }
-    };
+  setup() {
+    const { mutate: createSnippet } = useMutation(createSnippetMutation);
+    const { mutate: createTags } = useMutation(createTagsMutation);
+    const { mutate: createTaggedSnippet } = useMutation(
+      createTaggedSnippetMutation
+    );
+    return { createSnippet, createTags, createTaggedSnippet };
   },
   mounted() {
     this.$nextTick(() => {
@@ -214,11 +215,99 @@ export default {
   beforeUnmount() {
     this.resetValidations();
   },
+  data() {
+    return {
+      snippetId: null,
+      snippetForm: {
+        title: "",
+        folder: {},
+        programmingLanguage: {},
+        content: "",
+        description: "",
+        tags: []
+      },
+      snippetMutationResponse: {},
+      tagsMutationResponse: { tags: [] },
+      createSnippetSuccess: false
+    };
+  },
+  validations() {
+    return {
+      snippetForm: {
+        title: { required },
+        folder: { required },
+        programmingLanguage: { required },
+        content: { required }
+      }
+    };
+  },
   methods: {
     submit() {
       this.$v.$touch();
       if (this.$v.$error) return;
-      console.log("create snippet mutation");
+      this.createNewSnippet();
+      // console.log("create snippet mutation");
+    },
+    createNewSnippet() {
+      const newSnippet = this.newSnippetPayload;
+      console.log("payload: ", newSnippet);
+      this.createSnippet({ input: newSnippet })
+        .then(res => {
+          this.snippetMutationResponse.status =
+            res["data"]["createSnippet"]["status"];
+          this.snippetMutationResponse.snippet =
+            res["data"]["createSnippet"]["snippet"];
+        })
+        .catch(err => console.log("CreateSnippetMutation error.", err))
+        .finally(() => {
+          if (!this.snippetMutationResponse.status.error) {
+            this.createOrGetTags();
+            console.log("snippet mutation completed");
+          }
+        });
+    },
+    createOrGetTags() {
+      const tags = this.snippetForm.tags;
+      this.createTags({ keywords: tags })
+        .then(res => {
+          this.tagsMutationResponse.tags = res["data"]["createTags"]["tags"];
+        })
+        .catch(err => console.log("CreateTagsMutation error.", err))
+        .finally(() => {
+          if (this.tagsMutationResponse.tags.length > 0) {
+            console.log("tags mutation complete");
+            this.saveSnippetTags();
+          }
+        });
+    },
+    saveSnippetTags() {
+      const snippetId = this.snippetMutationResponse.snippet.id;
+      const tagIds = this.tagsMutationResponse.tags.map(tag => {
+        return tag["id"];
+      });
+      this.createTaggedSnippet({ snippetId: snippetId, tagIds: tagIds })
+        .then(res => {
+          this.createSnippetSuccess = !("error" in res);
+        })
+        .finally(() => {
+          if (this.createSnippetSuccess) {
+            console.log("snippet tags mutation complete! nav away.");
+            this.showSuccessMessage();
+            setTimeout(() => {
+              this.$emit("new-submission-complete");
+            }, 1000);
+            return;
+          }
+          console.log("show error message");
+        });
+    },
+    updateExistingSnippet() {},
+    showSuccessMessage() {
+      this.$toast.add({
+        severity: "success",
+        summary: `Created new snippet: ${this.snippetForm.title}`,
+        life: 2000
+      });
     },
     resetValidations() {
       this.$v.snippetForm.title.$dirty = false;
@@ -263,6 +352,21 @@ export default {
     },
     autoSelectedLanguage() {
       return this.defaultLanguage;
+    },
+    tagsFilled() {
+      return this.snippetForm.tags.length > 0;
+    },
+    loadedSnippet() {
+      return this.snippetQueryResult;
+    },
+    newSnippetPayload() {
+      return {
+        title: this.snippetForm.title,
+        folderId: this.snippetForm.folder.id,
+        languageId: this.snippetForm.programmingLanguage.id,
+        content: this.snippetForm.content,
+        description: this.snippetForm.description
+      };
     }
   }
 };

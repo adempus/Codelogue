@@ -1,0 +1,8 @@
+mutation createTags($keywords: [String!]!) {
+    createTags(keywords: $keywords) {
+        tags {
+            id
+            keyword
+        }
+    }
+}
