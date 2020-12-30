@@ -55,6 +55,9 @@ class Tag(db.Model):
 
 class TaggedSnippets(db.Model):
     __table_args__ = {'extend_existing': True}
+    __mapper_args__ = {
+        'confirm_deleted_rows': False,
+    }
     tag_id = db.Column(db.BigInteger, db.ForeignKey('tag.id'), primary_key=True)
     snippet_id = db.Column(db.BigInteger, db.ForeignKey('snippet.id'), primary_key=True)
     tag = db.relationship('Tag')
