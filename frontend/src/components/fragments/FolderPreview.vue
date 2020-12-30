@@ -51,6 +51,7 @@
     </DataTable>
   </div>
   <div v-else>
+    <!-- container to present form for editing and creating new snippets -->
     <SnippetEditor
       :edit-mode="editMode"
       :target-folder="selectedFolder"
@@ -113,7 +114,7 @@ export default {
     disableEditMode() {
       this.editMode.newSnippet = false;
       this.editMode.modifySnippet = false;
-    },
+    }
   },
   computed: {
     selectedFolder() {

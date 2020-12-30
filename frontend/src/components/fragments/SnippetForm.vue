@@ -209,7 +209,7 @@ export default {
       // delay to initialize after api call
       setTimeout(() => {
         this.snippetForm.programmingLanguage = this.autoSelectedLanguage;
-      }, 100);
+      }, 250);
     });
   },
   beforeUnmount() {
@@ -372,4 +372,43 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#title,
+#folder,
+#language,
+#description {
+  border-width: 1px;
+  color: #ffffff;
+  border-color: #454a5e;
+  background-color: #313645;
+}
+</style>
+<style>
+input#tags {
+  color: #ffffff;
+}
+.p-inputtext.p-chips-multiple-container {
+  background-color: #313645;
+  border-color: #454a5e;
+  color: #ffffff;
+}
+.p-editor-container .p-editor-content .ql-editor {
+  background-color: #313645 !important;
+  border-color: #454a5e !important;
+  color: #ffffff !important;
+}
+.ql-editor.ql-blank::before {
+  color: #ffffff !important;
+}
+.p-editor-toolbar.ql-toolbar.ql-snow {
+  border-color: #454a5e !important;
+  background-color: #454a5e !important;
+}
+.p-editor-content.ql-container.ql-snow {
+  height: 300px !important;
+  border-color: #454a5e !important;
+}
+.p-dropdown-label.p-inputtext {
+  color: #ffffff !important;
+}
+</style>
