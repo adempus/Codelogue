@@ -28,6 +28,8 @@
       :value="folderSnippets"
       v-model:selection="selectedSnippet"
       selectionMode="single"
+      :scrollable="true"
+      scrollHeight="675px"
       dataKey="id"
     >
       <Column class="p-text-capitalize" field="title" header="Title" />
@@ -212,5 +214,16 @@ tr.p-selectable-row:active {
 }
 #tag_list.p-scrollpanel .p-scrollpanel-bar-y {
   visibility: hidden;
+}
+.p-datatable-scrollable-header-box {
+  padding-right: 0px !important;
+}
+.p-datatable-scrollable-body::-webkit-scrollbar {
+  width: 5px !important;
+}
+.p-datatable-scrollable-body::-webkit-scrollbar-thumb {
+  width: 4px !important;
+  background-color: #6c757d;
+    border-radius: 5px;
 }
 </style>

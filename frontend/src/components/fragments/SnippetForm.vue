@@ -260,7 +260,12 @@ export default {
         .catch(err => console.log("CreateSnippetMutation error.", err))
         .finally(() => {
           if (!this.snippetMutationResponse.status.error) {
-            this.createOrGetTags();
+            if (this.snippetForm.tags.length > 0) {
+              this.createOrGetTags();
+            } else {
+              this.showSuccessMessage();
+              this.navToFolderPreview();
+            }
             console.log("snippet mutation completed");
           }
         });
