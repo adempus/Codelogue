@@ -228,7 +228,7 @@ export default {
       },
       snippetMutationResponse: {},
       tagsMutationResponse: { tags: [] },
-      createSnippetSuccess: false
+      snippetCreationSuccess: false
     };
   },
   validations() {
@@ -240,6 +240,14 @@ export default {
         content: { required }
       }
     };
+  },
+  watch: {
+    snippetCreationSuccess(success) {
+      if (success) {
+        this.showSuccessMessage();
+        this.navToFolderPreview();
+      }
+    }
   },
   methods: {
     submit() {
@@ -259,18 +267,18 @@ export default {
         })
         .catch(err => console.log("CreateSnippetMutation error.", err))
         .finally(() => {
-          if (!this.snippetMutationResponse.status.error) {
+          const success = !this.snippetMutationResponse.status.error;
+          if (success) {
             if (this.snippetForm.tags.length > 0) {
-              this.createOrGetTags();
+              this.createAndGetTags();
             } else {
-              this.showSuccessMessage();
-              this.navToFolderPreview();
+              this.snippetCreationSuccess = success;
             }
             console.log("snippet mutation completed");
           }
         });
     },
-    createOrGetTags() {
+    createAndGetTags() {
       const tags = this.snippetForm.tags;
       this.createTags({ keywords: tags })
         .then(res => {
@@ -280,24 +288,22 @@ export default {
         .finally(() => {
           if (this.tagsMutationResponse.tags.length > 0) {
             console.log("tags mutation complete");
-            this.saveSnippetTags();
+            this.saveTagsForSnippet();
           }
         });
     },
-    saveSnippetTags() {
+    saveTagsForSnippet() {
       const snippetId = this.snippetMutationResponse.snippet.id;
       const tagIds = this.tagsMutationResponse.tags.map(tag => {
         return tag["id"];
       });
       this.createTaggedSnippet({ snippetId: snippetId, tagIds: tagIds })
         .then(res => {
-          this.createSnippetSuccess = !("error" in res);
+          this.snippetCreationSuccess = !("error" in res);
         })
         .finally(() => {
-          if (this.createSnippetSuccess) {
+          if (this.snippetCreationSuccess) {
             console.log("snippet tags mutation complete!");
-            this.showSuccessMessage();
-            this.navToFolderPreview();
             return;
           }
           console.log("show error message");
@@ -394,6 +400,16 @@ export default {
 input#tags {
   color: #ffffff;
 }
+#description:focus,
+input#tags:focus,
+#title:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/*#folder:focus {*/
+/*    outline: none !important;*/
+/*    box-shadow: none !important;*/
+/*}*/
 .p-inputtext.p-chips-multiple-container {
   background-color: #313645;
   border-color: #454a5e;
