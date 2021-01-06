@@ -1,0 +1,25 @@
+query getSnippetById($snippetId: ID!) {
+    getSnippetById(snippetId: $snippetId) {
+        id
+        title
+        content
+        description
+        dateCreated
+        folder {
+            id
+            name
+        }
+        ProgrammingLanguage {
+            id
+            name
+        }
+        tags {
+            edges {
+                node {
+                    id
+                    keyword
+                }
+            }
+        }
+    }
+}

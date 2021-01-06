@@ -19,7 +19,7 @@ to be passed into the form component depending on whether edit mode is "new" or 
           iconPos="left"
           class="p-button-outlined p-button-danger p-button-raised"
           id="cancel_snippet_btn"
-          @click="closeEdit"
+          @click="cancelEdit"
         />
       </div>
     </div>
@@ -29,7 +29,6 @@ to be passed into the form component depending on whether edit mode is "new" or 
       :languages-query-result="languagesQueryResult"
       :default-folder="selectedFolder"
       :default-language="selectedLanguage"
-      @new-submission-complete="closeEdit"
     />
   </div>
   <div v-else-if="editModeModify">
@@ -45,6 +44,7 @@ import SnippetForm from "@/components/fragments/SnippetForm";
 export default {
   name: "SnippetEditor",
   components: { SnippetForm },
+  emits: ["close-edit", "preview-snippet"],
   setup() {
     const { result } = useQuery(folderAndLanguageOptions);
     const folderQueryResult = useResult(
@@ -70,7 +70,7 @@ export default {
     }
   },
   methods: {
-    closeEdit() {
+    cancelEdit() {
       this.$emit("close-edit");
     }
   },
@@ -83,7 +83,7 @@ export default {
     },
     selectedFolder() {
       return {
-        id: this.targetFolder["key"],
+        id: this.targetFolder["id"],
         name: this.targetFolder["label"]
       };
     },

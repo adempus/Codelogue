@@ -6,6 +6,23 @@ mutation createSnippet($input: CreateSnippetInput!) {
         }
         snippet {
             id
+            title
+            folder {
+                id
+                name
+            }
+            programmingLanguage {
+                id
+                name
+            }
+            tags {
+                edges {
+                    node {
+                        id
+                        keyword
+                    }
+                }
+            }
         }
     }
 }

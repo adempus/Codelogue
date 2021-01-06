@@ -153,7 +153,7 @@
             label="Done"
             icon="pi pi-check-circle"
             iconPos="left"
-            class="p-button-warning p-button-raised"
+            class="p-button-warning p-button-raised p-shadow-1"
             id="submit_snippet_btn"
             @click="submit"
           ></Button>
@@ -217,7 +217,6 @@ export default {
   },
   data() {
     return {
-      snippetId: null,
       snippetForm: {
         title: "",
         folder: {},
@@ -228,6 +227,7 @@ export default {
       },
       snippetMutationResponse: {},
       tagsMutationResponse: { tags: [] },
+      taggedSnippetMutationResponse: {},
       snippetCreationSuccess: false
     };
   },
@@ -264,6 +264,7 @@ export default {
             res["data"]["createSnippet"]["status"];
           this.snippetMutationResponse.snippet =
             res["data"]["createSnippet"]["snippet"];
+          console.log("create new snippet response: ", res);
         })
         .catch(err => console.log("CreateSnippetMutation error.", err))
         .finally(() => {
@@ -299,6 +300,8 @@ export default {
       });
       this.createTaggedSnippet({ snippetId: snippetId, tagIds: tagIds })
         .then(res => {
+          this.taggedSnippetMutationResponse =
+            res["data"]["createTaggedSnippet"]["snippet"];
           this.snippetCreationSuccess = !("error" in res);
         })
         .finally(() => {
@@ -319,7 +322,11 @@ export default {
     },
     navToFolderPreview() {
       setTimeout(() => {
-        this.$emit("new-submission-complete");
+        this.snippetMutationResponse.snippet["type"] = "snippet";
+        this.emitter.emit(
+          "snippet-form-submitted",
+          this.snippetMutationResponse.snippet
+        );
       }, 1000);
     },
     resetValidations() {
@@ -406,10 +413,6 @@ input#tags:focus,
   outline: none !important;
   box-shadow: none !important;
 }
-/*#folder:focus {*/
-/*    outline: none !important;*/
-/*    box-shadow: none !important;*/
-/*}*/
 .p-inputtext.p-chips-multiple-container {
   background-color: #313645;
   border-color: #454a5e;

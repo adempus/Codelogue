@@ -2,6 +2,7 @@ import { createApp, provide, h } from "vue";
 import App from "@/App.vue";
 import router from "@/router";
 import store from "@/store";
+import mitt from "mitt";
 import { VuelidatePlugin } from "@vuelidate/core";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 import apolloClient from "@/graphql";
@@ -43,6 +44,9 @@ const app = createApp({
   }
 });
 
+const emitter = mitt();
+app.config.globalProperties.emitter = emitter;
+
 app.use(store);
 app.use(router);
 app.use(VuelidatePlugin);
@@ -67,7 +71,6 @@ app.component("Chips", Chips);
 app.component("Dropdown", Dropdown);
 app.component("Editor", Editor);
 app.component("Textarea", Textarea);
-
 app.mount("#app");
 
 export default app;

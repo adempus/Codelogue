@@ -1,8 +1,26 @@
-mutation createTaggedSnippet($snippetId: ID!, $tagIds: [ID!]!){
+mutation createTaggedSnippet($snippetId: ID!, $tagIds: [ID!]!) {
     createTaggedSnippet (snippetId: $snippetId, tagIds: $tagIds) {
         taggedSnippet {
-            snippetId
-            tagId
+            snippet {
+                id
+                title
+                folder {
+                    id
+                    name
+                }
+                programmingLanguage {
+                    id
+                    name
+                }
+                tags {
+                    edges {
+                        node {
+                            id
+                            keyword
+                        }
+                    }
+                }
+            }
         }
     }
 }

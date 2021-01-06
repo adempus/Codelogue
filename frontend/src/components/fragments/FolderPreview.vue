@@ -29,7 +29,7 @@
       v-model:selection="selectedSnippet"
       selectionMode="single"
       :scrollable="true"
-      scrollHeight="675px"
+      scrollHeight="650px"
       dataKey="id"
     >
       <Column class="p-text-capitalize" field="title" header="Title" />
@@ -58,6 +58,7 @@
       :edit-mode="editMode"
       :target-folder="selectedFolder"
       @close-edit="disableEditMode"
+      @preview-snippet="switchToSnippetPreview"
     />
   </div>
 </template>
@@ -72,7 +73,7 @@ export default {
   components: { SnippetEditor },
   setup(props) {
     const { result } = useQuery(getSnippetsByFolderQuery, () => ({
-      folderId: props.folderSelection.key
+      folderId: props.folderSelection.id
     }));
     const snippetsByFolder = useResult(
       result,
@@ -86,12 +87,6 @@ export default {
       required: true,
       type: Object
     }
-  },
-  mounted() {
-    this.snippetList = this.folderSnippets;
-  },
-  updated() {
-    this.$nextTick(() => {});
   },
   data() {
     return {
@@ -120,6 +115,10 @@ export default {
     disableEditMode() {
       this.editMode.newSnippet = false;
       this.editMode.modifySnippet = false;
+    },
+    switchToSnippetPreview(snippetPayload) {
+      console.log("snippet payload: ", snippetPayload);
+      this.disableEditMode();
     }
   },
   computed: {
@@ -127,7 +126,7 @@ export default {
       return this.folderSelection;
     },
     folderId() {
-      return this.folderSelection.key;
+      return this.folderSelection.id;
     },
     folderSnippets() {
       if (this.snippetsByFolder === null) return;
@@ -144,7 +143,8 @@ export default {
       });
     },
     snippetCount() {
-      const length = this.selectedFolder.children.length;
+      if (this.snippetsByFolder === null) return;
+      const length = this.folderSnippets.length;
       return `${length} ${length === 1 ? "snippet" : "snippets"}`;
     },
     editModeEnabled() {
@@ -167,7 +167,8 @@ export default {
 }
 #snippet_list {
   border-left: #6c757d;
-  padding: 0 20px 0 20px;
+  padding: 0 20px 10px 20px;
+    margin-bottom: 20vh;
 }
 #tag_list {
   width: 100%;
@@ -224,6 +225,6 @@ tr.p-selectable-row:active {
 .p-datatable-scrollable-body::-webkit-scrollbar-thumb {
   width: 4px !important;
   background-color: #6c757d;
-    border-radius: 5px;
+  border-radius: 5px;
 }
 </style>

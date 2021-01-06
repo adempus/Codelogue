@@ -79,6 +79,7 @@ import ConfirmDeletionDialog from "@/components/fragments/ConfirmDeletionDialog"
 export default {
   name: "FolderPane",
   components: { ConfirmDeletionDialog },
+  emits: ["preview-selection"],
   setup() {
     const { mutate: createFolder } = useMutation(createFolderMutation);
     const { mutate: deleteFolders } = useMutation(deleteFoldersMutation);
@@ -161,7 +162,7 @@ export default {
     },
     handleSelectionAction(node) {
       if (this.previewMode) {
-        this.$emit("preview-selection", node);
+        this.emitter.emit("preview-selection", node);
         return;
       }
       if (this.deleteMode) this.updateDeletionSelection();
