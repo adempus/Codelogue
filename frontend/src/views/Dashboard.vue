@@ -6,16 +6,28 @@
     <router-link to="/sign-in" class="link">Click here to sign in</router-link>
   </div>
   <div v-else>
-    <UserPanel></UserPanel>
+    <div class="p-grid p-ai-stretch vertical-container dashboard">
+      <div class="p-col-3">
+        <div class="box box-stretched">
+          <FolderPane />
+        </div>
+      </div>
+      <div class="p-col-9">
+        <div class="box box-stretched">
+          <PreviewPane />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import UserPanel from "@/components/UserPanel";
+import FolderPane from "@/components/fragments/FolderPane";
+import PreviewPane from "@/components/fragments/PreviewPane";
 
 export default {
   name: "Dashboard",
-  components: { UserPanel },
+  components: { FolderPane, PreviewPane },
   mounted() {
     this.setAccessToken();
     this.$store.dispatch("checkUserAuthorization");
@@ -55,5 +67,9 @@ html {
 }
 .link {
   color: cornflowerblue;
+}
+.dashboard {
+  margin-top: 60px;
+  padding: 0 2px 0px 2px;
 }
 </style>

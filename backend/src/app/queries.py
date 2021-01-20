@@ -29,6 +29,8 @@ class Query(graphene.ObjectType):
     get_snippet_by_language = graphene.Field(lambda: graphene.List(SnippetObject),language_id=graphene.ID())
     # retrieve a list of folders by user_id
     get_user_folders = graphene.Field(lambda: graphene.List(FolderObject))
+    # retrieve a folder by folder_id
+    get_folder_by_id = graphene.Field(lambda: graphene.List(FolderObject), folder_id=graphene.ID())
     # retrieve user tags
     get_user_tags = graphene.Field(lambda: graphene.List(TagObject))
     get_all_tags = graphene.Field(lambda: graphene.List(TagObject))
@@ -48,9 +50,7 @@ class Query(graphene.ObjectType):
 
     @jwt_required
     def resolve_get_snippet_by_id(self, info, snippet_id):
-        print("in snippet id resolver")
         userId = functions.resolveUserId()
-        print(f"user id: {userId}")
         query = SnippetObject.get_query(info)
         return query.filter(
             sqlalchemy.and_(
@@ -67,6 +67,17 @@ class Query(graphene.ObjectType):
             sqlalchemy.and_(
                 Snippet.user_id == userId,
                 Snippet.folder_id == functions.resolveGlobalId(folder_id)
+            )
+        )
+
+    @jwt_required
+    def resolve_get_folder_by_id(self, info, folder_id):
+        userId = functions.resolveUserId()
+        query = FolderObject.get_query(info)
+        return query.filter(
+            sqlalchemy.and_(
+                Folder.user_id == userId,
+                Folder.id == functions.resolveGlobalId(folder_id)
             )
         )
 

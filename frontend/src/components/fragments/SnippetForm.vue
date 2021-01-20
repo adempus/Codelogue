@@ -1,5 +1,5 @@
 <template>
-  <Toast position="top-right" />
+  <Toast group="snippetCreated" position="top-right" />
   <form class="p-fluid p-formgrid p-grid" style="margin-top: -10px;">
     <!-- title input -->
     <div class="p-field p-col-12 p-md-4">
@@ -21,7 +21,7 @@
       </div>
     </div>
     <!-- folder dropdown -->
-    <div class="p-field p-col-12 p-md-2" style="margin-left: 460px;">
+    <div class="p-field p-col-12 p-md-2" style="margin-left: 450px;">
       <div class="p-grid p-jc-start p-ml-1 p-mb-2">
         <label for="folder">Folder</label>
       </div>
@@ -245,13 +245,14 @@ export default {
     snippetCreationSuccess(success) {
       if (success) {
         this.showSuccessMessage();
-        this.navToFolderPreview();
+        this.navToSnippetPreview();
       }
     }
   },
   methods: {
     submit() {
       this.$v.$touch();
+      console.log("submit clicked")
       if (this.$v.$error) return;
       this.createNewSnippet();
     },
@@ -315,18 +316,19 @@ export default {
     updateExistingSnippet() {},
     showSuccessMessage() {
       this.$toast.add({
+        group: "snippetCreated",
         severity: "success",
-        summary: `Created new snippet: ${this.snippetForm.title}`,
-        life: 2000
+        summary: "Snippet Created",
+        detail: `Created new snippet: ${this.snippetForm.title}`,
+        life: 5000
       });
     },
-    navToFolderPreview() {
+    navToSnippetPreview() {
       setTimeout(() => {
-        this.snippetMutationResponse.snippet["type"] = "snippet";
-        this.emitter.emit(
-          "snippet-form-submitted",
-          this.snippetMutationResponse.snippet
-        );
+        this.$router.push({
+          name: "SnippetPreview",
+          params: { id: this.snippetMutationResponse.snippet["id"] }
+        });
       }, 1000);
     },
     resetValidations() {

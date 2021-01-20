@@ -16,6 +16,7 @@
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
     "graphql": "^15.4.0",
+    "highlight.js": "^10.5.0",
     "mitt": "^2.1.0",
     "primeflex": "^2.0.0",
     "primeicons": "^4.0.0",

@@ -1,45 +1,32 @@
 <template>
   <div>
     <h2>Snippet</h2>
-    {{ snippetQueryResult }}
+    <pre><code class="language-javascript">
+          {{ snippetQueryResult }}
+    </code></pre>
   </div>
 </template>
 
 <script>
+import { useRoute } from "vue-router";
 import { useQuery, useResult } from "@vue/apollo-composable";
 import getSnippetById from "@/graphql/queries/getSnippetById.query.graphql";
 
 export default {
   name: "SnippetPreview",
-  setup(props) {
+  setup() {
+    const route = useRoute();
     const { result } = useQuery(getSnippetById, () => ({
-      snippetId: props.snippetSelection.id
+      snippetId: route.params.id
     }));
     const snippetById = useResult(result, null, data => data["getSnippetById"]);
     return { snippetById };
   },
-  props: {
-    snippetSelection: {
-      required: true,
-      type: Object
-    }
-  },
-  data() {
-    return {
-      snippet: {}
-    };
-  },
   computed: {
-    selectedSnippet() {
-      return this.snippetSelection;
-    },
     snippetQueryResult() {
       if (this.snippetById === null) return;
       return this.snippetById;
     },
-    snippetId() {
-      return this.snippetSelection.key;
-    }
   }
 };
 </script>

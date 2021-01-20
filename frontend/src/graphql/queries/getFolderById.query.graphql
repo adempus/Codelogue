@@ -1,0 +1,6 @@
+query getFolderById($folderId: ID!) {
+    getFolderById(folderId: $folderId ) {
+        id
+        name
+    }
+}

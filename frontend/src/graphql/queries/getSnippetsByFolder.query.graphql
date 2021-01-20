@@ -1,16 +1,24 @@
 query getSnippetsByFolder($folderId: ID!) {
-    getSnippetsByFolder(folderId: $folderId) {
+    getFolderById(folderId: $folderId ) {
         id
-        title
-        dateCreated
-        ProgrammingLanguage {
-            id
-            name
-        }
-        tags {
+        name
+        snippets{
             edges {
                 node {
-                    keyword
+                    id
+                    title
+                    dateCreated
+                    ProgrammingLanguage {
+                        id
+                        name
+                    }
+                    tags {
+                        edges {
+                            node {
+                                keyword
+                            }
+                        }
+                    }
                 }
             }
         }

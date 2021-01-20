@@ -4,21 +4,29 @@
       <Navbar></Navbar>
     </div>
     <div class="p-col">
-      <router-view />
+      <Dashboard v-show="userSignedIn" />
     </div>
+    <router-view name="Index" />
   </div>
 </template>
 <script>
 import Navbar from "@/components/Navbar.vue";
+import Dashboard from "@/views/Dashboard";
 
 export default {
-  components: { Navbar },
+  components: { Navbar, Dashboard },
   setup() {
     const g = () => {
       if (this.$store.getters.authorizationState === null) return false;
       return !this.$store.getters.authorizationState.error;
     };
     return { g };
+  },
+  computed: {
+    userSignedIn() {
+      if (this.$store.getters.authorizationState === null) return false;
+      return !this.$store.getters.authorizationState.error;
+    }
   }
 };
 </script>

@@ -1,8 +1,10 @@
 import { createApp, provide, h } from "vue";
+import ToastService from "primevue/toastservice";
 import App from "@/App.vue";
 import router from "@/router";
 import store from "@/store";
 import mitt from "mitt";
+import hljs from "highlight.js";
 import { VuelidatePlugin } from "@vuelidate/core";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 import apolloClient from "@/graphql";
@@ -18,7 +20,6 @@ import Menubar from "primevue/menubar";
 import InputText from "primevue/inputtext";
 import Card from "primevue/card";
 import TabMenu from "primevue/tabmenu";
-import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
 import Tree from "primevue/tree";
 import ScrollPanel from "primevue/scrollpanel";
@@ -32,8 +33,8 @@ import Ripple from "primevue/ripple";
 import Dropdown from "primevue/dropdown";
 import Editor from "primevue/editor";
 import Textarea from "primevue/textarea";
-
 // import Inplace from "primevue/inplace";
+
 
 const app = createApp({
   setup() {
@@ -49,8 +50,9 @@ app.config.globalProperties.emitter = emitter;
 
 app.use(store);
 app.use(router);
-app.use(VuelidatePlugin);
 app.use(ToastService);
+app.use(VuelidatePlugin);
+app.use(hljs.vuePlugin);
 app.directive("ripple", Ripple);
 app.component("Button", Button);
 app.component("Dialog", Dialog);

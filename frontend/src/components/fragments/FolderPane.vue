@@ -1,4 +1,5 @@
 <template>
+  <Toast class="p-ml-3 p-align-start" position="bottom-left" />
   <ConfirmDeletionDialog
     :should-display="displayConfirmation"
     :deletion-selections="deletionList"
@@ -86,7 +87,9 @@ export default {
     return { createFolder, deleteFolders };
   },
   beforeMount() {
-    this.queryUserFolders();
+    this.$nextTick(() => {
+      this.queryUserFolders();
+    });
   },
   data() {
     return {
@@ -129,17 +132,28 @@ export default {
         .catch(err => console.log("CreateFolderMutation error.", err))
         .finally(() => {
           if (!this.folderMutationResponse["status"]["error"]) {
-            this.folders.push({
+            const newFolder = {
               key: this.folderMutationResponse["folder"]["id"],
               type: "folder",
               label: this.newFolderName,
               icon: "pi pi-fw pi-folder",
               children: []
-            });
+            };
+            this.folders.push(newFolder);
+            this.handleSelectionAction(newFolder); // preview new folder on creation
+            this.notifyNewFolderSuccess();
             this.newFolderName = "";
             this.$v.$reset();
           }
         });
+    },
+    notifyNewFolderSuccess() {
+      this.$toast.add({
+        severity: "success",
+        summary: "Folder Created",
+        detail: `Added new folder: ${this.newFolderName}`,
+        life: 1300
+      });
     },
     parseFolderQueryResponse() {
       return this.folderQueryResponse.map(folder => {
@@ -162,10 +176,20 @@ export default {
     },
     handleSelectionAction(node) {
       if (this.previewMode) {
-        this.emitter.emit("preview-selection", node);
+        if (node.type === "folder") {
+          this.navToPreview("FolderPreview", node.key);
+        } else if (node.type === "snippet") {
+          this.navToPreview("SnippetPreview", node.key);
+        }
         return;
       }
       if (this.deleteMode) this.updateDeletionSelection();
+    },
+    navToPreview(previewType, previewId) {
+      this.$router.push({
+        name: previewType,
+        params: { id: previewId }
+      });
     },
     updateDeletionSelection() {
       if (!this.deleteMode) return;
@@ -214,15 +238,37 @@ export default {
         })
         .catch(err => console.log("DeleteFolderMutation occurred. ", err))
         .finally(() => {
-          console.log("bugcheck: ", this.folderMutationResponse);
+          // console.log("check: ", this.folderMutationResponse);
           if (!this.folderMutationResponse["status"]["error"]) {
             // update UI
             this.folders = this.folders.filter(folder => {
               return !this.folderDeletionIds.includes(folder.key);
             });
+            this.notifyFolderDeletionSuccess();
             this.finalizeDeletion();
           }
         });
+    },
+    notifyFolderDeletionSuccess() {
+      const numDeleted = this.folderDeletionIds.length;
+      this.$toast.add({
+        severity: "success",
+        summary: "Folder Deleted",
+        detail: `Deleted ${numDeleted} ${
+          numDeleted > 1 ? "folders" : "folder"
+        }`,
+        life: 1250
+      });
+    },
+    clearDeletedInPreview() {
+      if (this.previewTarget === null) return;
+      const targetId = this.previewTarget.key;
+      if (
+        this.folderDeletionIds.includes(targetId) ||
+        this.snippetDeletionIds.includes(targetId)
+      ) {
+        this.emitter.emit("clear-deleted-in-preview");
+      }
     },
     cancelDeletion() {
       this.finalizeDeletion();
@@ -240,6 +286,7 @@ export default {
       this.deleteMode = false;
     },
     finalizeDeletion() {
+      this.clearDeletedInPreview();
       this.hideDeletionConfirmation();
       this.clearDeletionSelections();
       this.disableDeleteMode();
@@ -363,5 +410,8 @@ export default {
 }
 .p-treenode-icon {
   color: #6c757d !important;
+}
+.p-toast-message-text {
+  text-align: left !important;
 }
 </style>
