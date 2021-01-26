@@ -38,13 +38,14 @@ export default {
   components: { SnippetForm },
   setup() {
     // const route = useRoute();
-    const { result } = useQuery(folderAndLanguageOptions);
-    const folderQueryResult = useResult(
+    const fetchPolicy = { fetchPolicy: "network-only" };
+    let { result } = useQuery(folderAndLanguageOptions, fetchPolicy);
+    let folderQueryResult = useResult(
       result,
       null,
       data => data["getUserFolders"]
     );
-    const languageQueryResult = useResult(
+    let languageQueryResult = useResult(
       result,
       null,
       data => data["allLanguages"]["edges"]

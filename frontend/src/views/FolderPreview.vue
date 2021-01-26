@@ -60,9 +60,14 @@ export default {
   name: "FolderPreview",
   setup() {
     const route = useRoute();
-    const { result } = useQuery(getSnippetsByFolderQuery, () => ({
-      folderId: route.params.id
-    }));
+    const fetchPolicy = { fetchPolicy: "cache-and-network" };
+    const { result } = useQuery(
+      getSnippetsByFolderQuery,
+      () => ({
+        folderId: route.params.id
+      }),
+      fetchPolicy
+    );
     console.log(route.params.folderName);
     const snippetsByFolder = useResult(
       result,

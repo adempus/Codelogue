@@ -1,71 +1,71 @@
 <template>
-  <Toast class="p-ml-3 p-align-start" position="bottom-left" />
-  <ConfirmDeletionDialog
-    :should-display="displayConfirmation"
-    :deletion-selections="deletionList"
-    @confirm-deletion="deleteSelected"
-    @cancel-deletion="cancelDeletion"
-  />
-  <Card class="p-shadow-3" id="folder_pane">
-    <template v-slot:header>
-      <div class="p-grid p-fluid">
-        <!-- new folder input form -->
-        <div class="p-col-12" style="position: relative;">
-          <div
-            id="new_folder_form"
-            class="p-inputgroup"
-            style="position: sticky;"
-          >
-            <InputText
-              placeholder="New Folder"
-              v-model="newFolderName"
-              id="new_folder_name_input"
-              :class="{ 'p-invalid': newFolderNameBlank }"
-              aria-describedby="cannot_be_blank_error"
-              v-on:keypress.enter="createNewFolder()"
-              :disabled="deleteMode"
-            />
-            <Button
-              icon="pi pi-plus-circle"
-              class="p-button-warning"
-              @click="createNewFolder()"
-              :disabled="deleteMode"
-            />
-          </div>
-        </div>
-        <!-- blank folder name error msg -->
-        <small
-          v-if="newFolderNameBlank"
-          id="cannot_be_blank_error"
-          class="p-invalid"
-          >Folder name is required</small
-        >
-        <div style="position: relative;">
-          <ToggleButton
-            v-model="deleteMode"
-            id="deleteFolderBtn"
-            class="p-button-sm"
-            onIcon="pi pi-check"
-            offIcon="pi pi-trash"
-            @change="handleDeletionAction"
-          />
-        </div>
-      </div>
-    </template>
-    <!-- folder tree section -->
-    <template v-slot:content>
-      <ScrollPanel id="folder_list">
-        <Tree
-          :value="folders"
-          id="folder_tree"
-          v-model:selectionKeys="selectionKeys"
-          :selectionMode="deleteMode ? 'checkbox' : 'single'"
-          @node-select="handleSelectionAction"
-          @node-unselect="handleSelectionAction"
-        ></Tree>
-      </ScrollPanel>
-    </template>
-  </Card>
+    <Toast class="p-ml-3 p-align-start" position="bottom-left" />
+    <ConfirmDeletionDialog
+            :should-display="displayConfirmation"
+            :deletion-selections="deletionList"
+            @confirm-deletion="deleteSelected"
+            @cancel-deletion="cancelDeletion"
+    />
+    <Card class="p-shadow-3" id="folder_pane">
+        <template v-slot:header>
+            <div class="p-grid p-fluid">
+                <!-- new folder input form -->
+                <div class="p-col-12" style="position: relative;">
+                    <div
+                            id="new_folder_form"
+                            class="p-inputgroup"
+                            style="position: sticky;"
+                    >
+                        <InputText
+                                placeholder="New Folder"
+                                v-model="newFolderName"
+                                id="new_folder_name_input"
+                                :class="{ 'p-invalid': newFolderNameBlank }"
+                                aria-describedby="cannot_be_blank_error"
+                                v-on:keypress.enter="createNewFolder()"
+                                :disabled="deleteMode"
+                        />
+                        <Button
+                                icon="pi pi-plus-circle"
+                                class="p-button-warning"
+                                @click="createNewFolder()"
+                                :disabled="deleteMode"
+                        />
+                    </div>
+                </div>
+                <!-- blank folder name error msg -->
+                <small
+                        v-if="newFolderNameBlank"
+                        id="cannot_be_blank_error"
+                        class="p-invalid"
+                >Folder name is required</small
+                >
+                <div style="position: relative;">
+                    <ToggleButton
+                            v-model="deleteMode"
+                            id="deleteFolderBtn"
+                            class="p-button-sm"
+                            onIcon="pi pi-check"
+                            offIcon="pi pi-trash"
+                            @change="handleDeletionAction"
+                    />
+                </div>
+            </div>
+        </template>
+        <!-- folder tree section -->
+        <template v-slot:content>
+            <ScrollPanel id="folder_list">
+                <Tree
+                        :value="folders"
+                        id="folder_tree"
+                        v-model:selectionKeys="selectionKeys"
+                        :selectionMode="deleteMode ? 'checkbox' : 'single'"
+                        @node-select="handleSelectionAction"
+                        @node-unselect="handleSelectionAction"
+                ></Tree>
+            </ScrollPanel>
+        </template>
+    </Card>
 </template>
 
 <script>
@@ -89,6 +89,11 @@ export default {
   beforeMount() {
     this.$nextTick(() => {
       this.queryUserFolders();
+    });
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.appendNewSnippet();
     });
   },
   data() {
@@ -140,12 +145,25 @@ export default {
               children: []
             };
             this.folders.push(newFolder);
-            this.handleSelectionAction(newFolder); // preview new folder on creation
             this.notifyNewFolderSuccess();
             this.newFolderName = "";
             this.$v.$reset();
+            this.handleSelectionAction(newFolder); // preview new folder
           }
         });
+    },
+    appendNewSnippet() {
+      this.emitter.on("snippet-creation-success", payload => {
+        const snippet = payload;
+        this.folders.map(folder => {
+          const parentKey = snippet.folder.id;
+          if (folder.key === parentKey) {
+            folder.children.push(
+              this.getSnippetObject(snippet.id, snippet.title, parentKey)
+            );
+          }
+        });
+      });
     },
     notifyNewFolderSuccess() {
       this.$toast.add({
@@ -157,22 +175,36 @@ export default {
     },
     parseFolderQueryResponse() {
       return this.folderQueryResponse.map(folder => {
-        return {
-          key: folder["id"],
-          type: "folder",
-          label: folder["name"],
-          icon: "pi pi-fw pi-folder",
-          children: folder["snippets"]["edges"].map(snippet => {
-            return {
-              key: snippet["node"]["id"],
-              type: "snippet",
-              parentKey: folder["id"],
-              label: snippet["node"]["title"],
-              icon: "pi pi-fw pi-file"
-            };
+        return this.getFolderObject(
+          folder["id"],
+          folder["name"],
+          folder["snippets"]["edges"].map(snippet => {
+            return this.getSnippetObject(
+              snippet["node"]["id"],
+              snippet["node"]["title"],
+              folder["id"]
+            );
           })
-        };
+        );
       });
+    },
+    getFolderObject(key, label, children) {
+      return {
+        key: key,
+        type: "folder",
+        label: label,
+        children: children,
+        icon: "pi pi-fw pi-folder"
+      };
+    },
+    getSnippetObject(key, label, parentKey) {
+      return {
+        key: key,
+        type: "snippet",
+        parentKey: parentKey,
+        label: label,
+        icon: "pi pi-fw pi-file"
+      };
     },
     handleSelectionAction(node) {
       if (this.previewMode) {
@@ -323,95 +355,95 @@ export default {
 
 <style scoped>
 #folder_pane {
-  background-color: #272a36;
-  height: 90vh !important;
-  padding: 15px 15px 0 15px;
-  overflow-y: hidden;
-  border-radius: 5px;
+    background-color: #272a36;
+    height: 90vh !important;
+    padding: 15px 15px 0 15px;
+    overflow-y: hidden;
+    border-radius: 5px;
 }
 #new_folder_form {
-  padding-bottom: 0;
+    padding-bottom: 0;
 }
 #cannot_be_blank_error {
-  position: absolute;
-  margin-top: 55px;
-  padding-left: 10px;
+    position: absolute;
+    margin-top: 55px;
+    padding-left: 10px;
 }
 #new_folder_name_input {
-  border-width: 2px;
+    border-width: 2px;
 }
 #new_folder_name_input:focus {
-  outline: none;
-  box-shadow: none;
+    outline: none;
+    box-shadow: none;
 }
 #folder_tree {
-  background-color: inherit;
-  color: #d3d4d6;
-  border: none;
-  font-size: 14px;
-  padding: 0px;
-  outline: none !important;
-  box-shadow: none;
+    background-color: inherit;
+    color: #d3d4d6;
+    border: none;
+    font-size: 14px;
+    padding: 0px;
+    outline: none !important;
+    box-shadow: none;
 }
 #deleteFolderBtn {
-  height: 35px;
-  width: 35px;
-  position: absolute;
-  right: 10px;
-  top: 56px;
-  z-index: 100;
-  background-color: #272a36;
-  border-color: #6c757d;
+    height: 35px;
+    width: 35px;
+    position: absolute;
+    right: 10px;
+    top: 56px;
+    z-index: 100;
+    background-color: #272a36;
+    border-color: #6c757d;
 }
 #deleteFolderBtn:focus {
-  outline: none;
-  box-shadow: none;
+    outline: none;
+    box-shadow: none;
 }
 #folder_list {
-  width: 107%;
-  height: 75vh;
-  margin-top: 15px;
-  padding-right: 10px;
+    width: 107%;
+    height: 75vh;
+    margin-top: 15px;
+    padding-right: 10px;
 }
 </style>
 <style>
 #folder_list.p-scrollpanel .p-scrollpanel-bar {
-  width: 4px !important;
-  /*background-color: #3c4049 !important;*/
-  background-color: #6c757d !important;
-  opacity: 1;
-  transition: background-color 0.2s;
+    width: 4px !important;
+    /*background-color: #3c4049 !important;*/
+    background-color: #6c757d !important;
+    opacity: 1;
+    transition: background-color 0.2s;
 }
 .p-scrollpanel-bar:hover {
-  background-color: #6c757d !important;
-  /*background-color: #51545e !important;*/
+    background-color: #6c757d !important;
+    /*background-color: #51545e !important;*/
 }
 .p-treenode-content:hover {
-  /*background-color: #464d63 !important;*/
-  background-color: #323645 !important;
-  color: #ffffff !important;
+    /*background-color: #464d63 !important;*/
+    background-color: #323645 !important;
+    color: #ffffff !important;
 }
 .p-treenode-content:active {
-  /*background-color: #464d63 !important;*/
-  background-color: #61667b !important;
-  color: #ffffff !important;
+    /*background-color: #464d63 !important;*/
+    background-color: #61667b !important;
+    color: #ffffff !important;
 }
 .p-treenode-content:focus {
-  /*background-color: #464d63 !important;*/
-  background-color: #323645 !important;
-  color: #ffffff !important;
-  outline: none !important;
-  box-shadow: none !important;
+    /*background-color: #464d63 !important;*/
+    background-color: #323645 !important;
+    color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 .p-highlight {
-  /*background-color: #464d63 !important;*/
-  background-color: #323645 !important;
-  color: #ffffff !important;
+    /*background-color: #464d63 !important;*/
+    background-color: #323645 !important;
+    color: #ffffff !important;
 }
 .p-treenode-icon {
-  color: #6c757d !important;
+    color: #6c757d !important;
 }
 .p-toast-message-text {
-  text-align: left !important;
+    text-align: left !important;
 }
 </style>

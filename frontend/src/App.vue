@@ -6,7 +6,8 @@
     <div class="p-col">
       <Dashboard v-show="userSignedIn" />
     </div>
-    <router-view name="Index" />
+<!--    <router-view />-->
+<!--    <router-view name="Index" />-->
   </div>
 </template>
 <script>

@@ -15,9 +15,12 @@ const authMiddleware = setContext(() => ({
 
 const link = authMiddleware.concat(httpLink);
 
-const apolloClient = new ApolloClient({
-  link,
-  cache: new InMemoryCache()
-});
+const apolloClient = new ApolloClient(
+  {
+    link,
+    cache: new InMemoryCache()
+  },
+  { fetchPolicy: "cache-and-network" }
+);
 
 export default apolloClient;

@@ -203,17 +203,19 @@ export default {
     );
     return { createSnippet, createTags, createTaggedSnippet };
   },
-  mounted() {
+  beforeMount() {
     this.$nextTick(() => {
-      this.snippetForm.folder = this.autoSelectedFolder;
       // delay to initialize after api call
       setTimeout(() => {
+        this.snippetForm.folder = this.autoSelectedFolder;
         this.snippetForm.programmingLanguage = this.autoSelectedLanguage;
       }, 250);
     });
   },
   beforeUnmount() {
-    this.resetValidations();
+    this.$nextTick(() => {
+      this.resetValidations();
+    });
   },
   data() {
     return {
@@ -246,14 +248,18 @@ export default {
       if (success) {
         this.showSuccessMessage();
         this.navToSnippetPreview();
+        this.emitter.emit(
+          "snippet-creation-success",
+          this.snippetMutationResponse.snippet
+        );
       }
     }
   },
   methods: {
     submit() {
       this.$v.$touch();
-      console.log("submit clicked")
-      if (this.$v.$error) return;
+      console.log("submit clicked");
+      if (this.formError) return;
       this.createNewSnippet();
     },
     createNewSnippet() {
@@ -361,6 +367,14 @@ export default {
       return (
         Object.keys(this.snippetForm.programmingLanguage).length === 0 &&
         this.$v.snippetForm.programmingLanguage.$dirty
+      );
+    },
+    formError() {
+      return (
+        this.snippetTitleBlank ||
+        this.snippetContentBlank ||
+        this.snippetFolderNotSelected ||
+        this.snippetLanguageNotSelected
       );
     },
     folderOptions() {

@@ -14,6 +14,16 @@ import getSnippetById from "@/graphql/queries/getSnippetById.query.graphql";
 
 export default {
   name: "SnippetPreview",
+  data() {
+    return {
+      title: "",
+      programmingLanguage: {},
+      folder: {},
+      description: "",
+      dateCreated: "",
+      tags: []
+    };
+  },
   setup() {
     const route = useRoute();
     const { result } = useQuery(getSnippetById, () => ({
